@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    block head
+      //- Bloque por defecto para el head. Si no es sobrescrito, este contenido permanecerá.
+      meta(charset='UTF-8')
+  body
+    header
+      block header
+        //- Bloque por defecto para el header
+        h1 Página principal
+    main
+      block content
+        //- Aquí va el contenido principal
+        p Esto es el contenido por defecto si no se sobrescribe.
+    footer
+      block footer
+        //- Bloque por defecto para el footer
+        p &copy; 2024 Mi sitio web

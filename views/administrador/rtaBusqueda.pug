@@ -1,0 +1,17 @@
+extends layout
+
+block content
+    if(usuarios.length==0)
+        div(class=`alert alert-warning alert-dismissible fade show` role="alert")
+            strong resultado de la búsqueda : 0 registros.
+            button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+    else
+        ul.list-group.list-group-flush
+            each p in usuarios
+              li.list-group-item.list-group-item-action
+                a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/admins/paciente/${p.id}`)
+                    | #{p.nombre || ''} #{p.apellido || ''} - #{p.email || ''} - #{p.documento || ''}
+            - for(let i=usuarios.length; i<limit;i++)
+              li.list-group-item.list-group-item-action &nbsp;
+            if totalRegistros
+              include ../paginado.pug

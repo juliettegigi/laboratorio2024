@@ -1,0 +1,26 @@
+{
+  "name": "laboratorio2-final",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.0",
+    "google-auth-library": "^9.14.2",
+    "http-errors": "~1.6.3",
+    "method-override": "^3.0.0",
+    "morgan": "~1.9.1",
+    "mysql2": "^3.11.3",
+    "pug": "^3.0.3",
+    "sequelize": "^6.37.4",
+    "socket.io": "^4.8.0"
+  }
+}

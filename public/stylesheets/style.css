@@ -1,0 +1,211 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  
+}
+
+
+.btnVerMas {
+  background-color: #9db0c5; /* Color de fondo predeterminado */
+  color: white; /* Color de texto */
+  border: 1px solid transparent; /* Borde transparente */
+  width: auto;
+}
+
+/* Define estilos para el estado de enfoque (focus) */
+.btnVerMas:focus {
+  outline: none; /* Elimina el borde de enfoque predeterminado */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5); /* Añade sombra para indicar el enfoque */
+}
+
+/* Define estilos para el estado de enfoque visible (focus-visible) */
+.btnVerMas:focus-visible {
+  outline: 2px solid #0056b3; /* Añade borde azul oscuro para indicar el enfoque visible */
+}
+
+a{text-decoration: none;}
+
+.card:hover{
+  transform: scale(1.05); 
+  transition: transform 0.3s ease; 
+}
+
+.spanSearch{
+  display: flex;
+  padding: 5px;
+  align-items: center;
+  background-color: var(--bs-body-bg);
+  border-radius: var(--bs-border-radius);
+  background-clip: padding-box;
+  box-shadow: 0 0 5px 1px rgba(0,0,0,0.65); /* También puedes establecer un borde transparente */
+  transition: box-shadow .3s ease-in-out, box-shadow .3s ease-in-out;
+}
+
+
+.inputSearchDeterminacion{
+border:0;
+display: block;
+    width: 100%;
+    height: 2rem;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--bs-body-color);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--bs-body-bg);
+    
+   
+
+}
+
+.inputSearchDeterminacion:focus {
+  outline: none; /* Elimina el contorno del input al enfocarse */
+}
+.spanSearch:focus-within {
+  box-shadow:0 0 5px 1px #ffba8f; /* Cambia el borde del span al tener el foco en el input */
+}
+
+.invisible{
+  visibility: hidden;
+}
+
+details{
+  color:#ffba8f;
+  box-shadow:0 0 5px 1px #ffba8f;
+}
+
+.list-group-item{
+  width: 50%;
+}
+
+.liSearchDets{
+  margin:auto;
+  text-align:Center;
+  color:#444;
+  cursor: pointer;
+}
+
+.subForm{
+  width:100%;
+ /*  box-shadow: 0 0 5px 1px rgba(0,0,0,0.65);
+  border-radius: var(--bs-border-radius);
+  position: relative;
+  padding-bottom: 2rem; */
+}
+
+.button--cerrar{
+  position: absolute;
+  right: 0;
+  top:0.5rem;
+}
+.div--top{
+  position:relative;
+  height: 1rem;;
+}
+.item--valorRef{
+  padding: 5px;
+}
+
+.input__valorRef{
+/* display: inline-block; */
+width:3.7rem;
+
+}
+#nota{
+  width: auto;
+}
+
+text{
+  font-weight: bolder;
+}
+
+#itemF,
+#itemA,
+#itemM{
+   display: none; 
+}
+
+form:has(.subForm){
+  width:100%;
+}
+
+.btn--editYelimVR{
+    border:1px solid transparent;
+    padding:5px;
+}
+.btn--editYelimVR:hover{
+  border:1px solid #2e2c2c;
+  border-radius: 2px;
+}
+.btn--editYelimVR:focus{
+  border:1px solid #2e2c2c;
+  border-radius: 2px;
+}
+
+.col--valorRef{
+  display: flex;
+  align-items: center; 
+  
+}
+
+.valorRefEliminar{
+  color:#ca1717;
+  border:1px solid#ca1717 ; 
+  box-shadow: 1px 1px 0 0;
+}
+
+.inputSearchDiv{
+  position:relative;
+}
+
+.dataListValorRef{
+  width: 100%;
+  position:absolute;
+  top:2.75rem;
+  left:0;
+  z-index: 20;
+  border:1px solid #7f7f7f;
+  border-radius: 5px; 
+  background-color: #ffffff;
+  line-height: 2rem;
+}
+
+
+.input--resultadoBusqueda{
+border:none;
+width: 100%;
+user-select: none; /* Deshabilitar selección de texto */
+}
+.input--resultadoBusqueda:focus, .input--resultadoBusqueda:hover {
+  border:none;
+  outline: none;
+  user-select: none;
+  box-shadow: 0px 0px 2px #f8aa79;
+  background-color: #ffba8f22; /* Cambia el color de fondo */
+}
+
+.input--resultadoBusqueda::selection {
+  background: transparent; /* Otros navegadores */
+}
+
+ul{
+  list-style-type: none;
+}
+
+
+.input__valorRef--nota{
+  width:6rem;
+}
+
+.btn{width:100%}
+
+.dropdown-item{
+  padding: 4px 4px;
+}
+
+.btnNuevoPaciente{
+  width:fit-content
+}

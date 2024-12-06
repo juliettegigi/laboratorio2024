@@ -1,0 +1,26 @@
+.navbar-nav
+  .btn-group
+    button(class="btn btn-secondary dropdown-toggle " type="button" data-bs-toggle="dropdown" aria-expanded="false") 
+      i(class="bi bi-list")
+    ul(class="dropdown-menu dropdown-menu-end")
+      li
+       a(class="dropdown-item" href="#") Menu item
+      li
+       a(class="dropdown-item" href="#") Menu item
+      li
+       a(class="dropdown-item" id="salir" href="salir") Cerrar sesión   
+script(src="https://accounts.google.com/gsi/client")
+script.
+   document.addEventListener('DOMContentLoaded', function() {
+    var userEmail = '#{email}';
+    document.getElementById('salir').addEventListener('click',(e)=>{
+         google.accounts.id.initialize({
+      client_id: '961283639807-dbu75hn2c1eckvf47ho7lltkhi7an950.apps.googleusercontent.com',
+    });
+           google.accounts.id.disableAutoSelect(); 
+           google.accounts.id.revoke(userEmail, done=>{
+         
+      })
+         
+      })
+   });
