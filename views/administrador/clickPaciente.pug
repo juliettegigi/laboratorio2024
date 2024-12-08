@@ -1,45 +1,98 @@
 extends layout
-
+block aside 
+    include ./menuLateral.pug
 block content
-    div(id="divLista")
-        ul(class="list-group list-group-flush")
-            li(class="list-group-item")= `Nombre: `+usuario.nombre  
-            li(class="list-group-item") Apellido: 
-                span= usuario.apellido 
-            li(class="list-group-item") Documento:
-                span= usuario.documento
-            li(class="list-group-item") Email:
-                span= usuario.email
-            li(class="list-group-item") Telefono:
-                span= telefonos[0].numero
-            li(class="list-group-item") Fecha de nacimiento:
-                span= paciente.nacimiento
-            li(class="list-group-item")= "Embarazada: "
-                span= paciente.embarazada
-            li(class="list-group-item") Provincia: 
-                span= paciente.provincia
-            li(class="list-group-item") Localidad: 
-                span= paciente.localidad
-            li(class="list-group-item") Dirección:
-                span= paciente.direccion
-            li(class="list-group-item") Sexo:
-                span= paciente.sexo
+    ul(class="list-group list-group-flush")
+        li(class="list-group-item")= `Nombre: `+usuario.nombre  
+        li(class="list-group-item") Apellido: 
+            span= usuario.apellido 
+        li(class="list-group-item") Documento:
+            span= usuario.documento
+        li(class="list-group-item") Email:
+            span= usuario.email
+        li(class="list-group-item") Telefono:
+            span= telefonos[0].numero
+        li(class="list-group-item") Fecha de nacimiento:
+            span= paciente.nacimiento
+        li(class="list-group-item")= "Embarazada: "
+            span= paciente.embarazada
+        li(class="list-group-item") Provincia: 
+            span= paciente.provincia
+        li(class="list-group-item") Localidad: 
+            span= paciente.localidad
+        li(class="list-group-item") Dirección:
+            span= paciente.direccion
+        li(class="list-group-item") Sexo:
+            span= paciente.sexo
+        li(class="list-group-item")= `Nombre: `+usuario.nombre  
+        li(class="list-group-item") Apellido: 
+            span= usuario.apellido 
+        li(class="list-group-item") Documento:
+            span= usuario.documento
+        li(class="list-group-item") Email:
+            span= usuario.email
+        li(class="list-group-item") Telefono:
+            span= telefonos[0].numero
+        li(class="list-group-item") Fecha de nacimiento:
+            span= paciente.nacimiento
+        li(class="list-group-item")= "Embarazada: "
+            span= paciente.embarazada
+        li(class="list-group-item") Provincia: 
+            span= paciente.provincia
+        li(class="list-group-item") Localidad: 
+            span= paciente.localidad
+        li(class="list-group-item") Dirección:
+            span= paciente.direccion
+        li(class="list-group-item") Sexo:
+            span= paciente.sexo
+        li(class="list-group-item")= `Nombre: `+usuario.nombre  
+        li(class="list-group-item") Apellido: 
+            span= usuario.apellido 
+        li(class="list-group-item") Documento:
+            span= usuario.documento
+        li(class="list-group-item") Email:
+            span= usuario.email
+        li(class="list-group-item") Telefono:
+            span= telefonos[0].numero
+        li(class="list-group-item") Fecha de nacimiento:
+            span= paciente.nacimiento
+        li(class="list-group-item")= "Embarazada: "
+            span= paciente.embarazada
+        li(class="list-group-item") Provincia: 
+            span= paciente.provincia
+        li(class="list-group-item") Localidad: 
+            span= paciente.localidad
+        li(class="list-group-item") Dirección:
+            span= paciente.direccion
+        li(class="list-group-item") Sexo:
+            span= paciente.sexo    
+    //    
         div(class="d-flex  w-50 justify-content-end")
          button(type="button" class="btn btn-outline-primary w-auto" id='btnEditar') Editar
          button(type="button" class="btn btn-outline-primary w-auto mx-3") Cargar orden
+    - const isHidden=true     
     script. 
         const btnEditar=document.getElementById('btnEditar');
-        const divLista=document.getElementById('divLista');
-        
+        const btnInicio=document.getElementById('btnInicio');
+        const divContent=document.getElementById('divContent');
         //const form=document.getElementById('form')
         btnEditar.addEventListener('click',(event)=>{
-            console.log("okkk")
+           // const divForm=document.getElementById('divForm');
+            //divContent.hidden=true
+            //divForm.removeAttribute('hidden');
+            //formu.removeAttribute('hidden');
+            let varPug=#{isHidden}
+            varPug=false 
+            #{isHidden}=false
+            console.log("isHidden ",varPug)
+        })
+        btnInicio.addEventListener('click',(event)=>{
             const divForm=document.getElementById('divForm');
-            divLista.hidden=true
-            divForm.removeAttribute('hidden');
-            formu.removeAttribute('hidden');
+            divContent.hidden=false 
+            divForm.hidden=true
+            //formu.hidden=true
         })
     - const edit=true  
-    - const isHidden=true      
+          
     include ./soloForm.pug
     

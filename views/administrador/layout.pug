@@ -9,36 +9,20 @@ html
       meta(charset='UTF-8')
       meta(name="viewport" content="width=device-width, initial-scale=1.0")
       link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous")
-      link(rel='stylesheet', href='/stylesheets/style.css')
+      link(rel='stylesheet', href='/stylesheets/administrador.css')
       script(src="https://code.jquery.com/jquery-3.7.0.js")
       link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css")
       script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous")
       script(src="/socket.io/socket.io.js")
-  body
-    - const PAGEScantidad=3
-    header
+  body 
+    header(class="position-fixed z-2" style="top: 0; background-color: #f0f0f0;width:100%")
       block header
-        //- Bloque por defecto para el header
-            .container.shadow-lg.p-3.mb-5.bg-body-tertiary.rounded
-        nav(class="navbar navbar-expand-lg bg-body-tertiary")
-            a(class="navbar-brand position-relative top-0 start-0" href="/admins") Inicio
-            button(class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
-              span(class="navbar-toggler-icon")
-            .collapse.navbar-collapse#navbarSupportedContent 
-              form(class="d-flex mx-auto w-50" role="search" action=`/admins/busqueda/`)
-                span.spanSearch.w-100  
-                  i(class="bi bi-search")
-                  input(class="me-2 inputSearchDeterminacion" type="search" placeholder="apellido/email/DNI a buscar" aria-label="Search" autofocus name="inputSearch" value=inputSearch?inputSearch:'' onfocus="this.select()" autocomplete="off")
-                  //- para la query
-                  input(type="hidden" name="group" value=1)
-                  input(type="hidden" name="page" value=1)
-                  a(href="/admins/form?edit=false" class="btn btn-secondary btnNuevoPaciente "  role="button" type="button" ) Registrar 
-              ul.navbar-nav.mb-2.mb-lg-0
-                li.nav-item    
-                  include ../menu.pug
+        include navTop
     
-    main
-      block content
+    main(class="d-flex  position-relative" )
+      block aside
+      div(id="divContent" class="content col-12 col-md-6 col-lg-4 z-1" style="margin-top:3rem;margin-left: 200px;padding: 20px;width: calc(100% - 200px);" )
+        block content
         //- Aquí va el contenido principal
         
     footer
