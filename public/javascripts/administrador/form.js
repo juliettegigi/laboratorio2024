@@ -6,7 +6,7 @@ const embz=document.getElementsByName('embarazada')[0];
 
 
 const f=(e)=> {
-    embz.disabled=(e.target.value=='Hombre')
+    embz.disabled=(e.target.value=='Masculino')
 }
 
 radioHombre.addEventListener('change',f)

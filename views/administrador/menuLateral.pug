@@ -1,11 +1,15 @@
 aside(class="d-flex position-fixed vh-100 " style="top: 3rem;")
  nav(class="nav flex-column bg-light p-3" style="width: 200px;")
-  li(class="nav-item")
-   a(class="nav-link" id="btnInicio") Inicio
-  li(class="nav-item")
-   a(class="nav-link" id="btnEditar") Editar
-  li(class="nav-item")
-   a(class="nav-link") Cargar orden
+  ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
+   li(class="nav-item")
+    a(class="nav-link" id="btnInicio")= `Información de ${usuario.apellido}`
+   li(class="nav-item")
+    a(class="nav-link" id="btnEditar") Editar
+   li(class="nav-item")
+    a(class="nav-link" id="btnCargarOrden") Cargar orden
+   li(class="nav-item")
+    a(class="nav-link" id="btnOrdenesNoInformadas") Ordenes no informadas
+    
   
         
       

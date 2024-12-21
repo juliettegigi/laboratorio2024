@@ -1,6 +1,6 @@
 const axios = require('axios');
-
-const { Usuario,Paciente,sequelize,UsuarioRol,Telefono } = require('../models');
+const { Op } = require('sequelize');
+const { MuestraRequerida,Usuario,Paciente,sequelize,UsuarioRol,Telefono,Medico,Orden,OrdenExamen,OrdenConjuntoDet,Determinacion,DeterminacionDet } = require('../models');
 
 
 
@@ -46,11 +46,18 @@ const getForm=async(req,res)=>{
     } catch (error) {
       console.error('Error en api provincias:', error.message);
       return res.render('administrador/form')
-    };
+    };    
+}
 
 
+const getFormOrden=async(req,res)=>{
 
-    
+  try {
+    return res.render('administrador/cargarOrden',{medicos:await Medico.findAll()})
+  } catch (error) {
+    console.error('Error ',error.message);
+    return res.render('administrador/index')
+  };    
 }
 
 
@@ -60,8 +67,50 @@ const getPaciente=async(req,res)=>{
     
     const usuario = await Usuario.findByPk(usuarioId,{ attributes: { exclude: ['password'] },});
     if(usuario){
-      const paciente= await Paciente.findOne({ where: { usuarioId:usuario.id } });
-      return res.render('administrador/clickPaciente',{usuario,paciente,telefonos:await usuario.getTelefonos()})
+      console.log("ORDENES**********************************************")
+      //busco al paciente y le incluyo todas sus órdenes
+      const paciente= await Paciente.findOne({ where: { UsuarioId:usuario.id },
+                                               include:{model: Orden,
+                                                        where: {
+                                                          EstadoId: { [Op.ne]: 3 }, // Filtra órdenes donde estado sea diferente de 3
+                                                        },
+                                                        required: false
+                                                      }
+                                            });
+    //console.log( paciente.Ordens)
+     const  ordenId=paciente.Ordens.length>0? await paciente.Ordens[0].id:null;
+
+    const arr=[]; 
+     for(let orden of paciente.Ordens){
+      const [diagnostico,medico,estado]=await Promise.all([orden.getDiagnostico(),
+                                                            orden.getMedico(),
+                                                            orden.getEstado()]); 
+        arr.push({
+          diagnostico,
+          medico,
+          estado,
+          isPresuntivo:orden.isPresuntivo,
+          fecha:orden.fecha
+                   
+        })
+     }
+
+     const arr2=[];
+
+     for(let muestra of await MuestraRequerida.findAll({where:{OrdenId:ordenId}})){
+        const m=await muestra.getMuestra();
+        arr2.push({muestra:m.nombre,isPresentada:muestra.isPresentada})
+     }
+
+    
+     
+      return res.render('administrador/clickPaciente',{usuario,
+                                                       paciente,
+                                                       telefonos:await usuario.getTelefonos(),
+                                                       ordenId,
+                                                       ordenes:arr,
+                                                       muestrasRequeridas:arr2,
+                                                       medicos:await Medico.findAll()})
     }
   } catch (error) {
     console.error(error);
@@ -143,12 +192,105 @@ const crearPaciente=async(req,res)=>{
 }
 
 
+/*
+ {
+{
+  medico: '3-medico2',
+  diagnostico: 'Z08-Examen de seguimiento consecutivo al tratamiento por tumor maligno',
+  examen: '660876-Triglicéridos',
+  examenes: [ '661035-Colesterol HDL', '660876-Triglicéridos' ],
+  medicoId: '3',
+  diagnosticoId: '6',
+  examenId: [ '2', '4' ],
+   isPresuntivo: 'false',  o 'true'
+}
+}
+ */
+
+const crearOrdenExamen=async(determinacionId,orden,transaction)=>{
+
+    const determinacion=await Determinacion.findByPk(determinacionId);
+    const existe = await determinacion.getOrdenExamens({where: {OrdenId: orden.id },transaction});
+    if(existe.length===0){
+      const [_,muestra]=await Promise.all([determinacion.createOrdenExamen({OrdenId:orden.id},{ transaction }),
+                                           determinacion.getMuestra()
+      ])
+
+      //const existe = muestrasRequeridas.some(m => m.nombre === muestra.nombre);
+     // if (!existe)   muestrasRequeridas.push(muestra) 
+     const existe=await MuestraRequerida.findOne({where:{MuestraId:muestra.id}, transaction })
+     if(!existe)
+      await MuestraRequerida.create({OrdenId:orden.id,MuestraId:muestra.id,isPresentada:0},{transaction})
+    }
+   
+}
+
+const crearOrden=async(req,res)=>{
+  console.log(req.body)
+  const transaction = await sequelize.transaction();
+    try {
+
+      const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,fecha}=req.body
+      const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
+      const examenesArr=[];
+    const orden=await Orden.create({PacienteId,MedicoId,DiagnosticoId,isPresuntivo:isPresuntivo==='true'?true:false,fecha},
+                                   { transaction }
+    )
+   //examenesId: [ '1-conjuntoDets', '2-determinaciones' ]
+   // examenesId: '1-determinaciones'
+          for(let examen of examenesId){
+                  const [id,tabla]=examen.split('-');
+                  if(tabla==='determinaciones'){
+                    await crearOrdenExamen(id, orden,transaction)
+
+                  }
+                  else { 
+                    const [_,determinacionesDelConjunto]=await Promise.all([orden.createOrdenConjuntoDet({ConjuntoDetId:id},{transaction}),
+                                                                           DeterminacionDet.findAll({where: {conjuntoDetId:id}})
+                                                                         ]) 
+                    for(let registro of determinacionesDelConjunto){
+                      await crearOrdenExamen(registro.DeterminacionId, orden,transaction)                     
+                    }                                                     
+                  }
+                
+          }
+
+     // buscar las muestras requeridas
+     console.log("MUESTRAS REQUERIDAS *****************************************************")
+     console.log("orden.id: ",orden.id)
+    const muestrasRequeridas= await MuestraRequerida.findAll({where:{OrdenId:orden.id, isPresentada:0}, transaction})
+    if(muestrasRequeridas.length!=0){
+       orden.EstadoId=2;  // esperando toma de muestra
+    }
+    else orden.EstadoId=1; //analítica
+    await orden.save({ transaction });
+
+     //TODO: mostrar las muestras requeridas,
+     //TODO: devolver los examenes q el laboratorio no realiza,
+     //TODO: decir en que fecha van a estar todos los resultados ,
+
+      await transaction.commit();  
+      return res.render('administrador/index')
+
+    } catch (error) {
+      console.log(error)
+      await transaction.rollback();
+      return res.render('administrador/index')
+    };
+
+
+
+    
+}
+
 
 module.exports={
     getBusqueda,
     getInicio,
     getForm,
+    getFormOrden,
     getPaciente,
     crearPaciente,
+    crearOrden,
     editarPaciente
 }

@@ -3,23 +3,24 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class DeterminacionDet extends Model {
+  class MuestraRequerida extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      DeterminacionDet.belongsTo(models.Determinacion)
-      DeterminacionDet.belongsTo(models.ConjuntoDet)
-      
+      MuestraRequerida.belongsTo(models.Orden);
+      MuestraRequerida.belongsTo(models.Muestra)
     }
   }
-  DeterminacionDet.init({
+  MuestraRequerida.init({
+    isPresentada:DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'DeterminacionDet',
-    tableName:'DeterminacionDets'
+    modelName: 'MuestraRequerida',
+    tableName:'muestraRequeridas',
+    paranoid:true
   });
-  return DeterminacionDet;
+  return MuestraRequerida;
 };

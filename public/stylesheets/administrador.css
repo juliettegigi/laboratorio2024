@@ -22,3 +22,30 @@ body{
     background-color: #e9ecef; /* Fondo ligero para resaltar */
     border-radius: 5px; /* Opcional, para darle un borde redondeado */
   }
+
+  .oculto {
+    display: none !important;
+}
+
+.ocultoHijo {
+  display:inherit;
+}
+
+.hover {
+  background-color: #007BFF; /* Color de fondo al estar en hover */
+  color: white;             /* Color del texto */
+ 
+}
+
+
+.liInputDataList{
+  pointer-events: auto;
+}
+.liInputDataList:hover{
+  background-color: #007BFF; /* Color de fondo al estar en hover */
+  color: white;             /* Color del texto */
+}
+
+.contenedorLista{
+  background-color: #FFFFFF;
+}

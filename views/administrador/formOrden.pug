@@ -1,0 +1,64 @@
+.container.d-flex.justify-content-center(id="divFormOrden" class=`${edit?"oculto":""}`)
+ form(name="formOrden" action=editar?`/admins/orden?_method=put`:`/admins/orden/` method="post")
+     input(type="hidden" name="PacienteId" value=paciente.id)
+     .row.mt-4.justify-content-center
+      .col-md-auto.d-flex.align-items-center
+      h1.mb-5 Registro de orden
+
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center
+        label(for="fecha") Fecha:
+       .col-md-auto
+        input#fecha.form-control(type="date" name="fecha" value=`${new Date().toISOString().split('T')[0]}` required)
+     
+     .row.mt-4.justify-content-center
+      .col-md-auto.d-flex.align-items-center
+       label(for="medico") Médico:
+      .col-md-auto.position-relative
+        input#medico.form-control( name="medico",autocomplete="off", placeholder="Type to search...",required)
+        div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+         ul(id="listaMedicos")
+
+
+     .row.mt-4.justify-content-center
+      .col-md-auto.d-flex.align-items-center
+       label(for="diagnostico") Diagnóstico:
+      .col-md-auto.position-relative
+        input#diagnostico.form-control(name="diagnostico" autocomplete="off", placeholder="Type to search...",required)
+        div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+         ul(id="listaDiagnosticos")
+      .col-md-auto
+        div.form-check
+         input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault1" value="true" checked)
+         label(class="form-check-label" for="flexRadioDefault1") Presuntivo 
+        div.form-check
+         input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault2" value="false")
+         label(class="form-check-label" for="flexRadioDefault2") Confirmado
+
+     .row.mt-4.justify-content-center
+      .col-md-auto.d-flex.align-items-center
+       label(for="examen") Exámenes:
+      .col-md-auto.position-relative
+        input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required)
+        div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+         ul(id="listaExamenes") 
+       
+      
+     .row.mt-4.justify-content-center
+      .col-md-auto.d-flex.align-items-center 
+       div 
+          ul(id="listaExamenesSeleccionados")
+      
+     .row.mt-5.justify-content-center 
+      .col-md-auto.d-flex.justify-content-center 
+       button.btn.btn-secondary Enviar
+
+
+script( type="module" src='/javascripts/administrador/formOrden.js')
+
+
+
+
+
+
+ 

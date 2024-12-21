@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       ConjuntoDet.hasMany(models.DeterminacionDet);
+      ConjuntoDet.hasMany(models. OrdenConjuntoDet);
 
       ConjuntoDet.belongsToMany(models.Determinacion,{through:'DeterminacionDet'})
       
@@ -19,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   ConjuntoDet.init({
     codigo:DataTypes.STRING,
-    nombre: DataTypes.STRING
+    nombre: DataTypes.STRING,
+    tiempoProcesamiento:DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'ConjuntoDet',

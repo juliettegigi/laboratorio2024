@@ -2,97 +2,73 @@ extends layout
 block aside 
     include ./menuLateral.pug
 block content
-    ul(class="list-group list-group-flush")
-        li(class="list-group-item")= `Nombre: `+usuario.nombre  
-        li(class="list-group-item") Apellido: 
-            span= usuario.apellido 
-        li(class="list-group-item") Documento:
-            span= usuario.documento
-        li(class="list-group-item") Email:
-            span= usuario.email
-        li(class="list-group-item") Telefono:
-            span= telefonos[0].numero
-        li(class="list-group-item") Fecha de nacimiento:
-            span= paciente.nacimiento
-        li(class="list-group-item")= "Embarazada: "
-            span= paciente.embarazada
-        li(class="list-group-item") Provincia: 
-            span= paciente.provincia
-        li(class="list-group-item") Localidad: 
-            span= paciente.localidad
-        li(class="list-group-item") Dirección:
-            span= paciente.direccion
-        li(class="list-group-item") Sexo:
-            span= paciente.sexo
-        li(class="list-group-item")= `Nombre: `+usuario.nombre  
-        li(class="list-group-item") Apellido: 
-            span= usuario.apellido 
-        li(class="list-group-item") Documento:
-            span= usuario.documento
-        li(class="list-group-item") Email:
-            span= usuario.email
-        li(class="list-group-item") Telefono:
-            span= telefonos[0].numero
-        li(class="list-group-item") Fecha de nacimiento:
-            span= paciente.nacimiento
-        li(class="list-group-item")= "Embarazada: "
-            span= paciente.embarazada
-        li(class="list-group-item") Provincia: 
-            span= paciente.provincia
-        li(class="list-group-item") Localidad: 
-            span= paciente.localidad
-        li(class="list-group-item") Dirección:
-            span= paciente.direccion
-        li(class="list-group-item") Sexo:
-            span= paciente.sexo
-        li(class="list-group-item")= `Nombre: `+usuario.nombre  
-        li(class="list-group-item") Apellido: 
-            span= usuario.apellido 
-        li(class="list-group-item") Documento:
-            span= usuario.documento
-        li(class="list-group-item") Email:
-            span= usuario.email
-        li(class="list-group-item") Telefono:
-            span= telefonos[0].numero
-        li(class="list-group-item") Fecha de nacimiento:
-            span= paciente.nacimiento
-        li(class="list-group-item")= "Embarazada: "
-            span= paciente.embarazada
-        li(class="list-group-item") Provincia: 
-            span= paciente.provincia
-        li(class="list-group-item") Localidad: 
-            span= paciente.localidad
-        li(class="list-group-item") Dirección:
-            span= paciente.direccion
-        li(class="list-group-item") Sexo:
-            span= paciente.sexo    
-    //    
-        div(class="d-flex  w-50 justify-content-end")
-         button(type="button" class="btn btn-outline-primary w-auto" id='btnEditar') Editar
-         button(type="button" class="btn btn-outline-primary w-auto mx-3") Cargar orden
-    - const isHidden=true     
-    script. 
-        const btnEditar=document.getElementById('btnEditar');
-        const btnInicio=document.getElementById('btnInicio');
-        const divContent=document.getElementById('divContent');
-        //const form=document.getElementById('form')
-        btnEditar.addEventListener('click',(event)=>{
-           // const divForm=document.getElementById('divForm');
-            //divContent.hidden=true
-            //divForm.removeAttribute('hidden');
-            //formu.removeAttribute('hidden');
-            let varPug=#{isHidden}
-            varPug=false 
-            #{isHidden}=false
-            console.log("isHidden ",varPug)
-        })
-        btnInicio.addEventListener('click',(event)=>{
-            const divForm=document.getElementById('divForm');
-            divContent.hidden=false 
-            divForm.hidden=true
-            //formu.hidden=true
-        })
+    div(id="divLista")
+     ul(class="list-group list-group-flush")
+         li(class="list-group-item")= `Nombre: `+usuario.nombre  
+         li(class="list-group-item") Apellido: 
+             span= usuario.apellido 
+         li(class="list-group-item") Documento:
+             span= usuario.documento
+         li(class="list-group-item") Email:
+             span= usuario.email
+         li(class="list-group-item") Telefono:
+             span= telefonos[0].numero
+         li(class="list-group-item") Fecha de nacimiento:
+             span= paciente.nacimiento
+         li(class="list-group-item")= "Embarazada: "
+             span= paciente.embarazada
+         li(class="list-group-item") Provincia: 
+             span= paciente.provincia
+         li(class="list-group-item") Localidad: 
+             span= paciente.localidad
+         li(class="list-group-item") Dirección:
+             span= paciente.direccion
+         li(class="list-group-item") Sexo:
+             span= paciente.sexo
     - const edit=true  
           
     include ./soloForm.pug
+    include ./formOrden.pug      
+    include ./ordenesNoInformadas.pug      
+    //    
+        div(class="d-flex  w-50 justify-content-end")
+         button(type="button" class="btn btn-outline-primary w-auto" id='btnEditar') Editar
+         button(type="button" class="btn btn-outline-primary w-auto mx-3") Cargar orden    
+    script. 
+        const btnEditar=document.getElementById('btnEditar');
+        const btnInicio=document.getElementById('btnInicio');
+        const btnCargarOrden=document.getElementById('btnCargarOrden');
+        const btnOrdenesNoInformadas=document.getElementById('btnOrdenesNoInformadas');
+        const divLista=document.getElementById('divLista');
+        const divFormOrden=document.getElementById('divFormOrden');
+        const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
+        let active=divLista;
+        let newActive=null;
+        const activar=(div)=>{
+            active.classList.add("oculto")
+            active=div
+            active.classList.remove('oculto');
+        }
+
+        //const form=document.getElementById('form')
+        btnEditar.addEventListener('click',(event)=>{
+           const divForm=document.getElementById('divForm');
+            activar(divForm)
+        })
+        btnInicio.addEventListener('click',(event)=>{
+            const divForm=document.getElementById('divForm');
+            activar(divLista)
+        })
+         btnCargarOrden.addEventListener('click',(event)=>{
+            
+            activar(divFormOrden)
+        })    
+         btnOrdenesNoInformadas.addEventListener('click',(event)=>{
+            
+            activar(divOrdenesNoInformadas)
+        })    
+        function flipCard(button) {
+          const card = button.closest('.card-flip');
+           card.classList.toggle('flipped');
+         }
     

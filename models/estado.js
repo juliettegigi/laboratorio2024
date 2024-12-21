@@ -18,6 +18,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Estado',
+    tableName: 'estados',
+    timestamps: false
   });
   return Estado;
 };

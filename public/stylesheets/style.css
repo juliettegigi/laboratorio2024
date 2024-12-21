@@ -209,3 +209,8 @@ ul{
 .btnNuevoPaciente{
   width:fit-content
 }
+
+.not-presented {
+  color: red;
+  font-weight: bold;
+}

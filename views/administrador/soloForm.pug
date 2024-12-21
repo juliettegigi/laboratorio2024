@@ -1,151 +1,142 @@
-if(!isHidden)
-    .container.d-flex.justify-content-center(id="divForm")
-        form(action=edit?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
 
-            .row.text-center
-                h1(class="h3 mb-3 fw-normal")
-                        | Datos del paciente
-                .col
-                    .form-floating
-                        input(type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" value=usuario?usuario.nombre:'')
-                        label(for="nombre") Nombre
-                .col        
-                    .form-floating
-                        input(type="text" class="form-control" id="apellido" placeholder="Apellido" name="apellido" value=usuario?usuario.apellido:'')
-                        label(for="apellido") Apellido
-            .row 
-                .col           
-                    .form-floating
-                        input(type="text" class="form-control" id="dni" placeholder="11111111" name="documento"  value=usuario?usuario.documento:'')
-                        label(for="dni") Dni
-                        // - al final tengo como manejar los errores del backend
-                .col        
-                    .form-floating
-                        input(type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email" value=usuario?usuario.email:'' )
-                        label(for="floatingInput") Email
-                        .invalid-feedback Por favor, ingresa un correo electrónico válido.
-            .row                      
-                .col        
-                    .form-floating
-                        input(type="tel" class="form-control" id="telefono"  name="telefono"  value=telefonos && telefonos.length>0?telefonos[0].numero:'')
-                        label(for="telefono") Teléfono                
-            .row                      
-                .col        
-                    .form-floating
-                        input(type="date" class="form-control" id="nacimiento"  name="nacimiento" value=paciente?paciente.nacimiento:'' )
-                        label(for="nacimiento") Fecha de nacimiento                
-            .row 
-                .col 
-                    p Sexo:
-                    .form-check
-                        label(class="form-check-label") Masculino 
-                            input(type="radio" name="sexo" value="Masculino"  class="form-check-input" 
-                                  checked=paciente? (paciente.sexo==='Hombre'?true:false)
-                                                  :true
-                                  )
-                    .form-check
-                        label(class="form-check-label")  Femenino 
-                            input( type="radio" name="sexo" value="Femenino" class="form-check-input" checked=paciente && paciente.sexo==='Femenino'?true:false)
-                    .form-check
-                        label(class="form-check-label")  Otro   
-                        input( type="radio" name="sexo" value="Otro" class="form-check-input" checked=paciente && paciente.sexo==='Otro'?true:false)
-                    .form-check
-                        label(class="form-check-label")  Prefiero no decirlo   
-                        input( type="radio" name="sexo" value="Prefiero no decirlo" class="form-check-input" checked=paciente && paciente.sexo==='Prefiero no decirlo'?true:false)
-                    .form-check.form-switch
-                      label(class="form-check-label") Embarazada
-                        input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
-                              disabled=(paciente && paciente.sexo==='Hombre')?true:false
-                              checked=(paciente  && paciente.embarazada)?true:false
+.container.d-flex.justify-content-center(id="divForm" class=`${edit?"oculto":""}`)
+    form(action=edit?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+        .row.text-center
+            h1(class="h3 mb-3 fw-normal")
+                    | Datos del paciente
+            .col
+                .form-floating
+                    input(type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" value=usuario?usuario.nombre:'')
+                    label(for="nombre") Nombre
+            .col        
+                .form-floating
+                    input(type="text" class="form-control" id="apellido" placeholder="Apellido" name="apellido" value=usuario?usuario.apellido:'')
+                    label(for="apellido") Apellido
+        .row 
+            .col           
+                .form-floating
+                    input(type="text" class="form-control" id="dni" placeholder="11111111" name="documento"  value=usuario?usuario.documento:'')
+                    label(for="dni") Dni
+                    // - al final tengo como manejar los errores del backend
+            .col        
+                .form-floating
+                    input(type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email" value=usuario?usuario.email:'' )
+                    label(for="floatingInput") Email
+                    .invalid-feedback Por favor, ingresa un correo electrónico válido.
+        .row                      
+            .col        
+                .form-floating
+                    input(type="tel" class="form-control" id="telefono"  name="telefono"  value=telefonos && telefonos.length>0?telefonos[0].numero:'')
+                    label(for="telefono") Teléfono                
+        .row                      
+            .col        
+                .form-floating
+                    input(type="date" class="form-control" id="nacimiento"  name="nacimiento" value=paciente?paciente.nacimiento:'' )
+                    label(for="nacimiento") Fecha de nacimiento                
+        .row 
+            .col 
+                p Sexo:
+                .form-check
+                    label(class="form-check-label") Masculino 
+                        input(type="radio" name="sexo" value="Masculino"  class="form-check-input" 
+                              checked=paciente? (paciente.sexo==='Hombre'?true:false)
+                                              :true
                               )
-            .row
-                .col 
-                    .form-floating
-                        input#provincia.form-control(list="provincias", 
-                                                     name="provincia", 
-                                                     placeholder="Type to search..." 
-                                                     value=paciente?paciente.provincia:'' 
-                                                     autocomplete="off")
-                        label(for="provincia") Provincia
-                        datalist(id="provincias") 
-                          if provincias
-                            each p in provincias
-                              option(value=p.nombre)
-            .row
-                .col 
-                    .form-floating
-                        input#departamento.form-control(list="localidades", name="localidad", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.localidad:'')
-                        label(for="localidades") Localidad
-                        datalist(id="localidades") 
-            .row
-                .col 
-                    .form-floating
-                        input#direccion.form-control(list="calles", name="direccion", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.direccion:'')
-                        label(for="calles") Dirección
-                        datalist(id="calles")                                                          
-            .row   
-                .col         
-                    button(class="btn btn-secondary w-100 py-2" type="submit") 
-                        if edit
-                            | Guardar cambios
-                        else
-                            | Registrar
-        script(src="/javascripts/administrador/form.js")              
-        script. 
-            (async()=>{
-                const inputProvincia=document.getElementById('provincia')
-                // cambia el value del input de provincia ==>
-                inputProvincia.addEventListener('change', async(e)=> {
-                  const provinciaSeleccionada = inputProvincia.value;
-                  const opciones = document.getElementById('provincias').options;
-                  const esOpcionValida = Array.from(opciones).some(function(opcion) {
-                       return opcion.value === provinciaSeleccionada;
-                  }); 
-
-            if (esOpcionValida) {
-                const dataListLocalidades=document.getElementById('localidades');
-                dataListLocalidades.innerHTML="";
-                let rta=await fetch(`https://apis.datos.gob.ar/georef/api/localidades?provincia=${provinciaSeleccionada}&campos=nombre&max=1000`);
-                let data=await rta.json();
-                const localidades=data.localidades;
-                for(let localidad of localidades){
-                    const opc=document.createElement('option');
-                    opc.value=localidad.nombre;
-                    dataListLocalidades.appendChild(opc);
-
-                }
-                const dataListCalles=document.getElementById('calles');
-                    dataListCalles.innerHTML="";
-                    rta=await fetch(`https://apis.datos.gob.ar/georef/api/calles?provincia=${inputProvincia.value}&max=5000`)
-                    data=await rta.json();
-                    const calles=data.calles;
-                    for(let calle of calles){
-                        const opc=document.createElement('option');
-                        opc.value=calle.nombre;
-                        dataListCalles.appendChild(opc);
-
-                    }
-            } else {
-
+                .form-check
+                    label(class="form-check-label")  Femenino 
+                        input( type="radio" name="sexo" value="Femenino" class="form-check-input" checked=paciente && paciente.sexo==='Femenino'?true:false)
+                .form-check
+                    label(class="form-check-label")  Otro   
+                    input( type="radio" name="sexo" value="Otro" class="form-check-input" checked=paciente && paciente.sexo==='Otro'?true:false)
+                .form-check
+                    label(class="form-check-label")  Prefiero no decirlo   
+                    input( type="radio" name="sexo" value="Prefiero no decirlo" class="form-check-input" checked=paciente && paciente.sexo==='Prefiero no decirlo'?true:false)
+                .form-check.form-switch
+                  label(class="form-check-label") Embarazada
+                    input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
+                          disabled=(paciente && paciente.sexo==='Hombre')?true:false
+                          checked=(paciente  && paciente.embarazada)?true:false
+                          )
+        .row
+            .col 
+                .form-floating
+                    input#provincia.form-control(list="provincias", 
+                                                 name="provincia", 
+                                                 placeholder="Type to search..." 
+                                                 value=paciente?paciente.provincia:'' 
+                                                 autocomplete="off")
+                    label(for="provincia") Provincia
+                    datalist(id="provincias") 
+                      if provincias
+                        each p in provincias
+                          option(value=p.nombre)
+        .row
+            .col 
+                .form-floating
+                    input#departamento.form-control(list="localidades", name="localidad", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.localidad:'')
+                    label(for="localidades") Localidad
+                    datalist(id="localidades") 
+        .row
+            .col 
+                .form-floating
+                    input#direccion.form-control(list="calles", name="direccion", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.direccion:'')
+                    label(for="calles") Dirección
+                    datalist(id="calles")                                                          
+        .row   
+            .col         
+                button(class="btn btn-secondary w-100 py-2" type="submit") 
+                    if edit
+                        | Guardar cambios
+                    else
+                        | Registrar
+    script(src="/javascripts/administrador/form.js")              
+    script. 
+        (async()=>{
+            const inputProvincia=document.getElementById('provincia')
+            // cambia el value del input de provincia ==>
+            inputProvincia.addEventListener('change', async(e)=> {
+              const provinciaSeleccionada = inputProvincia.value;
+              const opciones = document.getElementById('provincias').options;
+              const esOpcionValida = Array.from(opciones).some(function(opcion) {
+                   return opcion.value === provinciaSeleccionada;
+              }); 
+        if (esOpcionValida) {
+            const dataListLocalidades=document.getElementById('localidades');
+            dataListLocalidades.innerHTML="";
+            let rta=await fetch(`https://apis.datos.gob.ar/georef/api/localidades?provincia=${provinciaSeleccionada}&campos=nombre&max=1000`);
+            let data=await rta.json();
+            const localidades=data.localidades;
+            for(let localidad of localidades){
+                const opc=document.createElement('option');
+                opc.value=localidad.nombre;
+                dataListLocalidades.appendChild(opc);
             }
-            });
-            })();   
-
-            (function () {
-              'use strict'
-
-              // Obtener todos los formularios que queremos validar
-              var forms = document.querySelectorAll('.needs-validation')
-
-              // Validar cada formulario en el evento de envío
-              Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                  if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                  }
-
-                  form.classList.add('was-validated')
-                }, false)
-              })
-            })()
+            const dataListCalles=document.getElementById('calles');
+                dataListCalles.innerHTML="";
+                rta=await fetch(`https://apis.datos.gob.ar/georef/api/calles?provincia=${inputProvincia.value}&max=5000`)
+                data=await rta.json();
+                const calles=data.calles;
+                for(let calle of calles){
+                    const opc=document.createElement('option');
+                    opc.value=calle.nombre;
+                    dataListCalles.appendChild(opc);
+                }
+        } else {
+        }
+        });
+        })();   
+        (function () {
+          'use strict'
+          // Obtener todos los formularios que queremos validar
+          var forms = document.querySelectorAll('.needs-validation')
+          // Validar cada formulario en el evento de envío
+          Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+              form.classList.add('was-validated')
+            }, false)
+          })
+        })()

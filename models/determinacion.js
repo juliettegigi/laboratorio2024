@@ -16,12 +16,12 @@ module.exports = (sequelize, DataTypes) => {
       Determinacion.hasMany(models.ValorReferencia)
       Determinacion.hasMany(models.Sinonimo)
       Determinacion.hasMany(models.DeterminacionDet)
-      Determinacion.hasMany(models.Resultado)
-      
+      Determinacion.hasMany(models.LaboratorioExamen)
+      Determinacion.hasMany(models.OrdenExamen)
 
       Determinacion.belongsToMany(models.Orden,{through:'Resultado'})
       Determinacion.belongsToMany(models.ConjuntoDet,{through:'DeterminacionDet'})
-      
+     
     }
 
     static getDeterminaciones = async () => {
@@ -43,15 +43,9 @@ module.exports = (sequelize, DataTypes) => {
 
   }
   Determinacion.init({
-    MuestraId:DataTypes.INTEGER,
-    UnidadId: DataTypes.INTEGER,
     codigo: DataTypes.STRING,
     nombre: DataTypes.STRING,    
-    minutos: DataTypes.INTEGER,
-    horas: DataTypes.INTEGER,
-    dias: DataTypes.INTEGER,
-    semanas: DataTypes.INTEGER,
-    meses: DataTypes.INTEGER,    
+    tiempoProcesamiento: DataTypes.INTEGER
 
   }, {
     sequelize,

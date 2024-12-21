@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
 
     static associate(models) {
       Muestra.hasMany(models.Determinacion)
-      Muestra.hasMany(models.MuestraPresentada);
+      Muestra.hasMany(models.MuestraRequerida);
       
-      Muestra.belongsToMany(models.Orden,{through:'MuestraPresentada'})
+      Muestra.belongsToMany(models.Orden,{through:'MuestraRequerida'})
       //Muestra.belongsToMany(models.Unidad,{through:'Determinacion'})
     }
 
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Muestra',
-    tableName:'muestras'
+    tableName:'Muestras'
   });
   return Muestra;
 };
