@@ -67,7 +67,7 @@ const getPaciente=async(req,res)=>{
     
     const usuario = await Usuario.findByPk(usuarioId,{ attributes: { exclude: ['password'] },});
     if(usuario){
-      console.log("ORDENES**********************************************")
+      
       //busco al paciente y le incluyo todas sus órdenes
       const paciente= await Paciente.findOne({ where: { UsuarioId:usuario.id },
                                                include:{model: Orden,
@@ -81,35 +81,43 @@ const getPaciente=async(req,res)=>{
      const  ordenId=paciente.Ordens.length>0? await paciente.Ordens[0].id:null;
 
     const arr=[]; 
-     for(let orden of paciente.Ordens){
-      const [diagnostico,medico,estado]=await Promise.all([orden.getDiagnostico(),
+     for(let orden of paciente.Ordens){ //todas las ordenes del paciente
+      const [diagnostico,medico,estado,ordenExamenes,ordenConjuntoDets]=await Promise.all([orden.getDiagnostico(),
                                                             orden.getMedico(),
-                                                            orden.getEstado()]); 
-        arr.push({
-          diagnostico,
-          medico,
-          estado,
+                                                            orden.getEstado(),
+                                                          orden.getOrdenExamens(),
+                                                        orden.getOrdenConjuntoDets()]); 
+      const arr2=[]
+      for(let muestra of await MuestraRequerida.findAll({where:{OrdenId:ordenId}})){
+         const m=await muestra.getMuestra();
+         arr2.push({muestra:m.nombre,isPresentada:muestra.isPresentada})
+      } 
+
+        const determinaciones = await Promise.all(
+          ordenExamenes.map(ordenExamen => ordenExamen.getDeterminacion())
+        );
+        const conjuntoDets = await Promise.all(
+          ordenConjuntoDets.map(ordenConjuntoDet => ordenConjuntoDet.getConjuntoDet())
+        );
+      arr.push({
+          id:orden.id,
+          diagnostico: diagnostico?.get(),
+          medico: medico?.get(), 
+          estado: estado?.get(),
           isPresuntivo:orden.isPresuntivo,
-          fecha:orden.fecha
-                   
+          fecha:orden.fecha,
+          muestrasRequeridas:arr2,
+          determinaciones,
+          conjuntoDets
         })
      }
 
-     const arr2=[];
-
-     for(let muestra of await MuestraRequerida.findAll({where:{OrdenId:ordenId}})){
-        const m=await muestra.getMuestra();
-        arr2.push({muestra:m.nombre,isPresentada:muestra.isPresentada})
-     }
-
-    
+     
      
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
                                                        telefonos:await usuario.getTelefonos(),
-                                                       ordenId,
                                                        ordenes:arr,
-                                                       muestrasRequeridas:arr2,
                                                        medicos:await Medico.findAll()})
     }
   } catch (error) {
@@ -192,20 +200,6 @@ const crearPaciente=async(req,res)=>{
 }
 
 
-/*
- {
-{
-  medico: '3-medico2',
-  diagnostico: 'Z08-Examen de seguimiento consecutivo al tratamiento por tumor maligno',
-  examen: '660876-Triglicéridos',
-  examenes: [ '661035-Colesterol HDL', '660876-Triglicéridos' ],
-  medicoId: '3',
-  diagnosticoId: '6',
-  examenId: [ '2', '4' ],
-   isPresuntivo: 'false',  o 'true'
-}
-}
- */
 
 const crearOrdenExamen=async(determinacionId,orden,transaction)=>{
 
@@ -218,7 +212,7 @@ const crearOrdenExamen=async(determinacionId,orden,transaction)=>{
 
       //const existe = muestrasRequeridas.some(m => m.nombre === muestra.nombre);
      // if (!existe)   muestrasRequeridas.push(muestra) 
-     const existe=await MuestraRequerida.findOne({where:{MuestraId:muestra.id}, transaction })
+     const existe=await MuestraRequerida.findOne({where:{MuestraId:muestra.id ,OrdenId:orden.id}, transaction })
      if(!existe)
       await MuestraRequerida.create({OrdenId:orden.id,MuestraId:muestra.id,isPresentada:0},{transaction})
     }
@@ -232,8 +226,9 @@ const crearOrden=async(req,res)=>{
 
       const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,fecha}=req.body
       const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
-      const examenesArr=[];
-    const orden=await Orden.create({PacienteId,MedicoId,DiagnosticoId,isPresuntivo:isPresuntivo==='true'?true:false,fecha},
+      
+
+      const orden=await Orden.create({PacienteId,MedicoId,DiagnosticoId,isPresuntivo:isPresuntivo==='true'?true:false,fecha},
                                    { transaction }
     )
    //examenesId: [ '1-conjuntoDets', '2-determinaciones' ]
@@ -284,6 +279,15 @@ const crearOrden=async(req,res)=>{
 }
 
 
+
+const putOrden=async(req,res)=>{
+  console.log(req.body)
+//  const transaction = await sequelize.transaction();
+  return res.render('administrador/index')
+
+
+}
+
 module.exports={
     getBusqueda,
     getInicio,
@@ -292,5 +296,6 @@ module.exports={
     getPaciente,
     crearPaciente,
     crearOrden,
-    editarPaciente
+    editarPaciente,
+    putOrden
 }

@@ -3,24 +3,29 @@ import InputDataList from "../input-datalist-class.js";
 const LIMIT=5;
 const OFFSET=0;
 
-const eventoBuscarMedico='buscarMedico'
-const listaMedicos=document.getElementById('listaMedicos');
-const liTextCbMedicos=elem=>`${elem.id}-${elem.nombre}`
-
-const eventoBuscarDiagnostico='buscarDiagnostico'
-const listaDiagnosticos=document.getElementById('listaDiagnosticos');
-const liTextCbDiagnosticos=elem=>`${elem.codigo}-${elem.diagnostico}`
 
 
 
 
-const addCruz=(li,funcionCruz)=>{
+const forms=document.querySelectorAll('.formOrden');
+
+export const addCruz=(li,funcionCruz)=>{
     const cruz = document.createElement('button');
     cruz.type="button"
     cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
     cruz.addEventListener('click',funcionCruz) 
     li.appendChild(cruz);
 }
+
+for(let form of forms){
+    const eventoBuscarMedico='buscarMedico'
+    const listaMedicos=form.querySelector('#listaMedicos');
+    const liTextCbMedicos=elem=>`${elem.id}-${elem.nombre}`
+    
+    const eventoBuscarDiagnostico='buscarDiagnostico'
+    const listaDiagnosticos=form.querySelector('#listaDiagnosticos');
+    const liTextCbDiagnosticos=elem=>`${elem.codigo}-${elem.diagnostico}`
+
 
 const crearInput=(value)=>{
   const input=document.createElement('input');
@@ -43,22 +48,30 @@ const funcionEnter=(text)=>{// funcion para que se haga esto cuando se seleccion
 }
 const eventoBuscarExamen='buscarExamen'
 const liTextCbExamenes=elem=>`${elem.codigo}-${elem.nombre}`
-const listaExamenes=document.getElementById('listaExamenes');
-const listaExamenesSeleccionados=document.getElementById('listaExamenesSeleccionados');
-
-
-const input1=new InputDataList(formOrden['medico'],listaMedicos,eventoBuscarMedico,liTextCbMedicos,LIMIT,OFFSET,'MedicoId');
-const input2=new InputDataList(formOrden['diagnostico'],listaDiagnosticos,eventoBuscarDiagnostico,liTextCbDiagnosticos,LIMIT,OFFSET,"DiagnosticoId");
-const input3=new InputDataList(formOrden['examen'],listaExamenes,eventoBuscarExamen,liTextCbExamenes,LIMIT,OFFSET,"examenesId",funcionEnter);
+const listaExamenes=form.querySelector('#listaExamenes');
+const listaExamenesSeleccionados=form.querySelector('#listaExamenesSeleccionados');
 
 
 
+const input1=new InputDataList(form['medico'],listaMedicos,eventoBuscarMedico,liTextCbMedicos,LIMIT,OFFSET,'MedicoId');
+    const input2=new InputDataList(form['diagnostico'],listaDiagnosticos,eventoBuscarDiagnostico,liTextCbDiagnosticos,LIMIT,OFFSET,"DiagnosticoId");
+    const input3=new InputDataList(form['examen'],listaExamenes,eventoBuscarExamen,liTextCbExamenes,LIMIT,OFFSET,"examenesId",funcionEnter);
+    input1.inicializarInput()
+    input2.inicializarInput()
+    input3.inicializarInput()
 
-input1.inicializarInput()
-input2.inicializarInput()
-input3.inicializarInput()
+}
 
 
 
 
 
+
+const lis=Array.from(document.querySelectorAll('.liExamenes'))
+
+
+for(let li of lis)addCruz(li,(evento)=>{li.remove()})
+
+    
+
+ 

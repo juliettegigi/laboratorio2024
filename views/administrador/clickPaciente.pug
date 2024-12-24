@@ -25,22 +25,30 @@ block content
              span= paciente.direccion
          li(class="list-group-item") Sexo:
              span= paciente.sexo
-    - const edit=true  
-          
+    - let editarPaciente=true    
     include ./soloForm.pug
-    include ./formOrden.pug      
+    include ./formOrden.pug
+    +formOrden("divFormOrden1", false)
     include ./ordenesNoInformadas.pug      
     //    
         div(class="d-flex  w-50 justify-content-end")
          button(type="button" class="btn btn-outline-primary w-auto" id='btnEditar') Editar
          button(type="button" class="btn btn-outline-primary w-auto mx-3") Cargar orden    
-    script. 
+    script.
+        const addCruz=(li,funcionCruz)=>{
+            const cruz = document.createElement('button');
+            cruz.type="button"
+            cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
+            cruz.addEventListener('click',funcionCruz) 
+            li.appendChild(cruz);
+        }
         const btnEditar=document.getElementById('btnEditar');
         const btnInicio=document.getElementById('btnInicio');
         const btnCargarOrden=document.getElementById('btnCargarOrden');
         const btnOrdenesNoInformadas=document.getElementById('btnOrdenesNoInformadas');
         const divLista=document.getElementById('divLista');
-        const divFormOrden=document.getElementById('divFormOrden');
+        const divFormOrden=document.getElementById('divFormOrden1');
+        const divFormOrden2=document.getElementById('divFormOrden2');
         const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
         let active=divLista;
         let newActive=null;
@@ -66,9 +74,17 @@ block content
          btnOrdenesNoInformadas.addEventListener('click',(event)=>{
             
             activar(divOrdenesNoInformadas)
-        })    
+        })
+        let currentCard;    
         function flipCard(button) {
-          const card = button.closest('.card-flip');
-           card.classList.toggle('flipped');
+          const currentCard = button.closest('.card-flip');
+           currentCard.classList.toggle('flipped');
          }
+         const initialContent = document.querySelector('#divOrdenesNoInformadas').innerHTML;
+         function resetToInitialState() {
+            document.querySelector('#divOrdenesNoInformadas').innerHTML = initialContent;
+            const lis=Array.from(document.querySelectorAll('.liExamenes'))
+            for(let li of lis)addCruz(li,(evento)=>{li.remove()})
+
+          }
     

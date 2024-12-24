@@ -1,6 +1,6 @@
 
-.container.d-flex.justify-content-center(id="divForm" class=`${edit?"oculto":""}`)
-    form(action=edit?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+.container.d-flex.justify-content-center(id="divForm" class=editarPaciente?"oculto":"")
+    form(action=editarPaciente?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
         .row.text-center
             h1(class="h3 mb-3 fw-normal")
                     | Datos del paciente
@@ -85,7 +85,7 @@
         .row   
             .col         
                 button(class="btn btn-secondary w-100 py-2" type="submit") 
-                    if edit
+                    if editarPaciente
                         | Guardar cambios
                     else
                         | Registrar

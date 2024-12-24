@@ -1,31 +1,28 @@
-.container.d-flex.justify-content-center(id="divOrdenesNoInformadas" class="oculto")
+.div(id="divOrdenesNoInformadas" class="oculto ")
     each orden in ordenes
-        .card.m-2(style="width: 18rem;" class="card-flip")
+        .card.m-2( class="card-flip")
             .card-body.front
-                h5.card-title= `Orden: ${ordenId}`
-                p.card-text= `Fecha: ${new Date(orden.fecha).toLocaleDateString('es-AR')}`
-                p.card-text= `Medico: ${orden.medico.nombre}`
-                p.card-text= `Estado: ${orden.estado.nombre}`
-                p.card-text= `Diagnóstico: ${orden.diagnostico.codigo}-${orden.diagnostico.diagnostico}`
-                table.table
-                    caption Muestras requeridas
-                    thead
-                        tr
-                            th Muestra
-                            th Presentada
-                    tbody
-                        each muestra in muestrasRequeridas
-                            tr(class=muestra.isPresentada ? '' : 'not-presented')
-                                td= muestra.muestra
-                                td= muestra.isPresentada ? "si" : "no"
-                button.btn.btn-primary(onclick="flipCard(this)") Editar
+                 h5.card-title= `Orden: ${orden.id}`
+                 p.card-text= `Fecha: ${new Date(orden.fecha).toLocaleDateString('es-AR')}`
+                 p.card-text= `Medico: ${orden.medico.nombre}`
+                 p.card-text= `Estado: ${orden.estado.nombre}`
+                 p.card-text= `Diagnóstico: ${orden.diagnostico.codigo}-${orden.diagnostico.diagnostico}`
+
+            .div.card-footer.front
+             table.table.card-text
+                 caption Muestras requeridas
+                 thead
+                     tr
+                         th Muestra
+                         th Presentada
+                 tbody
+                     each muestra in orden.muestrasRequeridas
+                         tr(class=muestra.isPresentada ? '' : 'not-presented')
+                             td= muestra.muestra
+                             td= muestra.isPresentada ? "si" : "no"
+             button.btn.btn-primary.card-btn-editar(onclick="flipCard(this)") Editar
             .card-body.back
-                include ./formOrden.pug
-                form
-                    // Aquí puedes agregar los campos del formulario
-                    div.form-group
-                        label(for="exampleInput1") Example label
-                        input.form-control#exampleInput1(type="text" placeholder="Enter text")
-                    button.btn.btn-primary(type="submit") Guardar
-                button.btn.btn-secondary(onclick="flipCard(this)") Cancelar
+                - const edit=true
+                +formOrden("divFormOrden2", true,orden)                
+                
 
