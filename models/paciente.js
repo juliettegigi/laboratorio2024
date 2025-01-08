@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     provincia: DataTypes.STRING,
     localidad: DataTypes.STRING,
     direccion: DataTypes.STRING,
+    edad:DataTypes.INTEGER,
     sexo: DataTypes.ENUM(['Masculino', 'Femenino', 'Otro','Prefiero no decirlo'])
 
   }, {

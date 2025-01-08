@@ -10,33 +10,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Determinacion.belongsTo(models.Muestra)
-      Determinacion.belongsTo(models.Unidad)
-      
-      Determinacion.hasMany(models.ValorReferencia)
-      Determinacion.hasMany(models.Sinonimo)
-      Determinacion.hasMany(models.DeterminacionDet)
-      Determinacion.hasMany(models.LaboratorioExamen)
-      Determinacion.hasMany(models.OrdenExamen)
+      Determinacion.hasMany(models.ExamenDeterminacion)
+      Determinacion.hasMany(models.Determinacion)
+      Determinacion.hasMany(models.DeterminacionValorReferencia)
+      Determinacion.hasMany(models.DeterminacionUnidad)
+      Determinacion.hasMany(models.ExCategDeterminacion)
 
-      Determinacion.belongsToMany(models.Orden,{through:'Resultado'})
-      Determinacion.belongsToMany(models.ConjuntoDet,{through:'DeterminacionDet'})
-     
-    }
-
-    static getDeterminaciones = async () => {
-      let determinaciones = await Determinacion.findAll({
-        include: [
-          { model: sequelize.models.Muestra },
-          {model:sequelize.models.Sinonimo},
-          {model:sequelize.models.Unidad},
-          {model:sequelize.models.ValorReferencia},
-        ],
-      }
-    
-      )
       
-      return determinaciones;
     }
 
 
@@ -45,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   Determinacion.init({
     codigo: DataTypes.STRING,
     nombre: DataTypes.STRING,    
-    tiempoProcesamiento: DataTypes.INTEGER
+    tags: DataTypes.STRING,    
 
   }, {
     sequelize,

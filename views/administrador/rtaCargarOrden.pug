@@ -1,0 +1,23 @@
+.container.d-flex.justify-content-center.flex-column#rtaCargarOrden
+  if rtaCargarOrden.alertType && rtaCargarOrden.alertMessage
+   div(class=`alert alert-${rtaCargarOrden.alertType} alert-dismissible fade show` role="alert")
+    strong 
+        | #{rtaCargarOrden.alertMessage}
+    button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+  if rtaCargarOrden.origen && rtaCargarOrden.origen==='crearOrden'  
+   h1 Detalles de la Orden
+   if rtaCargarOrden.muestrasRequeridas && rtaCargarOrden.muestrasRequeridas.length
+    h2 Muestras Requeridas
+     ul
+      each muestra in rtaCargarOrden.muestrasRequeridas
+       li #{muestra.nombre}
+   if rtaCargarOrden.examenesNoRealizados && rtaCargarOrden.examenesNoRealizados.length
+    h2 Exámenes No Realizados
+     ul
+      each examen in rtaCargarOrden.examenesNoRealizados
+       li= ` ${examen.nombre} (${examen.laboratorioQueLoRealiza})`
+ 
+   if rtaCargarOrden.fechaResultados
+    h2 Fecha en que estarán listos los resultados: 
+     ul 
+      li #{rtaCargarOrden.fechaResultados}

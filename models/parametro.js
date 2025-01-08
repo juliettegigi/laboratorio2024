@@ -3,22 +3,25 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class OrdenConjuntoDet extends Model {
+  class Parametro extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      OrdenConjuntoDet.belongsTo(models.Orden)
-      OrdenConjuntoDet.belongsTo(models.ConjuntoDet)
+      Parametro.hasMany(models.ExCategParametro)
+      Parametro.hasMany(models.ParametroValorReferencia)
+      Parametro.hasMany(models.ParametroUnidad)
     }
   }
-  OrdenConjuntoDet.init({
+  Parametro.init({
+    nombre: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'OrdenConjuntoDet',
-    tableName:'OrdenConjuntoDets'
+    modelName: 'Parametro',
+    tableName: 'Parametros',
+    timestamps: false
   });
-  return OrdenConjuntoDet;
+  return Parametro;
 };

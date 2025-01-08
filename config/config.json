@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "",
-    "database": "dblab2_1",
+    "database": "dblab2_2",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "define":{"freezeTableName":true},

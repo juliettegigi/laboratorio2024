@@ -3,23 +3,23 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class OrdenEliminada extends Model {
+  class ExCategParametro extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-     OrdenEliminada.belongsTo(models.Orden);
+        ExCategParametro.belongsTo(models.ExamenCategoria)
+        ExCategParametro.belongsTo(models.Parametro)
     }
   }
-  OrdenEliminada.init({
-    motivo: DataTypes.TEXT
+  ExCategParametro.init({
   }, {
     sequelize,
-    modelName: 'OrdenEliminada',
-    tableName:'OrdenEliminadas',
-    timestamps:false
+    modelName: 'ExCategParametro',
+    tableName: 'ExCategParametros',
+    timestamps: false
   });
-  return OrdenEliminada;
+  return ExCategParametro;
 };

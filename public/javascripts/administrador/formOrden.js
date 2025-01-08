@@ -27,15 +27,15 @@ for(let form of forms){
     const liTextCbDiagnosticos=elem=>`${elem.codigo}-${elem.diagnostico}`
 
 
-const crearInput=(value)=>{
+const crearInput=(value,inputName)=>{
   const input=document.createElement('input');
   input.type='hidden';
-  input.name="examenes"
+  input.name=inputName;
   input.value=value
   return input
 }
 
-const funcionEnter=(text)=>{// funcion para que se haga esto cuando se seleccione algo del dataList
+const funcionEnter=(text,id)=>{// funcion para que se haga esto cuando se seleccione algo del dataList
     //antes de agregar a la lista tengo que ver q el text que se quiera agregar no exista en la lista
     const lisListaExamenesSeleccionados=[...listaExamenesSeleccionados.querySelectorAll('li')];
     if(lisListaExamenesSeleccionados.find(li=>li.textContent===text))
@@ -44,7 +44,8 @@ const funcionEnter=(text)=>{// funcion para que se haga esto cuando se seleccion
     li.innerHTML=text;
     addCruz(li,(evento)=>{li.remove()})
     listaExamenesSeleccionados.appendChild(li)
-    listaExamenesSeleccionados.appendChild(crearInput(text))
+    listaExamenesSeleccionados.appendChild(crearInput(text,"examenes"))
+    listaExamenesSeleccionados.appendChild(crearInput(id,"examenesId"))
 }
 const eventoBuscarExamen='buscarExamen'
 const liTextCbExamenes=elem=>`${elem.codigo}-${elem.nombre}`
@@ -55,7 +56,7 @@ const listaExamenesSeleccionados=form.querySelector('#listaExamenesSeleccionados
 
 const input1=new InputDataList(form['medico'],listaMedicos,eventoBuscarMedico,liTextCbMedicos,LIMIT,OFFSET,'MedicoId');
     const input2=new InputDataList(form['diagnostico'],listaDiagnosticos,eventoBuscarDiagnostico,liTextCbDiagnosticos,LIMIT,OFFSET,"DiagnosticoId");
-    const input3=new InputDataList(form['examen'],listaExamenes,eventoBuscarExamen,liTextCbExamenes,LIMIT,OFFSET,"examenesId",funcionEnter);
+    const input3=new InputDataList(form['examen'],listaExamenes,eventoBuscarExamen,liTextCbExamenes,LIMIT,OFFSET,"",funcionEnter);
     input1.inicializarInput()
     input2.inicializarInput()
     input3.inicializarInput()

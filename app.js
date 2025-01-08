@@ -5,6 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -31,7 +32,7 @@ app.use(
     saveUninitialized: true,
   })
 );
-
+app.use(flash());
 
 // -------------------------------------------RUTAS
 app.use('/', indexRouter);

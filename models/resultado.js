@@ -11,14 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Resultado.hasMany(models.ResultadoUnidad)
+
       Resultado.belongsTo(models.OrdenExamen);
       Resultado.belongsTo(models.Unidad);
+
       Resultado.belongsToMany(models.Unidad,{through:'ResultadoUnidad'})
     }
   }
   Resultado.init({
-    determinacionId: DataTypes.INTEGER,
-    ordenId: DataTypes.INTEGER,
     resultado: DataTypes.DECIMAL(10,2),
     paranoid:true
   }, {

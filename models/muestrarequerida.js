@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   MuestraRequerida.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+  },
     isPresentada:DataTypes.BOOLEAN
   }, {
     sequelize,

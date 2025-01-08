@@ -19,13 +19,11 @@ module.exports = (sequelize, DataTypes) => {
      
       Orden.hasMany(models.OrdenEliminada);
       Orden.hasMany(models.OrdenExamen);
-      Orden.hasMany(models. OrdenConjuntoDet);
       Orden.hasMany(models.MuestraRequerida);
-      Orden.hasMany(models.Resultado);
 
      
       Orden.belongsToMany(models.Muestra,{through:'MuestraRequerida'});
-      Orden.belongsToMany(models.Determinacion,{through:'Resultado'})
+      Orden.belongsToMany(models.Examen,{through:'OrdenExamen'});
       
       
      
@@ -33,7 +31,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   Orden.init({
     isPresuntivo:DataTypes.BOOLEAN,
-    fecha:DataTypes.DATE
+    fecha:DataTypes.DATE,
+    fechaEntrega:DataTypes.DATE,
+    tiempoDeProcesamiento: DataTypes.INTEGER,
+    isUrgente:DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Orden',

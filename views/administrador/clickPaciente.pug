@@ -2,11 +2,15 @@ extends layout
 block aside 
     include ./menuLateral.pug
 block content
-    div(id="divLista")
-     ul(class="list-group list-group-flush")
+    if rtaCargarOrden 
+        include ./rtaCargarOrden.pug
+    div(id="divLista" class=`${rtaCargarOrden?'oculto':''}`)
+     ul(class=`list-group list-group-flush `)
          li(class="list-group-item")= `Nombre: `+usuario.nombre  
          li(class="list-group-item") Apellido: 
              span= usuario.apellido 
+         li(class="list-group-item") Edad: 
+             span= paciente.edad 
          li(class="list-group-item") Documento:
              span= usuario.documento
          li(class="list-group-item") Email:
@@ -42,6 +46,7 @@ block content
             cruz.addEventListener('click',funcionCruz) 
             li.appendChild(cruz);
         }
+        const rtaCargarOrden=document.getElementById('rtaCargarOrden')
         const btnEditar=document.getElementById('btnEditar');
         const btnInicio=document.getElementById('btnInicio');
         const btnCargarOrden=document.getElementById('btnCargarOrden');
@@ -50,9 +55,12 @@ block content
         const divFormOrden=document.getElementById('divFormOrden1');
         const divFormOrden2=document.getElementById('divFormOrden2');
         const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
+        const divEliminarOrden=document.getElementById('divEliminarOrden');
         let active=divLista;
         let newActive=null;
         const activar=(div)=>{
+            if(rtaCargarOrden)
+              rtaCargarOrden.remove();
             active.classList.add("oculto")
             active=div
             active.classList.remove('oculto');
@@ -79,7 +87,42 @@ block content
         function flipCard(button) {
           const currentCard = button.closest('.card-flip');
            currentCard.classList.toggle('flipped');
+
+             
          }
+
+        function showModal(ordenId) {
+            const modal = document.getElementById("divEliminarOrden");
+            modal.style.display = "block";
+            formEliminarOrden['OrdenId'].value=ordenId
+          }
+          
+          // Cerrar el modal
+          function closeModal() {
+            const modal = document.getElementById("divEliminarOrden");
+            modal.style.display = "none";
+          }
+          
+          // Manejar la confirmación
+          function submitReason() {
+            const reason = document.getElementById("reason").value;
+            if (reason.trim() === "") {
+              alert("Por favor, ingresa un motivo.");
+              return;
+            }
+          
+            console.log("Motivo ingresado:", reason); // Aquí puedes enviar el motivo al servidor
+            alert("El motivo de eliminación ha sido enviado: " + reason);
+            closeModal(); // Cierra el modal después de enviar el formulario
+          }
+          
+          // Cerrar el modal si se hace clic fuera de él
+          window.onclick = function (event) {
+            const modal = document.getElementById("divEliminarOrden");
+            if (event.target === modal) {
+              closeModal();
+            }
+          };
          const initialContent = document.querySelector('#divOrdenesNoInformadas').innerHTML;
          function resetToInitialState() {
             document.querySelector('#divOrdenesNoInformadas').innerHTML = initialContent;
@@ -87,4 +130,5 @@ block content
             for(let li of lis)addCruz(li,(evento)=>{li.remove()})
 
           }
+
     

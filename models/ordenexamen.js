@@ -11,8 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       OrdenExamen.hasMany(models.Resultado)
+
       OrdenExamen.belongsTo(models.Orden)
-      OrdenExamen.belongsTo(models.Determinacion)
+      OrdenExamen.belongsTo(models.Examen)
     }
   }
   OrdenExamen.init({

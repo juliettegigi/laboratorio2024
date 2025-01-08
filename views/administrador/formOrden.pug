@@ -2,6 +2,11 @@ mixin formOrden(divFormOrden, editarOrden,orden)
  .container.d-flex.justify-content-center(id=divFormOrden class=editarOrden?"":"oculto")
   form(action=editarOrden?`/admins/orden?_method=put`:`/admins/orden/` method="post" class="formOrden")
       input(type="hidden" name="PacienteId" value=paciente.id)
+      input(type="hidden" name="MedicoId" value=editarOrden?orden.medico.id:'')
+      input(type="hidden" name="DiagnosticoId" value=editarOrden?orden.diagnostico.id:'')
+      if editarOrden
+       input(type="hidden" name="ordenId" value=editarOrden?orden.id:'')
+       
       .row.mt-4.justify-content-center
        .col-md-auto.d-flex.align-items-center
         if editarOrden
@@ -40,12 +45,39 @@ mixin formOrden(divFormOrden, editarOrden,orden)
           input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault2" value="false" checked=(!editarOrden?false: 
                                                                                                                          orden.isPresuntivo === false?true:false))
           label(class="form-check-label" for="flexRadioDefault2") Confirmado
- 
+       .col-md-auto
+         div.form-check
+          input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3" checked=(!editarOrden?false: 
+                                                                                                                       orden.isUrgente === 1?true:false ))
+          label(class="form-check-label" for="flexRadioDefault3") Urgente
+
+      if(editarOrden)
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         table.table.card-text
+                  caption Muestras requeridas
+                  thead
+                      tr
+                          th Muestra
+                          th Presentada
+                  tbody
+                      each muestra in orden.muestrasRequeridas
+                          tr(class=muestra.isPresentada ? '' : 'not-presented')
+                              td= muestra.muestra
+                              td= muestra.isPresentada ? "si" : "no"
+                              td 
+                               input(
+                                      type="checkbox",
+                                      name=`muestrasRequeridas`,
+                                      value=`${muestra.id}`,
+                                      checked=muestra.isPresentada
+                                    )
+
       .row.mt-4.justify-content-center
        .col-md-auto.d-flex.align-items-center
         label(for="examen") Exámenes:
        .col-md-auto.position-relative
-         input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required)
+         input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required=!editarOrden)
          div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
           ul(id="listaExamenes") 
         
@@ -55,16 +87,13 @@ mixin formOrden(divFormOrden, editarOrden,orden)
         div 
            ul(id="listaExamenesSeleccionados")
             if editarOrden           
-             each examen in orden.conjuntoDets 
-              li(class="liExamenes")= `${examen.codigo}-${examen.nombre}`
-              input(type="hidden" name="examenes" value= `${examen.codigo}-${examen.nombre}`)
-             each examen in orden.determinaciones 
+             each examen in orden.examenes 
               li(class="liExamenes")= `${examen.codigo}-${examen.nombre}`
               input(type="hidden" name="examenes" value= `${examen.codigo}-${examen.nombre}`)
       .row.mt-5.justify-content-center 
        if editarOrden  
         .col-md-auto.d-flex.justify-content-center 
-         button.btn.btn-secondary(onclick="flipCard(this)") Guardar cambios
+         button.btn.btn-secondary Guardar cambios
         .col-md-auto.d-flex.justify-content-center 
          button.btn.btn-secondary(type="button" onclick="flipCard(this);resetToInitialState()") Regresar  
        else    

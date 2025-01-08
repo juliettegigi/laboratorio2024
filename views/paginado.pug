@@ -1,20 +1,22 @@
-- page=parseInt(page)
-- const paginas = Math.ceil(totalRegistros / limit); 
-- let ultimaPag= group*PAGES_CANTIDADxGRUPO
-- let primeraPag=ultimaPag-PAGES_CANTIDADxGRUPO+1
-- const grupos=Math.ceil(paginas/PAGES_CANTIDADxGRUPO)
-- ultimaPag=ultimaPag>paginas?paginas:ultimaPag;
-nav(aria-label="Page navigation example")
-  ul(class="pagination")
-    li(class="page-item")
-      a(class="page-link" href=`/admins/busqueda?paciente=${paciente}&page=${page-1!=0?page-1:page}&group=${page==primeraPag && group-1!=0?group-1:group}` aria-label="Previous")
-        span(aria-hidden="true") &laquo; 
-    - for (i=primeraPag; i <= ultimaPag ; i++)
-      li(class=`page-item ${i === page ? 'active' : ''}`)
-        a(class="page-link" href=`/admins/busqueda?paciente=${paciente}&page=${i}&group=${group}`)=  i    
-    li(class="page-item")
-      a(class="page-link" href=page<=paginas?`/admins/busqueda?paciente=${paciente}&page=${page+1<=paginas?page+1:page}&group=${page==ultimaPag && group+1<=grupos?group+1:group}`:"#" aria-label="Next")
-        span(aria-hidden="true") &raquo;
-    li(class="page-item")
-      a(class="page-link" href=paginas>ultimaPag?`/admins/busqueda?paciente=${paciente}&page=${ultimaPag+1}`:"#" aria-label="Next")
-        span(aria-hidden="true") &raquo;
+mixin paginado(href)
+ //page viene del servidor
+ - page=parseInt(page)
+ - const paginas = Math.ceil(totalRegistros / limit); 
+ - let ultimaPag= group*PAGES_CANTIDADxGRUPO
+ - let primeraPag=ultimaPag-PAGES_CANTIDADxGRUPO+1
+ - const grupos=Math.ceil(paginas/PAGES_CANTIDADxGRUPO)
+ - ultimaPag=ultimaPag>paginas?paginas:ultimaPag;
+ nav(aria-label="Page navigation example")
+   ul(class="pagination")
+     li(class="page-item")
+       a(class="page-link" href=`${href}?inputSearch=${inputSearch}&page=${page-1!=0?page-1:page}&group=${page==primeraPag && group-1!=0?group-1:group}` aria-label="Previous")
+         span(aria-hidden="true") &laquo; 
+     - for (i=primeraPag; i <= ultimaPag ; i++)
+       li(class=`page-item ${i === page ? 'active' : ''}`)
+         a(class="page-link" href=`${href}?inputSearch=${inputSearch}&page=${i}&group=${group}`)=  i    
+     li(class="page-item")
+       a(class="page-link" href=page<=paginas?`${href}?inputSearch=${inputSearch}&page=${page+1<=paginas?page+1:page}&group=${page==ultimaPag && group+1<=grupos?group+1:group}`:"#" aria-label="Next")
+         span(aria-hidden="true") &raquo;
+     li(class="page-item")
+       a(class="page-link" href=paginas>ultimaPag?`${href}?inputSearch=${inputSearch}&page=${ultimaPag+1}`:"#" aria-label="Next")
+         span(aria-hidden="true") &raquo;

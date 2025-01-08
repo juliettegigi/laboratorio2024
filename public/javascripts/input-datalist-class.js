@@ -3,6 +3,8 @@ export default class InputDataList{
     //la lista, 
     //el evento del socket q hace una búsqueda paginada y  retorna un arreglo y el total de registros
     // el texto del li, un cb q retorna el texto del li, el cb recibe el objeto del arreglo q retornó la búsqueda
+    // el inputHiddenNAme el nombre del input q va a llevar el id de lo q se seleccione
+    // funcionEnter es una funcion q se va a ejecutar cuando se seleccione un elemento de la datalist
     constructor(input,lista,nombreEvento,liTextCb,limit,offset,inputHiddenName,funcionEnter=null){
         this.input=input;
         this.nombreEvento=nombreEvento;
@@ -21,22 +23,17 @@ export default class InputDataList{
     clickLi=(event)=>{
       this.input.value = event.target.textContent; // Asigna el texto al input
       const indice=event.target.getAttribute('indice')
-      this.input.form.appendChild(this.crearInputHidden(this.arrayLis[indice].id))
+      if(this.inputHiddenName)
+         this.input.form.elements[this.inputHiddenName].value=this.arrayLis[indice].id
       this.input.select(); // Selecciona todo el texto del input
       this.lista.parentNode.style.display = "none"; // Oculta la lista
       if(this.funcionEnter){
-        this.funcionEnter(event.target.textContent)
+        this.funcionEnter(event.target.textContent,this.arrayLis[indice].id)
   }
   }
 
 
-  crearInputHidden=(elemId)=>{
-    const input=document.createElement('input');
-    input.type='hidden';
-    input.name=this.inputHiddenName;
-    input.value=elemId;
-    return input;
-  }
+
     crearLi=(text="",indice,eventoClickLi=null)=>{
       const li=document.createElement('li')  
         li.textContent=text
@@ -168,7 +165,7 @@ export default class InputDataList{
               else{
                     if (this.indexHover >= 0 && this.indexHover < this.arrayLis.length) {
                       this.input.value = this.arrayLis[this.indexHover].li.textContent; // Asigna el texto al input
-                      this.crearInputHidden(this.arrayLis[this.indexHover].id)
+                      this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
                       this.input.select(); // Selecciona todo el texto del input
                       this.lista.parentNode.style.display = "none"; // Oculta la lista
                       if(this.funcionEnter){
