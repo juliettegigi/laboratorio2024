@@ -56,7 +56,25 @@ block content
         const divFormOrden2=document.getElementById('divFormOrden2');
         const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
         const divEliminarOrden=document.getElementById('divEliminarOrden');
+        const origen = "#{origen}";
         let active=divLista;
+
+        switch(origen){
+            case'postOrden':
+                active=divFormOrden
+                break;
+            case'putOrden':
+            case'deleteOrden':
+              active=divOrdenesNoInformadas
+              break;
+            case'putPaciente':
+              const divForm=document.getElementById('divForm');
+              active=divForm
+              break;
+            default: 
+                active=divLista 
+        }
+        
         let newActive=null;
         const activar=(div)=>{
             if(rtaCargarOrden)
@@ -111,7 +129,6 @@ block content
               return;
             }
           
-            console.log("Motivo ingresado:", reason); // Aquí puedes enviar el motivo al servidor
             alert("El motivo de eliminación ha sido enviado: " + reason);
             closeModal(); // Cierra el modal después de enviar el formulario
           }

@@ -44,8 +44,8 @@ const funcionEnter=(text,id)=>{// funcion para que se haga esto cuando se selecc
     li.innerHTML=text;
     addCruz(li,(evento)=>{li.remove()})
     listaExamenesSeleccionados.appendChild(li)
-    listaExamenesSeleccionados.appendChild(crearInput(text,"examenes"))
-    listaExamenesSeleccionados.appendChild(crearInput(id,"examenesId"))
+    li.appendChild(crearInput(text,"examenes"))
+    li.appendChild(crearInput(id,"examenesId"))
 }
 const eventoBuscarExamen='buscarExamen'
 const liTextCbExamenes=elem=>`${elem.codigo}-${elem.nombre}`

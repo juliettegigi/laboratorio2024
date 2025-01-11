@@ -1,5 +1,5 @@
 
-.container.d-flex.justify-content-center(id="divForm" class=editarPaciente?"oculto":"")
+.container.d-flex.justify-content-center(id="divForm" class=origen!=='putPaciente'?"oculto":"")
     form(action=editarPaciente?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
         input(type="hidden" name="PacienteId" value=paciente.id)
         .row.text-center

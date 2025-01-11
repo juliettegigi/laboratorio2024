@@ -1,10 +1,9 @@
-.container.d-flex.justify-content-center.flex-column#rtaCargarOrden
+.container.d-flex.justify-content-center.flex-column#rtaCargarOrden(class=`alert alert-${rtaCargarOrden.alertType} alert-dismissible fade show` role="alert")
   if rtaCargarOrden.alertType && rtaCargarOrden.alertMessage
-   div(class=`alert alert-${rtaCargarOrden.alertType} alert-dismissible fade show` role="alert")
     strong 
         | #{rtaCargarOrden.alertMessage}
     button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-  if rtaCargarOrden.origen && rtaCargarOrden.origen==='crearOrden'  
+  if rtaCargarOrden.origen && rtaCargarOrden.origen==='postOrden'  
    h1 Detalles de la Orden
    if rtaCargarOrden.muestrasRequeridas && rtaCargarOrden.muestrasRequeridas.length
     h2 Muestras Requeridas
