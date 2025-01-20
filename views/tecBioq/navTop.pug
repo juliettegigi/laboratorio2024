@@ -1,0 +1,74 @@
+nav(class="navbar navbar-expand-lg bg-body-tertiary ")
+  .container-fluid.d-flex.justify-content-between
+   div.position-absolute.top-0.start-0
+    a.navbar-brand(href="/tecBioq") 
+     img(src="/images/logo.jpg", alt="logo laboratorio ULP" class="logo ")
+   div.logo  
+   div.d-flex-flex-column  
+    button.navbar-toggler(type="button" 
+                           data-bs-toggle="collapse" 
+                           data-bs-target="#navbarSupportedContent" 
+                           aria-controls="navbarSupportedContent" 
+                           aria-expanded="false" 
+                           aria-label="Toggle navigation")
+      span.navbar-toggler-icon 
+    div.collapse.navbar-collapse#navbarSupportedContent
+     ul.navbar-nav.ms-auto.mb-2.mb-lg-0
+      li.nav-item.dropdown
+       a.nav-link.active.dropdown-toggle(aria-current="page" 
+                                         href="#"
+                                         role="button" 
+                                         data-bs-toggle="dropdown" 
+                                         aria-expanded="false"
+                                         ) Salir                               
+
+    div.collapse.navbar-collapse#navbarSupportedContent
+     ul.navbar-nav.me-auto.mb-2.mb-lg-0
+      li.nav-item.dropdown
+       a.nav-link.active.dropdown-toggle(aria-current="page" 
+                                         href=""
+                                         role="button" 
+                                         data-bs-toggle="dropdown" 
+                                         aria-expanded="false"
+                                         ) Examenes
+       ul.dropdown-menu.dropdown-menu-lg-end
+        li
+         a.dropdown-item(href="http://localhost:3000/tecBioq/getExamenes") Buscar
+        li
+         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar 
+        li
+         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar categoría/determinaciones 
+        li
+         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar categoría/parámetros                                  
+      
+ 
+      li.nav-item.dropdown
+       a.nav-link.dropdown-toggle(href="#"
+                                  aria-expanded="false"
+                                  data-bs-toggle="dropdown"
+                                  role="button") Determinaciones
+       ul.dropdown-menu.dropdown-menu-end
+        li
+         a.dropdown-item(href="#") Agregar
+        li
+         a.dropdown-item(href="#") Another action
+        li
+         hr.dropdown-divider
+        li
+         a.dropdown-item(href="#") Something else here
+      
+ 
+      li.nav-item.dropdown
+       a.nav-link.dropdown-toggle(href="#" 
+                                  role="button" 
+                                  data-bs-toggle="dropdown" 
+                                  aria-expanded="false") Valores de referencia
+       ul.dropdown-menu.dropdown-menu-end
+        li
+         a.dropdown-item(href="#") Agregar
+        li
+         a.dropdown-item(href="#") Another action
+        li
+         hr.dropdown-divider
+        li
+         a.dropdown-item(href="#") Something else here

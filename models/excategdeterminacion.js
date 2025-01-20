@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ExCategDeterminacion.init({
+    ExamenCategoriaId:DataTypes.INTEGER
     
   }, {
     sequelize,

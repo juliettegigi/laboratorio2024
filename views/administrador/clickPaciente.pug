@@ -4,8 +4,8 @@ block aside
 block content
     if rtaCargarOrden 
         include ./rtaCargarOrden.pug
-    div(id="divLista" class=`${rtaCargarOrden?'oculto':''}`)
-     ul(class=`list-group list-group-flush `)
+    .container.d-flex.justify-content-center(id="divLista" class=`${rtaCargarOrden?'oculto':''}`)
+     ul(class=`list-group list-group-flush lista-datos-usuario`)
          li(class="list-group-item")= `Nombre: `+usuario.nombre  
          li(class="list-group-item") Apellido: 
              span= usuario.apellido 

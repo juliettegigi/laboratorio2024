@@ -1,22 +1,56 @@
 export default class InputDataList{
     //recibo el input, 
-    //la lista, 
+    //la lista, el data list, 
     //el evento del socket q hace una búsqueda paginada y  retorna un arreglo y el total de registros
     // el texto del li, un cb q retorna el texto del li, el cb recibe el objeto del arreglo q retornó la búsqueda
     // el inputHiddenNAme el nombre del input q va a llevar el id de lo q se seleccione
     // funcionEnter es una funcion q se va a ejecutar cuando se seleccione un elemento de la datalist
-    constructor(input,lista,nombreEvento,liTextCb,limit,offset,inputHiddenName,funcionEnter=null){
+    constructor(input,dataList,nombreEvento,liTextCb,limit,offset,inputHiddenName,inputHiddenName2,seleccionadosLista=null){
         this.input=input;
         this.nombreEvento=nombreEvento;
-        this.lista=lista;
+        this.dataList=dataList;
         this.liTextCb=liTextCb;
         this.limit=limit;
         this.offset=offset;
         this.indexHover = -1;
-        this.lista.parentNode.style.display = "none"; // Oculta la div de la lista
+        this.dataList.parentNode.style.display = "none"; // Oculta la div de la lista
         this.inputHiddenName=inputHiddenName
-       this.funcionEnter=funcionEnter;
-       this.arrayLis=[]
+        this.inputHiddenName2=inputHiddenName2
+        
+        this.seleccionadosLista=seleccionadosLista;
+        this.arrayLis=[]
+    }
+
+
+    crearInput=(value,inputName)=>{
+      const input=document.createElement('input');
+      input.type='hidden';
+      input.name=inputName;
+      input.value=value
+      return input
+    }
+    
+
+
+     addCruz=(li,funcionCruz)=>{
+      const cruz = document.createElement('button');
+      cruz.type="button"
+      cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
+      cruz.addEventListener('click',funcionCruz) 
+      li.appendChild(cruz);
+  }
+
+    funcionEnter=(text,id)=>{// funcion para que se haga esto cuando se seleccione algo del dataList
+        //antes de agregar a la lista tengo que ver q el text que se quiera agregar no exista en la lista
+        const lisListaExamenesSeleccionados=[...this.seleccionadosLista.querySelectorAll('li')];
+        if(lisListaExamenesSeleccionados.find(li=>li.textContent===text))
+            return
+        const li=document.createElement('li')
+        li.innerHTML=text;
+        this.addCruz(li,(evento)=>{li.remove()})
+        this.seleccionadosLista.appendChild(li)
+        li.appendChild(this.crearInput(text,`${this.inputHiddenName2}`))
+        li.appendChild(this.crearInput(id,`${this.inputHiddenName2}Id`))
     }
 
     
@@ -26,8 +60,8 @@ export default class InputDataList{
       if(this.inputHiddenName)
          this.input.form.elements[this.inputHiddenName].value=this.arrayLis[indice].id
       this.input.select(); // Selecciona todo el texto del input
-      this.lista.parentNode.style.display = "none"; // Oculta la lista
-      if(this.funcionEnter){
+      this.dataList.parentNode.style.display = "none"; // Oculta la lista
+      if(this.seleccionadosLista){
         this.funcionEnter(event.target.textContent,this.arrayLis[indice].id)
   }
   }
@@ -37,7 +71,7 @@ export default class InputDataList{
     crearLi=(text="",indice,eventoClickLi=null)=>{
       const li=document.createElement('li')  
         li.textContent=text
-        li.classList.add('liInputDataList')
+        li.classList.add('liInputDataList','dataList-li')
         li.setAttribute('indice',indice)
         if(eventoClickLi)
           li.addEventListener('mousedown',eventoClickLi)
@@ -54,9 +88,10 @@ export default class InputDataList{
     }
     
     emitirEventoSocket=(inputValue,masResultados=false)=>{
+      console.log("wwwwwwwww")
             if(!masResultados){
                this.arrayLis=[];
-               this.lista.innerHTML=""
+               this.dataList.innerHTML=""
                this.offset=0
             }
              const cb=(arreglo,total)=>{ 
@@ -64,7 +99,7 @@ export default class InputDataList{
                      if(masResultados)  for(let elem of arreglo){
                                      this.arrayLis.push({li:this.crearLi(this.liTextCb(elem),indice,this.clickLi),
                                                          id:elem.id})
-                                     this.lista.insertBefore(this.arrayLis[indice].li,this.lista.lastChild)   
+                                     this.dataList.insertBefore(this.arrayLis[indice].li,this.dataList.lastChild)   
                                      indice++
                                     }              
                      
@@ -72,13 +107,13 @@ export default class InputDataList{
                                      const li=this.crearLi();
                                      li.innerHTML=`"${inputValue}" <span style="font-weight:bolder ;">no registrado.</span>`
                                      li.classList.add("text-danger")
-                                     this.lista.appendChild(li);
+                                     this.dataList.appendChild(li);
                                 }else{  
                                         for(let elem of arreglo) {
                                              
                                              this.arrayLis.push({li:this.crearLi(this.liTextCb(elem),indice,this.clickLi),
                                                                  id:elem.id+`${elem.origen?"-"+elem.origen:""}`})
-                                             this.lista.appendChild(this.arrayLis[indice].li);
+                                             this.dataList.appendChild(this.arrayLis[indice].li);
                                              indice++;
                                             }
                                             console.log("ARREGLO")
@@ -91,15 +126,15 @@ export default class InputDataList{
                       console.log(arreglo.length)  
                    if(arreglo.length  && total>this.offset+this.limit){
                         if(masResultados)
-                            this.lista.lastChild.remove()
+                            this.dataList.lastChild.remove()
                         this.arrayLis.push({li:this.crearLi("ver más resultados",indice,(event)=>this.verMas(inputValue)),id:0})
                         const li=this.arrayLis[indice].li;
                         //li.addEventListener('click',(event)=>this.verMas(inputValue))
-                        this.lista.appendChild(li);
+                        this.dataList.appendChild(li);
                     }
                     else{
                         if(masResultados)
-                            this.lista.lastChild.remove()
+                            this.dataList.lastChild.remove()
                     }
                     this.input.focus();
              }
@@ -123,17 +158,17 @@ export default class InputDataList{
             this.emitirEventoSocket(this.input.value);
         });
         this.input.addEventListener('focus', (e) => {
-          this.lista.parentNode.style.display = "";
+          this.dataList.parentNode.style.display = "";
         });
         this.input.addEventListener('blur', (e) => {
-          this.lista.parentNode.style.display = "none";
+          this.dataList.parentNode.style.display = "none";
         });   
 
 
 
          // evento para moverme en la lista 
         this.input.addEventListener("keydown", (e) => {
-            const items = this.lista.querySelectorAll("li");
+            const items = this.dataList.querySelectorAll("li");
             if (!this.arrayLis.length) return;
         
             // Flecha hacia abajo
@@ -167,7 +202,7 @@ export default class InputDataList{
                       this.input.value = this.arrayLis[this.indexHover].li.textContent; // Asigna el texto al input
                       this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
                       this.input.select(); // Selecciona todo el texto del input
-                      this.lista.parentNode.style.display = "none"; // Oculta la lista
+                      this.dataList.parentNode.style.display = "none"; // Oculta la lista
                       if(this.funcionEnter){
                             this.funcionEnter(this.arrayLis[this.indexHover].li.textContent)
                       }

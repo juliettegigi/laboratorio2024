@@ -1,5 +1,5 @@
 var express = require('express');
-const {deleteOrden,getInicio, getForm,crearPaciente, getBusqueda,getPaciente,putPaciente,getFormOrden,postOrden,putOrden, getPDF} = require('../controllers/admin');
+const {deleteOrden,getInicio, getForm,crearPaciente, getBusqueda,getPaciente,putPaciente,putMuestrasRequeridas,getFormOrden,postOrden,putOrden, getPDF} = require('../controllers/admin');
 var router = express.Router();
 
 /* GET home page. */
@@ -13,6 +13,7 @@ router.delete('/orden', deleteOrden);
 router.get('/paciente/:usuarioId', getPaciente);
 router.post('/paciente',crearPaciente);
 router.put('/paciente/:UsuarioId',putPaciente);
+router.put('/muestra',putMuestrasRequeridas)
 router.get('/pdf/',getPDF)
 // form(action=editarOrden?`/admins/orden?_method=put`:`/admins/orden/` method="post" class="formOrden")
 module.exports = router;

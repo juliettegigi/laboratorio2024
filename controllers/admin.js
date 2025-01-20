@@ -370,31 +370,41 @@ const putOrden=async(req,res)=>{
 
 
 const putMuestrasRequeridas=async(req,res)=>{
-  //
-  const muestrasRequeridasIdPresentadas=(req.body.muestrasRequeridas && Array.isArray(req.body.muestrasRequeridas ))?req.body.muestrasRequeridas:[req.body.muestrasRequeridas];
-  const muestrasRequeridas = await MuestraRequerida.findAll({ where: { OrdenId: ordenId } });
-  let  i=0;
-  const promises = muestrasRequeridas.map( (muestraRequerida) => {
-                                             if (muestrasRequeridasIdPresentadas.includes(muestraRequerida.id.toString())) {
-                                                i++;
-                                                return MuestraRequerida.update({ isPresentada: true },  { where: { id:muestraRequerida.id } },{ transaction });
-                                             } else {
-                                                 return MuestraRequerida.update({ isPresentada: false }, { where: { id:muestraRequerida.id} }, { transaction });
-                                               }
-                                         });
-   // si están todas las muestras presentadas ==> cambio el estaado a Analítica                                      
-   if(i===muestrasRequeridas.length){
-      promises.push(Orden.update({EstadoId:ESTADO.analitica.id},
-       { where: { id:ordenId } }, { transaction })
-     )
-   }
-   await Promise.all(promises);
-   await transaction.commit();  
-   req.flash('rtaCargarOrden',{ 
-     origen:'putOrden',
-      alertType: 'success',
-      alertMessage: `Orden ${ordenId} actualizada.` })
-   return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+  const transaction = await sequelize.transaction();
+  try{
+    console.log('------------------------------------------------ PUT MUESTRAS REQUERIDAS' );
+    console.log(req.body)
+    const{PacienteId,OrdenId}=req.body
+    const muestrasRequeridasIdPresentadas=(req.body.muestrasRequeridas && Array.isArray(req.body.muestrasRequeridas ))?req.body.muestrasRequeridas:[req.body.muestrasRequeridas];
+    const muestrasRequeridas = await MuestraRequerida.findAll({ where: { OrdenId } });
+    let  i=0;
+    const promises = muestrasRequeridas.map( (muestraRequerida) => {
+                                               if (muestrasRequeridasIdPresentadas.includes(muestraRequerida.id.toString())) {
+                                                  i++;
+                                                  return MuestraRequerida.update({ isPresentada: true },  { where: { id:muestraRequerida.id } },{ transaction });
+                                               } else {
+                                                   return MuestraRequerida.update({ isPresentada: false }, { where: { id:muestraRequerida.id} }, { transaction });
+                                                 }
+                                           });
+     // si están todas las muestras presentadas ==> cambio el estaado a Analítica                                      
+     if(i===muestrasRequeridas.length){
+        promises.push(Orden.update({EstadoId:ESTADO.analitica.id},
+         { where: { id:OrdenId } }, { transaction })
+       )
+     }
+     await Promise.all(promises);
+     await transaction.commit();  
+     req.flash('rtaCargarOrden',{ 
+       origen:'putOrden',
+        alertType: 'success',
+        alertMessage: `Orden ${OrdenId} muestras actualizadas.` })
+     return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+     }catch(error) {
+      console.log(error)
+      await transaction.rollback();
+      return res.render('administrador/index')
+    };
+  
    
 }
 

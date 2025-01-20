@@ -1,0 +1,174 @@
+.logo{
+    width: 63px;
+}
+
+/* .navbar-nav li.nav-item:hover > a {
+  background-color: #261290;
+  color: #FFFFFF;
+} */
+ 
+
+.navbar-nav li.nav-item:hover > a {
+    background-color: #261290;
+    color: #FFFFFF;
+  }
+  
+.form-div{
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+}
+
+
+
+.form-div input{
+  text-align: right;
+  border:0 ;
+  outline: 0;
+  width: 100%;
+}
+
+.form-div div+div {
+  width:80%;
+}
+
+#selectMuestra{
+  border: none;
+  outline: none;
+  appearance: none;
+}
+
+#selectMuestra:focus {
+  outline: none ; /* Asegúrate de eliminar el contorno azul al enfocarlo */
+  box-shadow: none ;/* En caso de que el navegador use un box-shadow */
+}
+
+
+  .btn-primary, 
+  .btn-primary:hover {
+    background: #261290;
+    color: #fff !important;
+    border: 0;
+}
+
+.form-btn{
+  margin-top:1rem;
+}
+
+.contenedorLista{
+  background-color: #FFFFFF;
+  border: solid #e7e0e0 2px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+
+
+
+ /* dataList Styles */
+ ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dataList-li {
+  padding: 10px;
+  margin-bottom: 5px;
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dataList-li:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+
+a:hover {
+  background-color: #0056b3;
+}
+
+
+.hover {
+  background-color: #007BFF; /* Color de fondo al estar en hover */
+  color: white;             /* Color del texto */
+ 
+}
+
+
+.liInputDataList{
+  pointer-events: auto;
+}
+.liInputDataList:hover{
+  background-color: #007BFF; /* Color de fondo al estar en hover */
+  color: white;             /* Color del texto */
+}
+
+.btnVerMas {
+  background-color: #9db0c5; /* Color de fondo predeterminado */
+  color: white; /* Color de texto */
+  border: 1px solid transparent; /* Borde transparente */
+  width: auto;
+}
+
+/* Define estilos para el estado de enfoque (focus) */
+.btnVerMas:focus {
+  outline: none; /* Elimina el borde de enfoque predeterminado */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5); /* Añade sombra para indicar el enfoque */
+}
+
+/* Define estilos para el estado de enfoque visible (focus-visible) */
+.btnVerMas:focus-visible {
+  outline: 2px solid #0056b3; /* Añade borde azul oscuro para indicar el enfoque visible */
+}
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  h1, h2 {
+    font-size: 1.5em;
+  }
+
+  ul li {
+    font-size: 0.9em;
+    padding: 8px;
+  }
+}
+
+
+
+
+.hover-link {
+  color: #261290;  /* Color de texto por defecto */
+  text-decoration: none; /* Sin subrayado por defecto */
+  cursor: pointer; /* Cambiar cursor al estilo de un enlace */
+  transition: color 0.3s, text-decoration 0.3s; /* Transiciones suaves */
+  font-weight: bold;
+}
+
+/* Estilo al pasar el mouse (hover) */
+.hover-link:hover {
+  /* Cambiar color al mismo que el SVG */
+  color: #1d66ee; 
+  text-decoration: underline; /* Añadir subrayado */
+}
+
+.tablaCategorias-cruz{
+  font-weight: bolder;
+  color: rgb(165, 31, 31);
+  background-color:#eff2f7;
+  border-radius: 50%;  
+  text-align: right;
+}
+.tablaCategorias-cruz:hover{
+  background-color:#E2E5E9;
+}
+
+.hidden{
+  display: none;
+}

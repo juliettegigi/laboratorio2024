@@ -1,4 +1,4 @@
-const {Medico,Diagnostico,Examen,sequelize}=require('../models');
+const {Medico,Diagnostico,Examen,Determinacion,sequelize}=require('../models');
 const { Op } = require('sequelize');
 const socketController = (socket) => {
 
@@ -62,11 +62,33 @@ const socketController = (socket) => {
   
     });
 
+
+    socket.on('buscarDeterminacion',async(termino,limit=5,offset=0,cb)=>{
+        try {  const { rows: determinaciones, count: total } 
+               = await Determinacion.findAndCountAll(
+                { where: { [Op.or]: [{ codigo: { [Op.like]: `%${termino}%` } },
+                                     { nombre: { [Op.like]: `%${termino}%` } },
+                                     { tags: { [Op.like]: `%${termino}%` } }
+                                   ]
+                         },
+                limit: limit,
+                offset: offset
+                });
+              cb(determinaciones,total);
+           }
+        catch(err){
+            console.log(err)
+        }       
+    
+    });
+
   
  
  }
  
-     
+    
+ 
+ 
  
  module.exports = {
      socketController

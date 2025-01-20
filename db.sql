@@ -1,4 +1,4 @@
-drop database dblab2_2;
+ drop database dblab2_2;
 
 
 create database dblab2_2;
@@ -64,8 +64,8 @@ CREATE TABLE estados(
  nombre varchar(50)
  );
  INSERT INTO `estados` (`id`, `nombre`) VALUES
-(1, 'Analitica'),
-(2, 'Esperando toma de muestra'),
+ (1, 'Esperando toma de muestra'),
+(2, 'Analítica'),
 (3, 'Informada'),
 (4, 'Para validar'),
 (5, 'Pre informe');
@@ -2372,6 +2372,20 @@ createdAt DATETIME DEFAULT NOW(),
     deletedAt DATETIME DEFAULT NULL  
 );
 
+CREATE TABLE resultados(
+id INT PRIMARY KEY AUTO_INCREMENT,
+ordenExamenId int,
+resultado decimal(10,2),
+unidadId int,
+FOREIGN KEY (ordenExamenId) REFERENCES ordenExamenes(id),
+FOREIGN KEY (unidadId) REFERENCES unidades(id) ON DELETE CASCADE,
+createdAt DATETIME DEFAULT NOW(),
+updatedAt DATETIME DEFAULT NOW(),
+deletedAt DATETIME DEFAULT NULL  
+);
+
+
+
 INSERT INTO medicos (nombre,email) VALUES
 ('medico','medico@gmail.com'),
 ('medico1','medico1@gmail.com'),
@@ -2408,15 +2422,15 @@ values
 (7,"2664123648","propio")
 ;
 
-insert into pacientes(usuarioId,nacimiento,embarazada,provincia,localidad,direccion,sexo)
+insert into pacientes(usuarioId,nacimiento,embarazada,provincia,localidad,direccion,sexo,edad)
 values  
-('1','1992-3-2',1,'provincia1','localidad1','direccion1','Femenino'),
-('2','1992-3-2',0,'provincia2','localidad2','direccion2','Otro'),
-('3','1992-3-2',0,'provincia3','localidad3','direccion3','Masculino'),
-('4','1992-3-2',0,'provincia4','localidad4','direccion4','Prefiero no decirlo'),
-('5','1992-3-2',1,'provincia5','localidad5','direccion5','Otro'),
-('6','1992-3-2',0,'provincia6','localidad6','direccion6','Femenino'),
-('7','1992-3-2',1,'provincia7','localidad7','direccion7','Femenino');                 
+('1','1992-3-2',1,'provincia1','localidad1','direccion1','Femenino',21),
+('2','1992-3-2',0,'provincia2','localidad2','direccion2','Otro',22),
+('3','1992-3-2',0,'provincia3','localidad3','direccion3','Masculino',23),
+('4','1992-3-2',0,'provincia4','localidad4','direccion4','Prefiero no decirlo',24),
+('5','1992-3-2',1,'provincia5','localidad5','direccion5','Otro',25),
+('6','1992-3-2',0,'provincia6','localidad6','direccion6','Femenino',26),
+('7','1992-3-2',1,'provincia7','localidad7','direccion7','Femenino',27);                 
 
 insert into usuarioroles(usuarioId,rolId)
 values     
@@ -2446,7 +2460,12 @@ values(1,1,1,1,1,1,1);
 insert into ordenExamenes(id,ordenId,examenId)
 values(1,1,1),-- orina completa
       (2,1,3);-- hemograma
-      
+   
+   
+insert into muestraRequeridas(ordenId,muestraId,isPresentada)
+values (1,3,0),
+       (1,5,0);
+       
 insert into examenCategorias(id,nombre,examenId)
 values
          -- el hemograma se subdivide en

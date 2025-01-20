@@ -18,6 +18,35 @@ module.exports = (sequelize, DataTypes) => {
       Examen.belongsTo(models.Muestra)
 
     }
+
+
+
+    static getExamenesByNombreOcodigo=async(termino,limit=5,offset=0)=>{
+      try{
+        const pacientes= await Usuario.findAndCountAll({ include: [ { model: sequelize.models.Rol, through: sequelize.models.UsuarioRol, 
+                                                                       where: { nombre: 'Paciente' }},
+                                                                    {model: sequelize.models.Telefono}
+                                                                      
+                                                                      ],
+                                                        where: { [Op.or]: [{ documento: { [Op.regexp]: termino } },
+                                                                           { email: { [Op.regexp]: termino } },
+                                                                           { apellido: { [Op.regexp]: termino } }]},
+                                                        attributes: { exclude: ['pass'] },
+                                                        order: [
+                                                          ['apellido', 'ASC'],  
+                                                          ['nombre', 'ASC']     
+                                                        ],
+                                                        limit,
+                                                        offset
+                                                      });
+        
+        return pacientes; //retorna objeto.count() y objeto.rows(este es el arreglo de pacientes)
+      }catch(error){
+        console.log('models==>usuario');
+        throw error;
+      }
+    }
+
   }
   Examen.init({
     codigo: DataTypes.STRING,
@@ -29,7 +58,8 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Examen',
     tableName: 'Examenes',
-    timestamps: false
+    timestamps: false,
+    paranoid:true
   });
   return Examen;
 };

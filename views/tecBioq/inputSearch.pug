@@ -1,0 +1,8 @@
+form(class="d-flex mx-auto w-50" role="search" action=`/tecBioq`)
+     span.spanSearch.w-100  
+       i(class="bi bi-search")
+       input(class="me-2 inputSearchDeterminacion" type="search" placeholder="nombre/codigo a buscar" aria-label="Search" autofocus name="inputSearch" value=inputSearch?inputSearch:'' onfocus="this.select()" autocomplete="off")
+       //- para la query
+       input(type="hidden" name="group" value=1)
+       input(type="hidden" name="page" value=1)
+     a(href="/admins/form?edit=false" class="btn btn-secondary btnNuevoPaciente "  role="button" type="button" ) Crear Examen 
