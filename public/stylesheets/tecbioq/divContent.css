@@ -1,0 +1,14 @@
+#divContent{
+    margin-top:3rem;
+    padding: 20px;
+    width: calc(100% - 240px); 
+   margin-left: 240px;
+}
+
+.oculto {
+    display: none;
+}
+
+.ocultoHijo {
+  display:inherit;
+}

@@ -100,10 +100,13 @@ const getFormExamen=async(req,res)=>{
 const getExamen=async(req,res)=>{
   try {
     const {id}=req.params;
-    const examen = await Examen.findByPk(id);
+    const examen = await Examen.findByPk(  id,
+                                          {include: [{model: Muestra},]},
+                                         );
+    const muestras= await Muestra.findAll();                                     
     if(examen){
-      return res.render('tecBioq/clickExamen',{
-                                                       examen,
+      return res.render('tecBioq/clickExamen',{ muestras,
+                                                examen,
                                                       })
     }
   } catch (error) {
@@ -119,9 +122,73 @@ const getExamen=async(req,res)=>{
 
 
 
+const getAddCategDet=async(req,res)=>{
+   try {
+      const {id}=req.params;
+      const examen = await Examen.findByPk(  id,
+                                            {include: [{model: Muestra},]},
+                                           );
+      const muestras= await Muestra.findAll();  
+       return res.render('tecBioq/addCategDet',{ muestras,
+         examen,
+               })
+     
+   } catch (error) {
+     console.error(error);
+     return res.render('tecBioq/clickExamen')
+   };
+ 
+ 
+ 
+   
+ }
+
+
+const putExamen=async(req,res)=>{
+   try {
+     console.log(req.body)
+     const{id,nombre,codigo,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza}=req.body;
+     await Examen.update( {nombre,codigo,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza},
+                          { where: { id} }
+                        )
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+
+   } catch (error) {
+     console.error(error);
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+   };
+ 
+ 
+ 
+   
+ }
+ 
+
+ const postCategDet=async(req,res)=>{
+   try {
+
+      const {id}=req.params;
+     console.log(req.body)
+    
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+
+   } catch (error) {
+     console.error(error);
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+   };
+ 
+ 
+ 
+   
+ }
+
+
  module.exports={
-   getExamen,
+    getAddCategDet,
+    getExamen,
     getInicio,
     getFormExamen,
-    postExamen
+    postCategDet,
+    postExamen,
+    putExamen,
  }

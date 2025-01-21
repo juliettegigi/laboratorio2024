@@ -59,11 +59,13 @@ export default class InputDataList{
       const indice=event.target.getAttribute('indice')
       if(this.inputHiddenName)
          this.input.form.elements[this.inputHiddenName].value=this.arrayLis[indice].id
-      this.input.select(); // Selecciona todo el texto del input
-      this.dataList.parentNode.style.display = "none"; // Oculta la lista
-      if(this.seleccionadosLista){
-        this.funcionEnter(event.target.textContent,this.arrayLis[indice].id)
-  }
+        this.dataList.parentNode.style.display = "none"; // Oculta la lista
+        if(this.seleccionadosLista){
+          this.funcionEnter(event.target.textContent,this.arrayLis[indice].id)
+        }
+        console.log("eeee")
+        console.log(this.input)
+        this.input.select();
   }
 
 
@@ -88,6 +90,9 @@ export default class InputDataList{
     }
     
     emitirEventoSocket=(inputValue,masResultados=false)=>{
+      this.dataList.parentNode.style.display = "";
+      this.indexHover=-1
+      this.dataList.parentNode.style.display = "";
       console.log("wwwwwwwww")
             if(!masResultados){
                this.arrayLis=[];
@@ -137,9 +142,10 @@ export default class InputDataList{
                             this.dataList.lastChild.remove()
                     }
                     this.input.focus();
+                    this.input.select();
              }
              socket.emit(this.nombreEvento,inputValue,this.limit,this.offset,cb)
-      
+             
     }
     
     updateHover(items) {
@@ -156,9 +162,7 @@ export default class InputDataList{
     inicializarInput() {
         this.input.addEventListener('input', (e) => {
             this.emitirEventoSocket(this.input.value);
-        });
-        this.input.addEventListener('focus', (e) => {
-          this.dataList.parentNode.style.display = "";
+           
         });
         this.input.addEventListener('blur', (e) => {
           this.dataList.parentNode.style.display = "none";
@@ -200,11 +204,12 @@ export default class InputDataList{
               else{
                     if (this.indexHover >= 0 && this.indexHover < this.arrayLis.length) {
                       this.input.value = this.arrayLis[this.indexHover].li.textContent; // Asigna el texto al input
-                      this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
+                      if(this.inputHiddenName)
+                       this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
                       this.input.select(); // Selecciona todo el texto del input
                       this.dataList.parentNode.style.display = "none"; // Oculta la lista
-                      if(this.funcionEnter){
-                            this.funcionEnter(this.arrayLis[this.indexHover].li.textContent)
+                      if(this.inputHiddenName2){
+                            this.funcionEnter(this.arrayLis[this.indexHover].li.textContent,this.arrayLis[this.indexHover].id)
                       }
                     }
               }

@@ -5,16 +5,6 @@ block content
   //
    if rtaCargarOrden 
         include ./rtaCargarOrden.pug
-  .container.d-flex.justify-content-center(id="divLista" )
-    ul(class=`list-group list-group-flush lista-datos-examen`)
-         li(class="list-group-item")= `Nombre: `+examen.nombre  
-         li(class="list-group-item") Código: 
-             span= examen.codigo 
-         li(class="list-group-item") Tags: 
-             span= examen.tags 
-         li(class="list-group-item") Muestra:
-             span= examen.tags
-         li(class="list-group-item") Tiempo de procesamiento:
-             span= examen.tiempoProcesamiento
-         li(class="list-group-item") Laboratorio que lo realiza:
-             span= examen.laboratorioQueLoRealiza
+  .container.d-flex.justify-content-start(id="divLista" )
+    include ./formExamen.pug
+    +formExamen("Editar",examen)

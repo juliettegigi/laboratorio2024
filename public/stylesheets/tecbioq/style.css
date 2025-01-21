@@ -13,47 +13,6 @@
     color: #FFFFFF;
   }
   
-.form-div{
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  justify-content: space-between;
-}
-
-
-
-.form-div input{
-  text-align: right;
-  border:0 ;
-  outline: 0;
-  width: 100%;
-}
-
-.form-div div+div {
-  width:80%;
-}
-
-#selectMuestra{
-  border: none;
-  outline: none;
-  appearance: none;
-}
-
-#selectMuestra:focus {
-  outline: none ; /* Asegúrate de eliminar el contorno azul al enfocarlo */
-  box-shadow: none ;/* En caso de que el navegador use un box-shadow */
-}
-
-
-  .btn-primary, 
-  .btn-primary:hover {
-    background: #261290;
-    color: #fff !important;
-    border: 0;
-}
-
-.form-btn{
-  margin-top:1rem;
-}
 
 .contenedorLista{
   background-color: #FFFFFF;
@@ -171,4 +130,5 @@ a:hover {
 
 .hidden{
   display: none;
+  
 }

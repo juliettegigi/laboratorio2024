@@ -2,13 +2,11 @@ aside(class="d-flex position-fixed vh-100 " style="top: calc(var(--header-height
  nav(class="nav flex-column bg-light p-3" style="width: 240px;")
   ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
    li(class="nav-item")
-    a(class="nav-link" id="btnInicio")
+    a(class="nav-link" id="btnInicio" href=`http://localhost:3000/tecBioq/examen/${examen.id}`)
      p Información de 
      p= examen.nombre
    li(class="nav-item")
-    a(class="nav-link" id="btnEditar") Editar
-   li(class="nav-item")
-    a(class="nav-link" id="btnDeterminacion") 
+    a(class="nav-link" id="btnDeterminacion" href=`http://localhost:3000/tecBioq/examen/${examen.id}/addCategDet`) 
      p Agregar 
      p categoría/determinaciones
    li(class="nav-item")
