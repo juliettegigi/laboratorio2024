@@ -12,7 +12,7 @@ const OFFSET=0;
 
 
 
-const divMostrarTabla=document.querySelectorAll(".divMostrarTabla");
+//const divMostrarTabla=document.querySelectorAll(".divMostrarTabla");
 const formdiv1=document.querySelector(".form-div");
 const divAddDeterminacion=document.querySelector(".addDeterminacion");
 
@@ -32,12 +32,12 @@ div.form-div
     div.classList.add(clase);
     params.forEach(elem=>div.appendChild(elem))
 }
-const mostrarTabla=(evento,i)=>{
+/* const mostrarTabla=(evento,i)=>{
      cruz.classList.remove('hidden');
      tablaDiv.classList.remove('hidden');
      divMostrarTabla[0].style="visibility: hidden;";
 
-}            
+}  */           
 
 const crearInput=(name,placeholder,type)=>{
     const categoriaInput=document.createElement('input');
@@ -84,6 +84,7 @@ const crearRow=()=>{
     const row=document.createElement('tr');
     const td1=document.createElement('td');
     const td2=document.createElement('td');
+    const td3=document.createElement('td');
     const categoriaInput=crearInput(`categorias`,"nombre de la categoría")
     td1.appendChild(categoriaInput);
     row.appendChild(td1);
@@ -110,7 +111,8 @@ const crearRow=()=>{
         
         row.appendChild(td2)
         const cruz=crearCruzRow();
-        row.appendChild(cruz)
+        row.appendChild(td3)
+        td3.appendChild(cruz)
         cruz.addEventListener('click',eventoCruzRow) 
 
 
@@ -128,9 +130,9 @@ const crearRow=()=>{
 
 
 
-divMostrarTabla[0].addEventListener('click',e=>mostrarTabla(e,0))
+//divMostrarTabla[0].addEventListener('click',e=>mostrarTabla(e,0))
 
-cruz.addEventListener('click',(evento)=>{
+/* cruz.addEventListener('click',(evento)=>{
     tablaDiv.classList.add('hidden')
     divMostrarTabla[0].style="visibility: visible;";
     const trs=tBody[0].querySelectorAll('tr');
@@ -140,7 +142,7 @@ cruz.addEventListener('click',(evento)=>{
             tr.remove()
     })
 }
-)
+) */
 
 const eventoAddRow=()=>{
     tBody[0].appendChild(crearRow(1));
@@ -176,5 +178,7 @@ btnAddRow[0].addEventListener('keydown', (event) => {
 
 
   document.querySelector('#btnEnviar').addEventListener('click',function(){
+
           this.type='submit'
+          
   })

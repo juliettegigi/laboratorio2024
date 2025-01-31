@@ -10,7 +10,7 @@ const flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminsRouter = require('./routes/admins');
-var tecBioqRouter = require('./routes/tecBioq');
+var tecBioqRouter = require('./routes/tecbioq');
 
 var app = express();
 

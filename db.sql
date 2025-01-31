@@ -2280,15 +2280,17 @@ create table examenDeterminaciones(
     FOREIGN KEY (determinacionId) REFERENCES determinaciones(id)  
 );
 
+
+
 CREATE TABLE exCategDeterminaciones(
      id INT PRIMARY KEY AUTO_INCREMENT,
-     examenCategoriaId int,
-     determinacionId int,
-     createdAt datetime DEFAULT NOW(),
-     updatedAt datetime DEFAULT NOW(),
-     deletedAt datetime DEFAULT NULL,
-     FOREIGN KEY(examenCategoriaId) REFERENCES examenCategorias(id),   
-     FOREIGN KEY(determinacionId) REFERENCES determinaciones(id) 
+     examenCategoriaId INT,
+     determinacionId INT,
+     createdAt DATETIME DEFAULT NOW(),
+     updatedAt DATETIME DEFAULT NOW(),
+     deletedAt DATETIME DEFAULT NULL,
+     FOREIGN KEY (examenCategoriaId) REFERENCES examenCategorias(id) ON DELETE CASCADE,   
+     FOREIGN KEY (determinacionId) REFERENCES determinaciones(id) 
 );
 
 CREATE TABLE exCategParametros(
@@ -2298,7 +2300,7 @@ CREATE TABLE exCategParametros(
      createdAt datetime DEFAULT NOW(),
      updatedAt datetime DEFAULT NOW(),
      deletedAt datetime DEFAULT NULL,
-     FOREIGN KEY(examenCategoriaId) REFERENCES examenCategorias(id),   
+     FOREIGN KEY(examenCategoriaId) REFERENCES examenCategorias(id) ON DELETE CASCADE,   
      FOREIGN KEY(parametroId) REFERENCES parametros(id) 
 );
 

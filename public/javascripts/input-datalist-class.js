@@ -93,7 +93,6 @@ export default class InputDataList{
       this.dataList.parentNode.style.display = "";
       this.indexHover=-1
       this.dataList.parentNode.style.display = "";
-      console.log("wwwwwwwww")
             if(!masResultados){
                this.arrayLis=[];
                this.dataList.innerHTML=""
@@ -124,11 +123,7 @@ export default class InputDataList{
                                             console.log("ARREGLO")
                                             console.log(arreglo)
                                      }
-                        }
-                      console.log("MIRAAADDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
-                      console.log(total)
-                      console.log(this.offset)
-                      console.log(arreglo.length)  
+                        } 
                    if(arreglo.length  && total>this.offset+this.limit){
                         if(masResultados)
                             this.dataList.lastChild.remove()
@@ -142,7 +137,7 @@ export default class InputDataList{
                             this.dataList.lastChild.remove()
                     }
                     this.input.focus();
-                    this.input.select();
+                  //  this.input.select();
              }
              socket.emit(this.nombreEvento,inputValue,this.limit,this.offset,cb)
              

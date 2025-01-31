@@ -10,12 +10,12 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      ExCategDeterminacion.belongsTo(models.ExamenCategoria)
+      ExCategDeterminacion.belongsTo(models.ExamenCategoria, { foreignKey: 'ExamenCategoriaId' });
       ExCategDeterminacion.belongsTo(models.Determinacion)
     }
   }
   ExCategDeterminacion.init({
-    ExamenCategoriaId:DataTypes.INTEGER
+   // ExamenCategoriaId:DataTypes.INTEGER
     
   }, {
     sequelize,

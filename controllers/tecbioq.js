@@ -1,7 +1,9 @@
 const { Op } = require('sequelize');
 
-const {Muestra,sequelize,
-   Examen,ExamenCategoria,ExCategDeterminacion} = require('../models');
+const {
+  Determinacion,Examen,ExCategDeterminacion,ExamenCategoria,
+  Muestra,sequelize,
+   } = require('../models');
 
 const getInicio=async(req,res)=>{
 
@@ -129,8 +131,12 @@ const getAddCategDet=async(req,res)=>{
                                             {include: [{model: Muestra},]},
                                            );
       const muestras= await Muestra.findAll();  
+      const categorias=await examen.getExamenCategoria({include: [{model: ExCategDeterminacion,
+                                                                  include: [{ model: Determinacion }]},]
+                                                                },);
        return res.render('tecBioq/addCategDet',{ muestras,
          examen,
+         categorias
                })
      
    } catch (error) {
@@ -183,12 +189,25 @@ const putExamen=async(req,res)=>{
  }
 
 
+
+const deleteCategoria=async(req,res)=>{
+   try {
+    console.log("wwwwwwwwwwwwwwwwwwwwww")
+     const {id,examenId}=req.params;
+     await ExamenCategoria.destroy({where:{id}})
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
+   }catch(error){
+     console.error(error)
+    }
+}
+
  module.exports={
-    getAddCategDet,
-    getExamen,
-    getInicio,
-    getFormExamen,
-    postCategDet,
-    postExamen,
-    putExamen,
+  deleteCategoria,
+  getAddCategDet,
+  getExamen,
+  getInicio,
+  getFormExamen,
+  postCategDet,
+  postExamen,
+  putExamen,
  }
