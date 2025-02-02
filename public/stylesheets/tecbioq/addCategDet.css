@@ -60,3 +60,12 @@
     background-color: #f1f1f1;
     margin-bottom: 2rem;
 }
+
+
+.tabla-td-actions{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+

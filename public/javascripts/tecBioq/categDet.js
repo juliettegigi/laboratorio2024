@@ -9,7 +9,7 @@ const tBody=document.querySelectorAll('tbody')
 const LIMIT=5;
 const OFFSET=0;
 
-
+console.log("golll")
 
 
 //const divMostrarTabla=document.querySelectorAll(".divMostrarTabla");
@@ -104,7 +104,8 @@ const crearRow=()=>{
         div0.appendChild(div)
         const divSeleccionados=document.createElement('div');
         const ulSeleccionados=document.createElement('ul')
-        ulSeleccionados.id=`listaDeterminacionesSeleccionadas-${i2}`
+        ulSeleccionados.id=`listaDeterminacionesSeleccionadas-${i2}`;
+        ulSeleccionados.classList.add('listaDeterminacionesSeleccionadas');
         divSeleccionados.appendChild(ulSeleccionados)
         td2.appendChild(div0)
         td2.appendChild(divSeleccionados)
@@ -145,12 +146,13 @@ const crearRow=()=>{
 ) */
 
 const eventoAddRow=()=>{
-    tBody[0].appendChild(crearRow(1));
+    console.log("seeeeee")
+    tBody[1].appendChild(crearRow(1));
     const eventoBuscarDeterminacion='buscarDeterminacion'
     const liTextCbDeterminaciones=elem=>`${elem.codigo}-${elem.nombre}`
     const listaDeterminaciones=formExamen.querySelector(`#listaDeterminaciones-${i2}`);
     const listaDeterminacionesSeleccionadas=formExamen.querySelector(`#listaDeterminacionesSeleccionadas-${i2}`);
-    const input3=new InputDataList(formExamen[`determinacion-${i2}`],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",`determinaciones-${i2}`,listaDeterminacionesSeleccionadas);
+    const input3=new InputDataList(formExamen[`determinacion-${i2}`],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",`det`,listaDeterminacionesSeleccionadas);
     input3.inicializarInput()
 
     i2++;
@@ -169,7 +171,7 @@ btnAddRow[0].addEventListener('keydown', (event) => {
 
 
   const focusPrimerInput=()=>{
-    const lastRow = document.querySelector("tbody tr:last-child");
+    const lastRow = tBody[1].querySelector(" tr:last-child");
     if(lastRow){
         const input = lastRow.querySelector("input");
         input.focus();
@@ -177,8 +179,29 @@ btnAddRow[0].addEventListener('keydown', (event) => {
   }
 
 
-  document.querySelector('#btnEnviar').addEventListener('click',function(){
+  const btnEnviar=document.querySelector('#btnEnviar')
+  if(btnEnviar)
+    btnEnviar.addEventListener('click',function(){
 
           this.type='submit'
-          
+          document.querySelectorAll("tr").forEach((tr, index) => {
+            let primerIndex=null;
+            const secondTd = tr.querySelectorAll("td")[1]; // Obtiene el segundo <td>
+            if (secondTd) {
+              const lis = secondTd.querySelectorAll("ul.listaDeterminacionesSeleccionadas li"); // Obtiene los <li> dentro del <ul> correspondiente
+              
+              
+              
+              lis.forEach((li, liIndex) => {
+                const inputs = li.querySelectorAll("input"); // Obtiene los <input> dentro de cada <li>
+                if(primerIndex===null)
+                  primerIndex=index
+                inputs[1].name=`${(index-primerIndex)}`
+              });
+            }
+          });
+
   })
+
+
+ 

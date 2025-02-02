@@ -171,16 +171,35 @@ const putExamen=async(req,res)=>{
  
 
  const postCategDet=async(req,res)=>{
+  const transaction = await sequelize.transaction();
+  const {id}=req.params;
    try {
 
-      const {id}=req.params;
      console.log(req.body)
+     const categorias=Array.isArray(req.body.categorias)?  req.body.categorias
+                                                        :  [req.body.categorias];
+    let i=0;
+    for(let nombre of categorias){
+      const exCateg=await ExamenCategoria.create({ExamenId:id,nombre},
+                                   { transaction })
+      const detId=Array.isArray(req.body[`${i}`]) ? req.body[`${i}`]
+                                                  : [req.body[`${i}`]]
+      for (let id2 of detId){
+            await ExCategDeterminacion.create({ExamenCategoriaId:exCateg.id,DeterminacionId:parseInt(id2)},
+                                              { transaction })
+      }     
+      i++;                        
+    } 
+
     
-     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+
+    await transaction.commit();
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}/addCategDet`)
 
    } catch (error) {
      console.error(error);
-     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+     await transaction.rollback();
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}/addCategDet`)
    };
  
  
@@ -201,8 +220,21 @@ const deleteCategoria=async(req,res)=>{
     }
 }
 
+
+const deleteCategDet=async(req,res)=>{
+   try {
+    console.log("wwwwwwwwwwwwwwwwwwwwww")
+     const {DeterminacionId,ExamenCategoriaId,examenId}=req.params;
+     await ExCategDeterminacion.destroy({where:{DeterminacionId}})
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
+   }catch(error){
+     console.error(error)
+    }
+}
+
  module.exports={
   deleteCategoria,
+  deleteCategDet,
   getAddCategDet,
   getExamen,
   getInicio,

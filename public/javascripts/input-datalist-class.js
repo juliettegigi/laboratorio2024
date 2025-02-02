@@ -203,7 +203,9 @@ export default class InputDataList{
                        this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
                       this.input.select(); // Selecciona todo el texto del input
                       this.dataList.parentNode.style.display = "none"; // Oculta la lista
+                      console.log("dddddd",this.inputHiddenName2)
                       if(this.inputHiddenName2){
+                        console.log("EEEEEEEEWeeeeee")
                             this.funcionEnter(this.arrayLis[this.indexHover].li.textContent,this.arrayLis[this.indexHover].id)
                       }
                     }

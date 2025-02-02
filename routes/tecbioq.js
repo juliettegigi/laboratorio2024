@@ -1,6 +1,7 @@
 var express = require('express');
 const {
     deleteCategoria,
+    deleteCategDet,
     getExamen,
     getInicio,
     getFormExamen,
@@ -14,6 +15,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', getInicio);
 router.get('/categ/:examenId/:id',deleteCategoria)
+router.get('/categDetDelete/:DeterminacionId/:ExamenCategoriaId/:examenId/',deleteCategDet)
 router.get('/examen/:id', getExamen);
 router.get('/examen/:id/addCategDet', getAddCategDet);
 router.get('/getFormExamen', getFormExamen);
