@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 
 const {
-  Determinacion,Examen,ExCategDeterminacion,ExamenCategoria,
+  Determinacion,Examen,ExCategDeterminacion,ExamenCategoria,ExCategParametro,Parametro,
   Muestra,sequelize,
    } = require('../models');
 
@@ -128,13 +128,17 @@ const getAddCategDet=async(req,res)=>{
    try {
       const {id}=req.params;
       const examen = await Examen.findByPk(  id,
-                                            {include: [{model: Muestra},]},
                                            );
-      const muestras= await Muestra.findAll();  
       const categorias=await examen.getExamenCategoria({include: [{model: ExCategDeterminacion,
-                                                                  include: [{ model: Determinacion }]},]
+                                                                  include: [{ model: Determinacion }]},
+                                                                  {model: ExCategParametro,
+                                                                  include: [{ model: Parametro }]
+                                                                  }
+                                                                ]
                                                                 },);
-       return res.render('tecBioq/addCategDet',{ muestras,
+
+
+       return res.render('tecBioq/addCategDet',{ 
          examen,
          categorias
                })
@@ -148,6 +152,30 @@ const getAddCategDet=async(req,res)=>{
  
    
  }
+
+
+
+ const getAddCategParam=async(req,res)=>{
+  try {
+     const {id}=req.params;
+     const examen = await Examen.findByPk(  id,
+                                          );
+     const categorias=await examen.getExamenCategoria({include: [{model: ExCategParametro,
+                                                                 include: [{ model: Parametro }]},]
+                                                               },);
+      return res.render('tecBioq/addCategDet',{ 
+        examen,
+        categorias,
+        param:true,
+              })
+    
+  } catch (error) {
+    console.error(error);
+    return res.render('tecBioq/clickExamen')
+  };
+}
+
+
 
 
 const putExamen=async(req,res)=>{
@@ -232,14 +260,84 @@ const deleteCategDet=async(req,res)=>{
     }
 }
 
+
+
+const deleteCategParam=async(req,res)=>{
+  try {
+   console.log("wwwwwwwwwwwwwwwwwwwwww")
+    const {ParametroId,ExamenCategoriaId,examenId}=req.params;
+    await ExCategParametro.destroy({where:{ParametroId}})
+    return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
+  }catch(error){
+    console.error(error)
+   }
+}
+
+
+const putCateg=async(req,res)=>{
+  try {
+    console.log("eeeee")
+    const{id,examenId}=req.params;
+    console.log(id);
+    console.log(req.body.nombre);
+    await ExamenCategoria.update( {nombre:req.body.nombre},
+                                  { where: { id}})
+
+    return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
+
+  } catch (error) {
+    console.error(error);
+    return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+  };
+
+
+
+  
+}
+
+
+
+const postDetCateg=async(req,res)=>{
+   try {
+
+     console.log("Eeeeesssss")
+     console.log(req.body)
+     const{ExamenCategoriaId,ExamenId}=req.params;
+     const detId=Array.isArray(req.body.detId)?  req.body.detId
+                                              :  [req.body.detId];
+
+     console.log(ExamenCategoriaId)
+     
+     for(let id of detId){
+       await ExCategDeterminacion.create({ExamenCategoriaId,
+                                          DeterminacionId:id})
+    }
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${ExamenId}/addCategDet`)
+
+   } catch (error) {
+     console.error(error);
+   
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}/addCategDet`)
+   };
+ 
+ 
+ 
+   
+ }
+
+
  module.exports={
   deleteCategoria,
   deleteCategDet,
+  deleteCategParam,
   getAddCategDet,
+  getAddCategParam,
   getExamen,
   getInicio,
   getFormExamen,
   postCategDet,
+  postDetCateg,
   postExamen,
   putExamen,
+  putCateg,
  }

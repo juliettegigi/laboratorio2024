@@ -5,31 +5,46 @@ mixin tablaCategDet(form)
           thead
            tr
             th(scope="col") Categoría
-            th(scope="col") Determinaciones
+            th(scope="col") 
+             if param
+               | Parámetros
+             else
+               | Determinaciones
             th(scope="col") #
           tbody(class="table-group-divider")
            if categorias
             each categoria in categorias  
              tr
-                td= categoria.nombre
                 td
-                 if categoria.ExCategDeterminacions.length>0
-                  ul
-                   each determinacion in categoria.ExCategDeterminacions
-                     li= determinacion.Determinacion.nombre
-                      a(role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${determinacion.Determinacion.id}/${categoria.id}` 
-                        class="btn btn-close danger btn-sm")
+                 form.tabla-td-actions(action=`http://localhost:3000/tecBioq/categ/${categoria.id}/${examen.id}?_method=put` method="POST" name="formCateg" )
+                  div
+                   input.noInput(type="text" name="nombre" value= categoria.nombre disabled)
+                  div 
+                   button(class="hidden") Guardar cambios
+                td
+                 - const detOparamArray=param?categoria.ExCategParametros:categoria.ExCategDeterminacions 
+                 ul
+                   each detOparam in detOparamArray
+                     li
+                      if param
+                       | #{detOparam.Parametro.nombre}
+                       a(role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?detOparam.Parametro.id:detOparam.Determinacion.id}/${categoria.id}/${examen.id}` 
+                        class="btn btn-close danger btn-sm") 
+                      else
+                       | #{detOparam.Determinacion.nombre}
+                       a(role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${param?detOparam.Parametro.id:detOparam.Determinacion.id}/${categoria.id}/${examen.id}` 
+                        class="btn btn-close danger btn-sm") 
                  .row.mt-4.justify-content-center       
-                  form(class="hidden")
+                  form(class="hidden" action=`http://localhost:3000/tecBioq/examen/${categoria.id}/${examen.id}/${param?"addParamCateg":"addDetCateg"}` method="POST" name="formCateg" )
                    .row.mt-4.justify-content-center
                     .col-md-auto.position-relative
-                     input(type="text" name="determinaciones" placeholder="agregar determinacion")
+                     input(type="text" name=`${param?"parametros":"determinaciones"}` placeholder=`agregar ${param?"parametro":"determinación"}` autocomplete="off")
                      div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")
-                      ul(class="listaDeterminaciones")
+                      ul(class=`${param?"listaParametros":"listaDeterminaciones"}`)
                    .row.mt-4.justify-content-center
                     .col-md-auto.d-flex.align-items-center.w-100
                      div.w-100 
-                        ul(class="listaDeterminacionesSeleccionadas")
+                        ul(class=`${param?"listaParametrosSeleccionados":"listaDeterminacionesSeleccionadas"}`)
                    .row.mt-4.justify-content-center
                     .col 
                      button Guardar cambios      
