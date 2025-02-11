@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       Unidad.hasMany(models.Resultado);
      // Unidad.belongsToMany(models.Muestra,{through:'Determinacion'})
      Unidad.belongsToMany(models.Resultado,{through:'ResultadoUnidad'})
+     Unidad.belongsToMany(models.Determinacion,{through:'DeterminacionUnidad'})
       
       
     }

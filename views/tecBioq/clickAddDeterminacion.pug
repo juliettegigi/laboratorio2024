@@ -1,0 +1,9 @@
+extends layout
+block aside 
+block content
+  //
+   if rtaCargarOrden 
+        include ./rtaCargarOrden.pug
+  .container.d-flex.flex-column(id="divLista" )
+    include ./formDeterminacion.pug
+    +formDeterminacion("Enviar","http://localhost:3000/tecBioq/addDet")

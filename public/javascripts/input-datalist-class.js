@@ -5,8 +5,12 @@ export default class InputDataList{
     // el texto del li, un cb q retorna el texto del li, el cb recibe el objeto del arreglo q retornó la búsqueda
     // el inputHiddenNAme el nombre del input q va a llevar el id de lo q se seleccione
     // funcionEnter es una funcion q se va a ejecutar cuando se seleccione un elemento de la datalist
-    constructor(input,dataList,nombreEvento,liTextCb,limit,offset,inputHiddenName,inputHiddenName2,seleccionadosLista=null){
+    constructor(input,dataList,nombreEvento,
+                liTextCb,limit,offset,
+                inputHiddenName,inputHiddenName2,seleccionadosLista=null,
+              eventoNoRegistrado,msjLiNoReg){
         this.input=input;
+        this.msjLiNoReg=msjLiNoReg
         this.nombreEvento=nombreEvento;
         this.dataList=dataList;
         this.liTextCb=liTextCb;
@@ -18,9 +22,35 @@ export default class InputDataList{
         this.inputHiddenName2=inputHiddenName2
         
         this.seleccionadosLista=seleccionadosLista;
+        this.eventoNoRegistrado=eventoNoRegistrado;
         this.arrayLis=[]
+
+       /*  if(seleccionadosLista){
+          for(let li of seleccionadosLista.querySelectorAll('li')){
+              this.addCruz(li,(evento)=>{li.remove()})
+          }
+        } */
     }
 
+    agregarCruzLiListaSeleccionados=()=>{
+      if(this.seleccionadosLista){
+        console.log(this.seleccionadosLista)
+        for(let li of this.seleccionadosLista.querySelectorAll('li')){
+            this.addCruz(li,(evento)=>{li.remove()})
+        }
+      }
+    }
+
+    removerCruzLiListaSeleccionados=()=>{
+      if(this.seleccionadosLista){
+        for(let li of this.seleccionadosLista.querySelectorAll('li')){
+          const cruz = li.querySelector('.btn-close'); // Selecciona la cruz
+          if (cruz) {
+            cruz.remove(); // Elimina la cruz si existe
+          }
+        }
+      }
+    }
 
     crearInput=(value,inputName)=>{
       const input=document.createElement('input');
@@ -59,13 +89,11 @@ export default class InputDataList{
       const indice=event.target.getAttribute('indice')
       if(this.inputHiddenName)
          this.input.form.elements[this.inputHiddenName].value=this.arrayLis[indice].id
-        this.dataList.parentNode.style.display = "none"; // Oculta la lista
-        if(this.seleccionadosLista){
+      this.dataList.parentNode.style.display = "none"; // Oculta la lista
+      if(this.seleccionadosLista){
           this.funcionEnter(event.target.textContent,this.arrayLis[indice].id)
         }
-        console.log("eeee")
-        console.log(this.input)
-        this.input.select();
+      this.input.select();
   }
 
 
@@ -75,8 +103,13 @@ export default class InputDataList{
         li.textContent=text
         li.classList.add('liInputDataList','dataList-li')
         li.setAttribute('indice',indice)
-        if(eventoClickLi)
-          li.addEventListener('mousedown',eventoClickLi)
+        if(!eventoClickLi && this.eventoNoRegistrado ){
+             li.addEventListener('mousedown',(e)=>{
+              this.eventoNoRegistrado(e,this.funcionEnter)
+            })
+        }
+        else if(eventoClickLi)
+               li.addEventListener('mousedown',eventoClickLi)
         
         return li;
     }
@@ -85,8 +118,7 @@ export default class InputDataList{
     verMas=(inputValue)=>{
       this.offset+=this.limit
       this.emitirEventoSocket(inputValue,true)
-      this.input.focus();
-      console.log("en ver masss")
+     // this.input.focus();
     }
     
     emitirEventoSocket=(inputValue,masResultados=false)=>{
@@ -99,19 +131,22 @@ export default class InputDataList{
                this.offset=0
             }
              const cb=(arreglo,total)=>{ 
+
                      let indice=this.arrayLis.length;
                      if(masResultados)  for(let elem of arreglo){
                                      this.arrayLis.push({li:this.crearLi(this.liTextCb(elem),indice,this.clickLi),
                                                          id:elem.id})
                                      this.dataList.insertBefore(this.arrayLis[indice].li,this.dataList.lastChild)   
                                      indice++
+                                     this.dataList.parentNode.style.display = "";
                                     }              
                      
                      else {     if(arreglo.length===0){
                                      const li=this.crearLi();
-                                     li.innerHTML=`"${inputValue}" <span style="font-weight:bolder ;">no registrado.</span>`
+                                     li.innerHTML=`"${inputValue}" <span style="font-weight:bolder ;">no registrado. ${this.msjLiNoReg?this.msjLiNoReg:""}</span>`
                                      li.classList.add("text-danger")
                                      this.dataList.appendChild(li);
+
                                 }else{  
                                         for(let elem of arreglo) {
                                              
@@ -120,8 +155,6 @@ export default class InputDataList{
                                              this.dataList.appendChild(this.arrayLis[indice].li);
                                              indice++;
                                             }
-                                            console.log("ARREGLO")
-                                            console.log(arreglo)
                                      }
                         } 
                    if(arreglo.length  && total>this.offset+this.limit){
@@ -203,9 +236,7 @@ export default class InputDataList{
                        this.input.form.elements[this.inputHiddenName].value=this.arrayLis[this.indexHover].id
                       this.input.select(); // Selecciona todo el texto del input
                       this.dataList.parentNode.style.display = "none"; // Oculta la lista
-                      console.log("dddddd",this.inputHiddenName2)
                       if(this.inputHiddenName2){
-                        console.log("EEEEEEEEWeeeeee")
                             this.funcionEnter(this.arrayLis[this.indexHover].li.textContent,this.arrayLis[this.indexHover].id)
                       }
                     }

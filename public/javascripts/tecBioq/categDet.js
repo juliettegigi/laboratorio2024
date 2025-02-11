@@ -9,8 +9,6 @@ const tBody=document.querySelectorAll('tbody')
 const LIMIT=5;
 const OFFSET=0;
 
-console.log("golll")
-
 
 //const divMostrarTabla=document.querySelectorAll(".divMostrarTabla");
 const formdiv1=document.querySelector(".form-div");
@@ -81,40 +79,73 @@ const eventoCruzRow=function(){
     focusPrimerInput()
 }
 const crearRow=()=>{
-    const row=document.createElement('tr');
-    const td1=document.createElement('td');
-    const td2=document.createElement('td');
-    const td3=document.createElement('td');
-    const categoriaInput=crearInput(`categorias`,"nombre de la categoría")
-    td1.appendChild(categoriaInput);
-    row.appendChild(td1);
+  
+  
+  
+  
+  
+  const row=document.createElement('tr');
+      const td1=document.createElement('td');
+            const categoriaInput=crearInput(`categorias`,"nombre de la categoría")
+      const td2=document.createElement('td');
+           const div0td2=document.createElement('div');
+                     const parametroInput=crearInput("","nombre del parámetro")
+                     const divTd2=document.createElement('div');
+                         const ulTd2=document.createElement('ul')
+                  const divSeleccionadosTd2=document.createElement('div');
+      const td3=document.createElement('td');
+             const div0=document.createElement('div');
+                const determinacionInput=crearInput("","nombre de la determinación")
+                const div=document.createElement('div');
+                    const ul=document.createElement('ul')
+             const divSeleccionados=document.createElement('div');
+      const td4=document.createElement('td');
+            const cruz=crearCruzRow();
 
-   
-       const determinacionInput=crearInput("","nombre de la determinación")
-        determinacionInput.id=`determinacion-${i2}`;
-        const div0=document.createElement('div');
-        div0.classList.add('position-relative','col-md-auto');
-        const div=document.createElement('div');
-        div.classList.add('position-absolute','z-3','contenedorLista');
-        div.style="top:2rem;";
-        const ul=document.createElement('ul')
-        ul.id=`listaDeterminaciones-${i2}`
-        div.appendChild(ul);
-        div0.appendChild(determinacionInput);
-        div0.appendChild(div)
-        const divSeleccionados=document.createElement('div');
-        const ulSeleccionados=document.createElement('ul')
-        ulSeleccionados.id=`listaDeterminacionesSeleccionadas-${i2}`;
-        ulSeleccionados.classList.add('listaDeterminacionesSeleccionadas');
-        divSeleccionados.appendChild(ulSeleccionados)
-        td2.appendChild(div0)
-        td2.appendChild(divSeleccionados)
+  row.appendChild(td1);
+  row.appendChild(td2)
+  row.appendChild(td3)
+  row.appendChild(td4)
+
+  td1.appendChild(categoriaInput);
+
+  td2.appendChild(div0td2)
+  td2.appendChild(divSeleccionadosTd2)
+  div0td2.appendChild(parametroInput);
+  div0td2.appendChild(divTd2)
+  divTd2.appendChild(ulTd2);
+  parametroInput.id=`parametro-${i2}`;
+  div0td2.classList.add('position-relative','col-md-auto');
+  divTd2.classList.add('position-absolute','z-3','contenedorLista');
+  divTd2.style="top:2rem;";
+  ulTd2.id=`listaParametros-${i2}`
+  const ulSeleccionadosTd2=document.createElement('ul')
+  ulSeleccionadosTd2.id=`listaParametrosSeleccionados-${i2}`;
+  ulSeleccionadosTd2.classList.add('listaParametrosSeleccionados');
+  divSeleccionadosTd2.appendChild(ulSeleccionadosTd2)
+
+  td3.appendChild(div0)
+  td3.appendChild(divSeleccionados)
+  div0.appendChild(determinacionInput);
+  div0.appendChild(div)
+  div.appendChild(ul);
+  determinacionInput.id=`determinacion-${i2}`;
+  div0.classList.add('position-relative','col-md-auto');
+  div.classList.add('position-absolute','z-3','contenedorLista');
+  div.style="top:2rem;";
+  ul.id=`listaDeterminaciones-${i2}`
+  const ulSeleccionados=document.createElement('ul')
+  ulSeleccionados.id=`listaDeterminacionesSeleccionadas-${i2}`;
+  ulSeleccionados.classList.add('listaDeterminacionesSeleccionadas');
+  divSeleccionados.appendChild(ulSeleccionados)
+
+  
+  td4.appendChild(cruz)
+  cruz.addEventListener('click',eventoCruzRow) 
+    
         
-        row.appendChild(td2)
-        const cruz=crearCruzRow();
-        row.appendChild(td3)
-        td3.appendChild(cruz)
-        cruz.addEventListener('click',eventoCruzRow) 
+        
+        
 
 
     
@@ -146,14 +177,21 @@ const crearRow=()=>{
 ) */
 
 const eventoAddRow=()=>{
-    console.log("seeeeee")
     tBody[1].appendChild(crearRow(1));
+
     const eventoBuscarDeterminacion='buscarDeterminacion'
     const liTextCbDeterminaciones=elem=>`${elem.codigo}-${elem.nombre}`
     const listaDeterminaciones=formExamen.querySelector(`#listaDeterminaciones-${i2}`);
     const listaDeterminacionesSeleccionadas=formExamen.querySelector(`#listaDeterminacionesSeleccionadas-${i2}`);
     const input3=new InputDataList(formExamen[`determinacion-${i2}`],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",`det`,listaDeterminacionesSeleccionadas);
     input3.inicializarInput()
+
+    const eventoBuscarParametro='buscarParametro'
+    const liTextCbParametros=elem=>`${elem.nombre}`
+    const listaParametros=formExamen.querySelector(`#listaParametros-${i2}`);
+    const listaParametrosSeleccionados=formExamen.querySelector(`#listaParametrosSeleccionados-${i2}`);
+    const input=new InputDataList(formExamen[`parametro-${i2}`],listaParametros,eventoBuscarParametro,liTextCbParametros,LIMIT,OFFSET,"",`param`,listaParametrosSeleccionados);
+    input.inicializarInput()
 
     i2++;
     focusPrimerInput()
@@ -182,21 +220,30 @@ btnAddRow[0].addEventListener('keydown', (event) => {
   const btnEnviar=document.querySelector('#btnEnviar')
   if(btnEnviar)
     btnEnviar.addEventListener('click',function(){
-
           this.type='submit'
-          document.querySelectorAll("tr").forEach((tr, index) => {
-            let primerIndex=null;
+          const tabla=document.getElementById("tabla2")
+          tabla.querySelectorAll("tr").forEach((tr, index) => {
             const secondTd = tr.querySelectorAll("td")[1]; // Obtiene el segundo <td>
+            const tercerTd = tr.querySelectorAll("td")[2]; // Obtiene el segundo <td>
             if (secondTd) {
-              const lis = secondTd.querySelectorAll("ul.listaDeterminacionesSeleccionadas li"); // Obtiene los <li> dentro del <ul> correspondiente
+              const lis = secondTd.querySelectorAll("ul.listaParametrosSeleccionados li"); // Obtiene los <li> dentro del <ul> correspondiente
               
               
               
               lis.forEach((li, liIndex) => {
                 const inputs = li.querySelectorAll("input"); // Obtiene los <input> dentro de cada <li>
-                if(primerIndex===null)
-                  primerIndex=index
-                inputs[1].name=`${(index-primerIndex)}`
+                inputs[1].name=`param-${(index)}`
+              });
+            }
+
+            if (tercerTd) {
+              const lis = tercerTd.querySelectorAll("ul.listaDeterminacionesSeleccionadas li"); // Obtiene los <li> dentro del <ul> correspondiente
+              
+              
+              
+              lis.forEach((li, liIndex) => {
+                const inputs = li.querySelectorAll("input"); // Obtiene los <input> dentro de cada <li>
+                inputs[1].name=`${(index)}`
               });
             }
           });

@@ -6,7 +6,11 @@
     align-items: baseline;
   }
   
-  
+  label{
+  color: #333333; 
+  font-weight: 700;
+  margin-bottom: 5px;
+  }
   
   .form-div input{
     text-align: right;

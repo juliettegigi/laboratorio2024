@@ -1,0 +1,10 @@
+extends layout
+block aside 
+block content
+  //
+   if rtaCargarOrden 
+        include ./rtaCargarOrden.pug
+  .container.d-flex.flex-column(id="divLista" )
+    include ./formDeterminacion.pug
+    +formValorReferencia('Enviar',"http://localhost:3000/tecBioq/addVr",determinacion)
+    //"Enviar","http://localhost:3000/tecBioq/addVr")

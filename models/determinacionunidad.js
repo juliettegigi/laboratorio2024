@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       DeterminacionUnidad.belongsTo(models.Determinacion)
       DeterminacionUnidad.belongsTo(models.Unidad)
       
+      
     }
 
    
@@ -26,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'DeterminacionUnidad',
     tableName:'determinacionUnidades',
-    paranoid:true
+    paranoid:true,
+    timestamps:false
   });
   return DeterminacionUnidad;
 };

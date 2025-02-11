@@ -1,15 +1,12 @@
-mixin tablaCategDet(form)
+mixin tablaCategDet(form,tablaId)
  if !form 
     #divTabla1
-         table(class="table") 
+         table(class="table" id=tablaId) 
           thead
            tr
             th(scope="col") Categoría
-            th(scope="col") 
-             if param
-               | Parámetros
-             else
-               | Determinaciones
+            th(scope="col") Parámetros
+            th(scope="col") Determinaciones
             th(scope="col") #
           tbody(class="table-group-divider")
            if categorias
@@ -22,29 +19,45 @@ mixin tablaCategDet(form)
                   div 
                    button(class="hidden") Guardar cambios
                 td
-                 - const detOparamArray=param?categoria.ExCategParametros:categoria.ExCategDeterminacions 
                  ul
-                   each detOparam in detOparamArray
-                     li
-                      if param
-                       | #{detOparam.Parametro.nombre}
-                       a(role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?detOparam.Parametro.id:detOparam.Determinacion.id}/${categoria.id}/${examen.id}` 
-                        class="btn btn-close danger btn-sm") 
-                      else
-                       | #{detOparam.Determinacion.nombre}
-                       a(role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${param?detOparam.Parametro.id:detOparam.Determinacion.id}/${categoria.id}/${examen.id}` 
+                   each param in categoria.ExCategParametros
+                     li= param.Parametro.nombre
+                       a(role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?param.Parametro.id:param.Determinacion.id}/${categoria.id}/${examen.id}` 
                         class="btn btn-close danger btn-sm") 
                  .row.mt-4.justify-content-center       
-                  form(class="hidden" action=`http://localhost:3000/tecBioq/examen/${categoria.id}/${examen.id}/${param?"addParamCateg":"addDetCateg"}` method="POST" name="formCateg" )
+                  form(class="hidden" action=`http://localhost:3000/tecBioq/examen/${categoria.id}/${examen.id}/addParamCateg` method="POST" name="formParams" )
                    .row.mt-4.justify-content-center
                     .col-md-auto.position-relative
-                     input(type="text" name=`${param?"parametros":"determinaciones"}` placeholder=`agregar ${param?"parametro":"determinación"}` autocomplete="off")
+                     input(type="text" name=`parametros` placeholder=`agregar parametro` autocomplete="off")
                      div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")
-                      ul(class=`${param?"listaParametros":"listaDeterminaciones"}`)
+                      ul(class=`listaParametros`)
                    .row.mt-4.justify-content-center
                     .col-md-auto.d-flex.align-items-center.w-100
                      div.w-100 
-                        ul(class=`${param?"listaParametrosSeleccionados":"listaDeterminacionesSeleccionadas"}`)
+                        ul(class=`listaParametrosSeleccionados`)
+                   .row.mt-4.justify-content-center
+                    .col 
+                     button Guardar cambios 
+
+
+
+                td
+                 ul
+                   each det in categoria.ExCategDeterminacions
+                     li= det.Determinacion.nombre
+                       a(role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${det.Determinacion.id}/${categoria.id}/${examen.id}` 
+                        class="btn btn-close danger btn-sm")  
+                 .row.mt-4.justify-content-center       
+                  form(class="hidden" action=`http://localhost:3000/tecBioq/examen/${categoria.id}/${examen.id}/addDetCateg` method="POST" name="formCateg2" )
+                   .row.mt-4.justify-content-center
+                    .col-md-auto.position-relative
+                     input(type="text" name=`determinaciones` placeholder=`agregar determinación` autocomplete="off")
+                     div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")
+                      ul(class=`listaDeterminaciones`)
+                   .row.mt-4.justify-content-center
+                    .col-md-auto.d-flex.align-items-center.w-100
+                     div.w-100 
+                        ul(class=`listaDeterminacionesSeleccionadas`)
                    .row.mt-4.justify-content-center
                     .col 
                      button Guardar cambios      
@@ -65,7 +78,7 @@ mixin tablaCategDet(form)
  else 
   form(action=`http://localhost:3000/tecBioq/examen/${examen.id}/addCategDet` method="POST" name="formExamen" )
       #divTabla
-         table(class="table") 
+         table(class="table" id=tablaId) 
           tbody(class="table-group-divider")
            
           tfoot 

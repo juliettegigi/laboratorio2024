@@ -22,6 +22,7 @@ html
       link(rel='stylesheet', href='/stylesheets/tecbioq/examenDatos.css')
       link(rel='stylesheet', href='/stylesheets/tecbioq/divContent.css')
       link(rel='stylesheet', href='/stylesheets/tecbioq/addCategDet.css')
+      link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
   body 
     header( style="top: 0; background-color: #f0f0f0;width:100%")
       block header
@@ -32,6 +33,7 @@ html
       div(id="divContent" )
         block content
          include ./inputSearch.pug
+         +inputSearch("/tecBioq","nombre/codigo a buscar","Crear Examen")
          include ./listaExamenes.pug
         
     footer

@@ -1,0 +1,15 @@
+aside(class="d-flex position-fixed vh-100 " style="top: calc(var(--header-height));")
+ nav(class="nav flex-column bg-light p-3" style="width: 240px;")
+  ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
+   li(class="nav-item")
+    a.nav-link.btnEditar(href="#btnSubmitDet")
+     p Editar
+     p determinación
+   li(class="nav-item")
+    a(class="nav-link" id="btnDeterminacion" href=`http://localhost:3000/tecBioq/detDelete/${determinacion.id}`) 
+     p= determinacion.deletedAt?"Activar":"Desactivar"
+   li(class="nav-item")
+     a.nav-link.btnEditar(href="#btnSubmitValorRef")
+      p Editar
+      p Valores de 
+      p referencia

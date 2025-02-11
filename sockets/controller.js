@@ -1,4 +1,12 @@
-const {Medico,Diagnostico,Examen,Determinacion,sequelize}=require('../models');
+const {
+    Determinacion,
+    Diagnostico,
+    Examen,
+    Medico,
+    Parametro,
+    Unidad,
+    sequelize
+}=require('../models');
 const { Op } = require('sequelize');
 const socketController = (socket) => {
 
@@ -82,7 +90,50 @@ const socketController = (socket) => {
     
     });
 
+
+    socket.on('buscarParametro',async(termino,limit=5,offset=0,cb)=>{
+        try {  const { rows: parametros, count: total } 
+               = await Parametro.findAndCountAll(
+                { where: { [Op.or]: [,
+                                     { nombre: { [Op.like]: `%${termino}%` } },
+                                   ]
+                         },
+                limit: limit,
+                offset: offset
+                });
+              cb(parametros,total);
+           }
+        catch(err){
+            console.log(err)
+        }       
+    
+    });
+
   
+
+    socket.on('addUnidad',async(unidad,cb)=>{
+        try {  
+            console.log("eeeeeentriiiieee")
+            const [unidadRetornada, created] = await Unidad.findOrCreate({
+                where: { unidad },   // Buscar si ya existe
+                defaults: { unidad} // Si no existe, crearla
+            });
+    
+            if (created) {
+                console.log("Unidad creada:", unidadRetornada);
+            } else {
+                console.log("Unidad ya existe:", unidad);
+            }
+            
+            cb(unidadRetornada); // Devolver la unidad encontrada o creada
+           }
+        catch(err){
+            console.log(err)
+        }       
+  
+    });
+
+
  
  }
  

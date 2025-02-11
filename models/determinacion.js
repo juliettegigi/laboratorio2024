@@ -4,19 +4,29 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Determinacion extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       Determinacion.hasMany(models.ExamenDeterminacion)
-      Determinacion.hasMany(models.Determinacion)
-      Determinacion.hasMany(models.DeterminacionValorReferencia)
+      Determinacion.hasMany(models.DeterminacionValorReferencia, { as: 'valoresReferencia' });
       Determinacion.hasMany(models.DeterminacionUnidad)
       Determinacion.hasMany(models.ExCategDeterminacion)
 
+      Determinacion.belongsToMany(models.Determinacion, {
+        through: models.DeterminacionPadre,
+        as: 'parents',            // Alias para obtener los padres
+        foreignKey: 'determinacionId', // En la tabla intermedia, el id de la determinación hija
+        otherKey: 'padreId'       // En la tabla intermedia, el id del padre
+      });
+
+      Determinacion.belongsToMany(models.Determinacion, {
+        through: models.DeterminacionPadre,
+        as: 'children',           // Alias para obtener los hijos
+        foreignKey: 'padreId',    // En la tabla intermedia, el id del padre
+        otherKey: 'determinacionId' // En la tabla intermedia, el id de la determinación hija
+      });
+
+      Determinacion.belongsToMany(models.Unidad,{through:'DeterminacionUnidad'})
       
+
     }
 
 

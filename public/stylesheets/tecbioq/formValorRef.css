@@ -1,0 +1,81 @@
+
+.subtitulo-h2{
+    
+   
+    color: #333333;
+    font-size: 1.5rem !important;
+    font-weight: bold;
+}
+
+.form-valorRef{
+    margin-top: 2rem;
+    border-top: 5px solid #261290;
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.288);
+    padding-bottom: 1.5rem;
+}
+
+.form-div-vr{
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: start;
+    margin-top: 1rem;
+    align-items: baseline;
+  }
+
+  .form-div-vr > div:nth-of-type(2) {
+    margin-left:2rem ; 
+  }
+
+  .valorRef{
+    display: flex;
+    margin-bottom: 2rem;
+  }
+
+  .acciones{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    margin-left: 30px;
+    
+  }
+
+  .acciones > div {
+    margin-top: 5px;
+    
+  }
+
+  #tituloSexo{
+    margin-top: 1.5rem;
+    align-items:center;
+    display: flex;
+    justify-content: start;
+  }
+
+  #tituloSexo > div:nth-of-type(2) {
+   margin-left: 1rem;
+   margin-bottom: 6px;
+  }
+
+
+
+  #form-div-unidad{
+    flex-direction: column;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    margin-top: 1rem;
+    align-items: baseline;
+ justify-content: start;
+ flex-wrap: wrap;
+  }
+
+  .option-unidad{
+    display: flex;
+    max-width:8rem;
+    flex-wrap: wrap;
+    margin-right:15px;
+    margin-left:9px;
+    gap: 5px; 
+    padding:5px;
+   /*  border:1px solid rgba(0, 0, 0, 0.2); */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+     }

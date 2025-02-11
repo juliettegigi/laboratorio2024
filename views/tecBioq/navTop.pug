@@ -14,7 +14,7 @@ nav(class="navbar navbar-expand-lg bg-body-tertiary ")
       span.navbar-toggler-icon 
     div.collapse.navbar-collapse#navbarSupportedContent
      ul.navbar-nav.ms-auto.mb-2.mb-lg-0
-      li.nav-item.dropdown
+      li.nav-item
        a.nav-link.active.dropdown-toggle(aria-current="page" 
                                          href="#"
                                          role="button" 
@@ -24,28 +24,16 @@ nav(class="navbar navbar-expand-lg bg-body-tertiary ")
 
     div.collapse.navbar-collapse#navbarSupportedContent
      ul.navbar-nav.me-auto.mb-2.mb-lg-0
-      li.nav-item.dropdown
-       a.nav-link.active.dropdown-toggle(aria-current="page" 
-                                         href=""
+      li.nav-item
+       a.nav-link.active(aria-current="page" 
+                                         href=`http://localhost:3000/tecBioq`
                                          role="button" 
-                                         data-bs-toggle="dropdown" 
                                          aria-expanded="false"
                                          ) Examenes
-       ul.dropdown-menu.dropdown-menu-lg-end
-        li
-         a.dropdown-item(href="http://localhost:3000/tecBioq/getExamenes") Buscar
-        li
-         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar 
-        li
-         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar categoría/determinaciones 
-        li
-         a.dropdown-item(href="http://localhost:3000/tecBioq/getFormExamen") Agregar categoría/parámetros                                  
-      
  
-      li.nav-item.dropdown
-       a.nav-link.dropdown-toggle(href="#"
+      li.nav-item
+       a.nav-link(href="http://localhost:3000/tecBioq/determinaciones"
                                   aria-expanded="false"
-                                  data-bs-toggle="dropdown"
                                   role="button") Determinaciones
        ul.dropdown-menu.dropdown-menu-end
         li
