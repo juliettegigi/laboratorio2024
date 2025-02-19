@@ -1,9 +1,13 @@
 mixin inputSearch(action,placeholder,btn,href="#")
- form(class="d-flex mx-auto w-50" role="search" action=action)
-      span.spanSearch.w-100  
-        i(class="bi bi-search")
-        input(class="me-2 inputSearchDeterminacion" type="search" placeholder=placeholder aria-label="Search" autofocus name="inputSearch" value=inputSearch?inputSearch:'' onfocus="this.select()" autocomplete="off")
-        //- para la query
-        input(type="hidden" name="group" value=1)
-        input(type="hidden" name="page" value=1)
-      a(href=href class="btn btn-secondary btnNuevoPaciente "  role="button" type="button" )= btn
+ .container
+  form(class="d-flex " role="search" action=action)
+      div.divSpanSearch
+       span.spanSearch
+         i(class="bi bi-search")
+         input(class="me-2 inputSearchDeterminacion" type="search" 
+               placeholder=placeholder aria-label="Search" autofocus name="inputSearch" value=inputSearch?inputSearch:'' onfocus="this.select()" autocomplete="off")
+         //- para la query
+         input(type="hidden" name="group" value=1)
+         input(type="hidden" name="page" value=1)
+      div 
+       a(href=href class="btn btn-secondary btn-add"  role="button" type="button" )= btn

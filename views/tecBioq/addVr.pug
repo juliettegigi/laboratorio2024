@@ -5,6 +5,7 @@ block content
    if rtaCargarOrden 
         include ./rtaCargarOrden.pug
   .container.d-flex.flex-column(id="divLista" )
+    h1= determinacion.nombre
     include ./formDeterminacion.pug
-    +formValorReferencia('Enviar',"http://localhost:3000/tecBioq/addVr",determinacion)
+    +formValorReferencia(true,'Enviar',"http://localhost:3000/tecBioq/addVr",determinacion)
     //"Enviar","http://localhost:3000/tecBioq/addVr")

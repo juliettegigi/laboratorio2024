@@ -4,10 +4,19 @@
     padding: 5px;
     align-items: center;
     background-color: var(--bs-body-bg);
-    border-radius: var(--bs-border-radius);
+    border-radius:50px;
     background-clip: padding-box;
     box-shadow: 0 0 5px 1px rgba(0,0,0,0.65); /* También puedes establecer un borde transparente */
     transition: box-shadow .3s ease-in-out, box-shadow .3s ease-in-out;
+    width: 100%;
+  }
+  form{
+    flex-wrap:wrap;
+  }
+  .divSpanSearch{
+    width: 50%;
+    min-width: 250px;
+    
   }
   
   
@@ -35,4 +44,8 @@
   }
   .spanSearch:focus-within {
     box-shadow:0 0 5px 1px #ffba8f; /* Cambia el borde del span al tener el foco en el input */
+  }
+
+  .btn-add{
+    margin-left: 1rem;
   }

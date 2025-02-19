@@ -1,0 +1,12 @@
+extends layout
+block aside 
+block content
+  //
+   if rtaCargarOrden 
+        include ./rtaCargarOrden.pug
+  .container.d-flex.flex-column(id="divLista" )
+    include ./formMuestra.pug
+    if error
+     .alert.alert-danger.alert-dismissible.fade.show(role="alert")= `${error}`
+      button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+    +formMuestra("Enviar","http://localhost:3000/tecBioq/addMuestra")

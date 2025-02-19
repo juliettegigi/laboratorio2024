@@ -1,10 +1,12 @@
-ul.list-group.list-group-flush
-            each e in examenes
-              li.list-group-item.list-group-item-action
-                a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/examen/${e.id}`)
-                    | #{e.codigo || ''} #{e.nombre || ''}
-            - for(let i=examenes.length; i<limit;i++)
-              li.list-group-item.list-group-item-action &nbsp;
-            if totalRegistros
-              include ../paginado.pug
-              +paginado('http://localhost:3000/tecBioq')
+.container.divLista
+ ul.list-group.list-group-flush
+  if examenes
+             each e in examenes
+               li.list-group-item.list-group-item-action
+                 a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/examen/${e.id}`)
+                     | #{e.codigo || ''} #{e.nombre || ''}
+             - for(let i=examenes.length; i<limit;i++)
+               li.list-group-item.list-group-item-action &nbsp;
+             if totalRegistros
+               include ../paginado.pug
+               +paginado('http://localhost:3000/tecBioq')

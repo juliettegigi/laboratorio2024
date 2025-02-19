@@ -6,7 +6,7 @@ block content
    if rtaCargarOrden 
         include ./rtaCargarOrden.pug
   include ./tablaCategDet.pug      
-  .container      
+  .container.d-flex.flex-column.divContent(id="divLista" )       
    +tablaCategDet(false,"tabla1")
    +tablaCategDet(true,"tabla2")
    

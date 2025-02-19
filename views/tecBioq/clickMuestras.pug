@@ -9,13 +9,11 @@ block styles
       link(rel='stylesheet', href='/stylesheets/tecbioq/divContent.css')
       link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
   
-block aside 
-    include ./menuLateralDeterminacion.pug
+
 block content
   //
    if rtaCargarOrden 
-        include ./rtaCargarOrden.pug     
-  .container.d-flex.flex-column.divContent(id="divLista" )
-    include ./formDeterminacion.pug
-    +formDeterminacion("Guardar cambios","http://localhost:3000/tecBioq/det?_method=put",determinacion)
-    +formValorReferencia(false,"Guardar cambios","http://localhost:3000/tecBioq/vr?_method=put",determinacion)
+        include ./rtaCargarOrden.pug
+  .container.d-flex.flex-column(id="divLista" )
+    include ./formMuestra.pug
+    +formMuestra("Guardar cambios","http://localhost:3000/tecBioq/muestra?_method=put",muestra)

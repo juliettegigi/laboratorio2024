@@ -1,5 +1,6 @@
 const {
     Determinacion,
+    DeterminacionValorReferencia,
     Diagnostico,
     Examen,
     Medico,
@@ -113,7 +114,7 @@ const socketController = (socket) => {
 
     socket.on('addUnidad',async(unidad,cb)=>{
         try {  
-            console.log("eeeeeentriiiieee")
+            
             const [unidadRetornada, created] = await Unidad.findOrCreate({
                 where: { unidad },   // Buscar si ya existe
                 defaults: { unidad} // Si no existe, crearla
@@ -133,6 +134,23 @@ const socketController = (socket) => {
   
     });
 
+
+
+    socket.on('deleteVr',async(id,cb)=>{
+        try {  
+            console.log("delete vr")
+            await DeterminacionValorReferencia.destroy({
+                where: { id }});
+    
+            
+            
+            cb(); // Devolver la unidad encontrada o creada
+           }
+        catch(err){
+            console.log(err)
+        }       
+  
+    });
 
  
  }

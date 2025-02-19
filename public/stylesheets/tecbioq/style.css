@@ -129,6 +129,11 @@ a:hover {
 }
 
 .hidden{
-  display: none;
+  display: none !important;;
   
+}
+
+.divSubmit {
+  display: flex;
+  gap: 10px; /* Espacio entre los elementos */
 }

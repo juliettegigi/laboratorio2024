@@ -9,18 +9,21 @@ const {
 const { post } = require('../routes/tecbioq');
 
 const getInicio=async(req,res)=>{
-
    try{  // http://localhost:3000/admins/busqueda/?limit=3&paciente=bog&page=3
       let{page=1,inputSearch="",group=1}=req.query;
       const limit=5;
       page=parseInt(page)
       group=parseInt(group)
       let offset=page*limit-limit;
+      let where={}
+      if(inputSearch!==""){
+          where={ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
+                            { codigo: { [Op.regexp]: inputSearch } }
+                           ]
+                 }
+      }
       const { count, rows } = await Examen.findAndCountAll({
-         where:{ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
-                                         { codigo: { [Op.regexp]: inputSearch } }
-                                       ]
-                              } ,
+         where ,
          limit, 
          offset, 
          order: [['nombre', 'ASC']], 
@@ -40,6 +43,43 @@ const getInicio=async(req,res)=>{
 
 
 
+ const  getInicioMuestras=async(req,res)=>{
+
+  try{  
+     let{page=1,inputSearch="",group=1}=req.query;
+     const limit=5;
+     page=parseInt(page)
+     group=parseInt(group)
+     let offset=page*limit-limit;
+     
+     let where={}
+     if(inputSearch!==""){
+      console.log("entrooooooooooooo")
+      console.log("entrooooooooooooo")
+      where={ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
+                        { id: { [Op.regexp]: inputSearch } }
+                        ]
+            } 
+     }
+     const { count, rows } = await Muestra.findAndCountAll({
+        where,
+        limit, 
+        offset, 
+        order: [['nombre', 'ASC']], 
+      });
+     return res.render('tecBioq/indexMuestra',{inputSearch,
+                                      muestras:rows,
+                                      limit,
+                                      totalRegistros:count,
+                                      page,
+                                      PAGES_CANTIDADxGRUPO:3,
+                                      group})
+}catch(error){  console.log(error)
+               return res.render('tecBioq/index')
+ } 
+  
+}
+
  const getInicioDeterminaciones=async(req,res)=>{
 
   try{  // http://localhost:3000/admins/busqueda/?limit=3&paciente=bog&page=3
@@ -48,12 +88,19 @@ const getInicio=async(req,res)=>{
      page=parseInt(page)
      group=parseInt(group)
      let offset=page*limit-limit;
+     
+     let where={}
+     console.log("input search")
+     console.log(inputSearch)
+     if(inputSearch!==""){
+      where={ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
+                        { codigo: { [Op.regexp]: inputSearch } },
+                        { tags: { [Op.regexp]: inputSearch } }
+                        ]
+            } 
+     }
      const { count, rows } = await Determinacion.findAndCountAll({
-        where:{ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
-                          { codigo: { [Op.regexp]: inputSearch } },
-                          { tags: { [Op.regexp]: inputSearch } }
-                                      ]
-                             } ,
+        where,
         limit, 
         offset, 
         order: [['nombre', 'ASC']], 
@@ -83,9 +130,10 @@ const getFormExamen=async(req,res)=>{
  
  }
 
+
+
  const postExamen=async(req,res)=>{
    console.log('------------------------------------------------');
-   console.log(req.body)
    
    
    const transaction = await sequelize.transaction();
@@ -109,11 +157,8 @@ const getFormExamen=async(req,res)=>{
    //  inserto cada categoria del examen en la tabla ExamenCategoria
    let index=0;
    console.log('------------------------------------------------ARR');
-   console.log(arrDetId)
    for(let nombre of categorias){
       const exCateg = await ExamenCategoria.create({ExamenId:nuevoExamen.id, nombre }, { transaction });
-      console.log('------------------------------------------------ IDDDDDDDDDDD');
-      console.log(exCateg.id)
       // cada categoria la relaciono con sus determinaciones
       for(let DeterminacionId of arrDetId[index]){
               await ExCategDeterminacion.create(
@@ -142,8 +187,6 @@ const getFormExamen=async(req,res)=>{
 
 const putDet=async(req,res)=>{
   console.log('------------------------------------------------aaaaaaaaa');
-  console.log(req.body)
-  
   
   const transaction = await sequelize.transaction();
   try {
@@ -156,10 +199,6 @@ const putDet=async(req,res)=>{
                                  :[];              
              
                                  
-       await DeterminacionUnidad.destroy({
-        where: { determinacionId: id },
-        transaction
-      });                           
       for( let unidad of unidades){
          const u=await Unidad.findOrCreate({where:{unidad},transaction})
          await DeterminacionUnidad.create({ DeterminacionId: id, UnidadId: u[0].id },
@@ -221,6 +260,7 @@ const getExamen=async(req,res)=>{
 const getDeterminacion=async(req,res)=>{
   try {
     const {id}=req.params;
+
     const determinacion = await Determinacion.findByPk(id, { paranoid: false });
     const determinacionPadre= await determinacion.getParents();   
     const vrUnidades= await determinacion.getUnidads();   
@@ -230,14 +270,15 @@ const getDeterminacion=async(req,res)=>{
         [sequelize.Sequelize.literal("FIELD(sexo, 'F', 'M', 'A')"), 'ASC'],
         ['edadMin', 'ASC'],
         ['valorMin', 'ASC']
-      ]
+      ],
+      paranoid: false  
+
     });
      
     
     const vrF=[];
     const vrM=[];
     const vrA=[];
-
     for(let vr of valoresRef){
       switch(vr.unidadMin){
         case '-':
@@ -279,7 +320,11 @@ const getDeterminacion=async(req,res)=>{
               break;      
       }
     }
+
+
+
     if(determinacion){
+      
       return res.render('tecBioq/clickDeterminacion',{ 
                                                 determinacion,
                                                 determinacionPadre,
@@ -298,6 +343,34 @@ const getDeterminacion=async(req,res)=>{
   } catch (error) {
     console.error(error);
     return res.render('tecBioq/clickDeterminacion')
+  };
+
+
+
+  
+}
+
+const getMuestra=async(req,res)=>{
+  try {
+    const {id}=req.params;
+
+    const muestra = await Muestra.findByPk(id);
+   
+
+    if(muestra){
+      
+      return res.render('tecBioq/clickMuestras',{ 
+                                                muestra
+                                                      })
+    }
+    else{
+      return res.render('tecBioq/clickMuestras',{ 
+        msg:"Determinacion no encontrada"
+              })
+    }
+  } catch (error) {
+    console.error(error);
+    return res.render('tecBioq/clickMuestras')
   };
 
 
@@ -350,7 +423,6 @@ const getAddCategDet=async(req,res)=>{
 
 const putExamen=async(req,res)=>{
    try {
-     console.log(req.body)
      const{id,nombre,codigo,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza}=req.body;
      await Examen.update( {nombre,codigo,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza},
                           { where: { id} }
@@ -373,30 +445,26 @@ const putExamen=async(req,res)=>{
   const {id}=req.params;
    try {
 
-     console.log(req.body)
      const categorias=Array.isArray(req.body.categorias)?  req.body.categorias
                                                         :  [req.body.categorias];
     let i=0;
     for(let nombre of categorias){
-      console.log("i: ",i)
       
       const exCateg=await ExamenCategoria.create({ExamenId:id,nombre},
                                                  { transaction })
-        console.log("paso 1",i)
       const detId=req.body[`${i}`]?Array.isArray(req.body[`${i}`]) ? req.body[`${i}`]
                                                  : [req.body[`${i}`]]
-                                  : []                 
-        console.log("paso 2  ---> ",detId)
+                                  : []          
       const paramId= req.body[`param-${i}`]? Array.isArray(req.body[`param-${i}`]) ? req.body[`param-${i}`]
                                                                                   : [req.body[`param-${i}`]]
                                            : []
-      console.log("paso 3  -->  ",paramId)
+      
       for (let id2 of detId){
             await ExCategDeterminacion.create({ExamenCategoriaId:exCateg.id,DeterminacionId:parseInt(id2)},
                                               { transaction })
       }     
       
-      console.log("paso 5")
+     
       for (let id3 of paramId){
             await ExCategParametro.create({ExamenCategoriaId:exCateg.id,ParametroId:parseInt(id3)},
                                               { transaction })
@@ -424,7 +492,6 @@ const putExamen=async(req,res)=>{
 
 const deleteCategoria=async(req,res)=>{
    try {
-    console.log("wwwwwwwwwwwwwwwwwwwwww")
      const {id,examenId}=req.params;
      await ExamenCategoria.destroy({where:{id}})
      return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
@@ -436,7 +503,6 @@ const deleteCategoria=async(req,res)=>{
 
 const deleteCategDet=async(req,res)=>{
    try {
-    console.log("wwwwwwwwwwwwwwwwwwwwww")
      const {DeterminacionId,ExamenCategoriaId,examenId}=req.params;
      await ExCategDeterminacion.destroy({where:{DeterminacionId}})
      return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
@@ -449,7 +515,6 @@ const deleteCategDet=async(req,res)=>{
 
 const deleteCategParam=async(req,res)=>{
   try {
-   console.log("wwwwwwwwwwwwwwwwwwwwww")
     const {ParametroId,ExamenCategoriaId,examenId}=req.params;
     await ExCategParametro.destroy({where:{ParametroId}})
     return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
@@ -481,10 +546,7 @@ const deleteDeterminacion=async(req,res)=>{
 
 const putCateg=async(req,res)=>{
   try {
-    console.log("eeeee")
     const{id,examenId}=req.params;
-    console.log(id);
-    console.log(req.body.nombre);
     await ExamenCategoria.update( {nombre:req.body.nombre},
                                   { where: { id}})
 
@@ -505,13 +567,9 @@ const putCateg=async(req,res)=>{
 const postDetCateg=async(req,res)=>{
    try {
 
-     console.log("Eeeeesssss")
-     console.log(req.body)
      const{ExamenCategoriaId,ExamenId}=req.params;
      const detId=Array.isArray(req.body.detId)?  req.body.detId
                                               :  [req.body.detId];
-
-     console.log(ExamenCategoriaId)
      
      for(let id of detId){
        await ExCategDeterminacion.create({ExamenCategoriaId,
@@ -534,20 +592,17 @@ const postDetCateg=async(req,res)=>{
  const postParamCateg=async(req,res)=>{
   try {
 
-    console.log(req.body)
     const{ExamenCategoriaId,ExamenId}=req.params;
     const detId=Array.isArray(req.body.detId)?  req.body.detId
                                              :  [req.body.detId];
     const det=Array.isArray(req.body.detId)?  req.body.det
                                              :  [req.body.det];
 
-    console.log(ExamenCategoriaId)
     let i=0;
     for(let id of detId){
       if(id=='undefined'){
         const p=await Parametro.create({nombre:det[i]})
         id=p.id
-        console.log(id)
       }
       await ExCategParametro.findOrCreate({
         where: { ExamenCategoriaId, ParametroId: id },
@@ -572,46 +627,58 @@ const postDetCateg=async(req,res)=>{
 const putvr=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try {
-    const{id}=req.body;
-    
-    for(let propiedad in req.body){
-      req.body[`${propiedad}`]=Array.isArray(req.body[`${propiedad}`])?req.body[`${propiedad}`]:[req.body[`${propiedad}`]];
-    }
-    console.log('------------------------------------------------');
+    const{id,idsVrForm,isNew,sex,nota,
+          unidadMin,
+          edadMin,
+          valorMin,
+          valorMax,
+          unidadMax,
+          edadMax,
+      }=req.body;
+      
+      
+    console.log('------------------------------------------------ PUT VR');
     console.log(req.body)
-    await DeterminacionValorReferencia.destroy({
-      where: { DeterminacionId: id },
-      transaction
-    })
-    
-    const arr=['Femenino','Masculino','Ambos'];
-    for(let sexo of arr){
-      if(req.body[`nota${sexo}`]){
-        for(let i=0;i<req.body[`nota${sexo}`].length;i++){
-              console.log(req.body[`edadMin${sexo}`][i])
-              console.log("resultado  ",sexo," -------> ",req.body[`edadMin${sexo}`][i]*365)
 
-             await DeterminacionValorReferencia.create({ DeterminacionId: id,
-                                                         unidadMin:req.body[`unidadMin${sexo}`][i],
-                                                         unidadMax:req.body[`unidadMax${sexo}`][i],                                                         
-                                                         edadMin: req.body[`unidadMin${sexo}`][i]==='Meses'? (req.body[`edadMin${sexo}`][i]*30):
-                                                                  (req.body[`unidadMin${sexo}`][i]==='Años'? (req.body[`edadMin${sexo}`][i]*365):
-                                                                   req.body[`edadMin${sexo}`][i])
-                                                         ,
-                                                         edadMax:  req.body[`unidadMax${sexo}`][i]==='Meses'? (req.body[`edadMax${sexo}`][i]*30):
-                                                                   (req.body[`unidadMax${sexo}`][i]==='Años'? (req.body[`edadMax${sexo}`][i]*365):
-                                                                    req.body[`edadMax${sexo}`][i]),
-                                                         sexo:sexo[0],
-                                                         valorMin: req.body[`valorMin${sexo}`][i],
-                                                         valorMax:req.body[`valorMax${sexo}`][i],
-                                                         nota: req.body[`nota${sexo}`][i] 
-                                                        },
-                                                        {transaction})    
+    for(let i=0;i<idsVrForm.length;i++){
+      console.log("i: ",i)
+      if(isNew[i]=='1'){
+         await DeterminacionValorReferencia.create({ DeterminacionId: id,
+                                                  unidadMin:unidadMin[i],
+                                                  unidadMax:unidadMax[i],                                                         
+                                                  edadMin: edadMin[i],
+                                                  edadMax: edadMax[i],
+                                                  sexo:sex[i][0],
+                                                  valorMin: valorMin[i],
+                                                  valorMax:valorMax[i],
+                                                  nota: nota[i] 
+                                                 },
+                                                 {transaction})    
+      }else if(isNew[i]=='0'){
+                    await DeterminacionValorReferencia.update({   DeterminacionId: id,
+                                                                  unidadMin: unidadMin[i],
+                                                                  unidadMax: unidadMax[i],                                                         
+                                                                  edadMin: edadMin[i],
+                                                                  edadMax: edadMax[i],
+                                                                  sexo: sex[i][0],
+                                                                  valorMin: valorMin[i],
+                                                                  valorMax: valorMax[i],
+                                                                  nota: nota[i]
+                                                              }, {
+                                                                  where: { id:idsVrForm[i]}, 
+                                                                  transaction
+                                                              });
+        } else if(isNew[i]=='3'){
+                  await DeterminacionValorReferencia.destroy({
+                    where: { id:idsVrForm[i] },
+                    transaction
+                  })
         }
-      }
 
     }
 
+
+   
 
 
     await transaction.commit();
@@ -644,6 +711,18 @@ const getAddDeterminacion=async(req,res)=>{
 }
 
 
+const getAddMuestra=async(req,res)=>{
+  try {
+    return res.render(`tecBioq/clickAddMuestra`)
+
+  } catch (error) {
+    console.error(error);
+    return res.redirect(`http://localhost:3000/tecBioq/`)
+  };
+
+}
+
+
 
 
 
@@ -652,7 +731,6 @@ const postDet=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try {
     console.log('------------------------------------------------ POST DETERMINACION');
-    console.log(req.body)
     const{nombre,codigo,tags}= req.body;
     const unidades=req.body.unidades?  
                        Array.isArray(req.body.unidades) ? req.body.unidades : [req.body.unidades]
@@ -677,64 +755,9 @@ const postDet=async(req,res)=>{
 
 
 
-  const valoresRef = await determinacion.getValoresReferencia({
-    order: [
-      [sequelize.Sequelize.literal("FIELD(sexo, 'F', 'M', 'A')"), 'ASC'],
-      ['edadMin', 'ASC'],
-      ['valorMin', 'ASC']
-    ]
-  });
-   
-  
-  const vrF=[];
-  const vrM=[];
-  const vrA=[];
 
-  for(let vr of valoresRef){
-    switch(vr.unidadMin){
-      case '-':
-        vr.edadMin=0
-        break;
-      case 'Días':
-        break;
-      case 'Meses':
-        vr.edadMin/=30
-        break;
-
-      case 'Años':
-        vr.edadMin/=365
-        break;
-    }
-    switch(vr.unidadMax){
-      case '-':
-        vr.edadMax=0
-        break;
-      case 'Días':
-        break;
-      case 'Meses':
-        vr.edadMax/=30
-        break;
-
-      case 'Años':
-        vr.edadMax/=365
-        break;
-    }
-    switch(vr.sexo){
-      case 'F':
-            vrF.push(vr)
-            break;      
-      case 'M':
-            vrM.push(vr)
-            break;      
-      case 'A':
-            vrA.push(vr)
-            break;      
-    }
-  }
     await transaction.commit();
-    return res.render(`tecBioq/addVr`,{determinacion,valoresRef:{Femenino:vrF,
-      Masculino:vrM,
-      Ambos:vrA}})
+    return res.render(`tecBioq/addVr`,{determinacion} )
 
   } catch (error) {
     console.error(error);
@@ -744,23 +767,98 @@ const postDet=async(req,res)=>{
 
 }
 
+
+
+
+const  postMuestra=async(req,res)=>{
+  try {
+    console.log('------------------------------------------------ POST MUESTRAA');
+    const{nombre}= req.body;
+    
+    const muestra=await Muestra.create({nombre})
+    return res.redirect(`http://localhost:3000/tecBioq/muestras?inputSearch=${nombre}`)
+
+  } catch (error) {
+    console.error(error);
+    if(error.parent.code=="ER_DUP_ENTRY")
+      return res.render(`tecBioq/clickAddMuestra`,{error:"Error: La muestra ya está registrada."} )
+    return res.render(`tecBioq/clickAddMuestra`,{error:"Error: registro no agregado."} )
+      
+  };
+
+}
+
+
+
+
+
+
+
+const postVr=async(req,res)=>{
+  const transaction = await sequelize.transaction();
+  try {
+    console.log('------------------------------------------------ POST VR'); //TODO
+    
+    const{id}=req.body;
+    const{determinacion,valoresRef}=req.body
+
+    const arr=['Femenino','Masculino','Ambos'];
+    for(let sexo of arr){
+      if(req.body[`nota${sexo}`]){
+        for(let i=0;i<req.body[`nota${sexo}`].length;i++){
+
+             await DeterminacionValorReferencia.create({ DeterminacionId: id,
+                                                         unidadMin:req.body[`unidadMin${sexo}`][i],
+                                                         unidadMax:req.body[`unidadMax${sexo}`][i],                                                         
+                                                         edadMin: req.body[`edadMin${sexo}2`][i]
+                                                         ,
+                                                         edadMax:req.body[`edadMax${sexo}2`][i],
+                                                         sexo:sexo[0],
+                                                         valorMin: req.body[`valorMin${sexo}2`][i],
+                                                         valorMax:req.body[`valorMax${sexo}2`][i],
+                                                         nota: req.body[`nota${sexo}`][i] 
+                                                        },
+                                                        {transaction})    
+        }
+      }
+    }
+
+
+    await transaction.commit();
+    return res.redirect(`http://localhost:3000/tecBioq/determinacion/${id}`)
+
+  } catch (error) {
+    console.error(error);
+    await transaction.rollback()
+    return res.redirect(`http://localhost:3000/tecBioq/`)
+  };
+
+}
+
+
+
  module.exports={
   deleteCategoria,
   deleteCategDet,
   deleteCategParam,
   deleteDeterminacion,
   getAddCategDet,
+  getAddDeterminacion,
+  getAddMuestra,
   getDeterminacion,
   getExamen,
   getInicio,
   getInicioDeterminaciones,
+  getInicioMuestras,
   getFormExamen,
-  getAddDeterminacion,
+  getMuestra,
   postCategDet,
   postDet,
+  postVr,
   postDetCateg,
   postParamCateg,
   postExamen,
+  postMuestra,
   putDet,
   putvr,
   putExamen,

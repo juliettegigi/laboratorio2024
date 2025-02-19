@@ -48,9 +48,15 @@
   
 
   input:disabled,
+  input[readonly],
   .form-select:disabled {
-    background-color: white ; /* Sobrescribe cualquier estilo existente */
-    color: black ;
-    border: 1px solid #ced4da ;
-    cursor: not-allowed;
-}
+      background-color: #F8F9FA; 
+      color: black;
+      cursor: not-allowed;
+      outline: 0;
+  }
+  
+  .divLista{
+    margin-top: 2rem;
+  }
+

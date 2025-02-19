@@ -1,6 +1,7 @@
 extends layout
 
 block content
- include ./inputSearch.pug
- +inputSearch("/tecBioq/det","nombre/codigo/tag a buscar","Crear Determinación","http://localhost:3000/tecBioq/addDet")
- include ./listaDeterminaciones.pug
+ div(id="divContentLista" )
+  include ./inputSearch.pug
+  +inputSearch("/tecBioq/determinacion","nombre/codigo/tag a buscar","Crear Determinación","http://localhost:3000/tecBioq/addDet")
+  include ./listaDeterminaciones.pug

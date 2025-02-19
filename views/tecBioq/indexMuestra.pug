@@ -1,0 +1,7 @@
+extends layout
+
+block content
+ div(id="divContentLista" )
+  include ./inputSearch.pug
+  +inputSearch("/tecBioq/muestras","nombre/id a buscar","Crear Muestra","http://localhost:3000/tecBioq/addMuestra")
+  include ./listaMuestras.pug

@@ -11,6 +11,13 @@ async function googleVerify(token='') {
   return({email:payload.email})
 }
 
+
+
+
+
 module.exports={
     googleVerify
 }
+
+
+

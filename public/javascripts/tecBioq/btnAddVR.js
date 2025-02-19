@@ -1,8 +1,8 @@
 export default class BtnAddVR{
-    constructor(btn,divVrXsexo){
+    constructor(btn,divVrXsexo,sexo){
         this.btn=btn
         this.divVrXsexo=divVrXsexo
-
+        this.sexo=sexo
         //estructuraHTML
         this.divValorRef=null
         this.divValorRef=null
@@ -10,6 +10,7 @@ export default class BtnAddVR{
         this.divFormDivVr1=null
         this.divFormDivVr2=null
         this.divFormDivVr3=null
+        this.divFormDivVr4=null
         this.divAcciones=null
     }
 
@@ -28,13 +29,21 @@ export default class BtnAddVR{
                this.innear2( this.divFormDivVr2)
             this.divFormDivVr3=document.createElement('div')
                this.innear3( this.divFormDivVr3)
+            this.divFormDivVr4=document.createElement('div')
+               this.innear4( this.divFormDivVr4)
         this.divAcciones=document.createElement('div')
-               this.innear4( this.divAcciones)
+               this.innear5( this.divAcciones)
 
 
         this.apendear();
         this.clasear();
         this.agregarEventos();
+        this.focusear();
+    }
+
+    focusear(){
+        this.divFormDivVr1.querySelector('#nota').focus();
+
     }
 
     agregarEventos(){
@@ -48,25 +57,32 @@ export default class BtnAddVR{
         this.divFormDivVr1.classList.add('form-div-vr')
         this.divFormDivVr2.classList.add('form-div-vr')
         this.divFormDivVr3.classList.add('form-div-vr')
+        this.divFormDivVr4.classList.add('form-div-vr')
         this.divAcciones.classList.add('acciones')
     }
     apendear(){
-        this.divVrXsexo.appendChild(this.divValorRef);
+        this.divVrXsexo.insertBefore(this.divValorRef,this.btn);
+        this.divValorRef.innerHTML=`
+        <input type="hidden" name="idsVrForm" value="0">
+        <input type="hidden" name="isNew" value="1">
+        <input type="hidden" name="sex" value="${this.sexo}">
+        `
         this.divValorRef.appendChild(this.div)
         this.divValorRef.appendChild(this.divAcciones)
         this.div.appendChild( this.divFormDivVr1)
         this.div.appendChild( this.divFormDivVr2)
         this.div.appendChild( this.divFormDivVr3)
+        this.div.appendChild( this.divFormDivVr4)
     }
 
     innear1(div){
         div.innerHTML=`
         <div class="d-flex">
             <div class="me-3">
-                <label for="nombre">Nota</label>
+                <label for="nota">Nota</label>
             </div>
             <div> 
-                <input type="text" id="nombre" name="nombre" autocomplete="off"  >
+                <input type="text" id="nota" name="nota" autocomplete="off" >
             </div>
         </div>
         `
@@ -74,47 +90,90 @@ export default class BtnAddVR{
     }
     innear2(div){
         div.innerHTML=`
-        <div class="me-3">
-          <label for="nombre">Edad mínima</label>
-        </div>
-            <div> 
-                <input type="text" id="nombre" name="nombre" autocomplete="off" value="0.00" disabled="">
+        <div class="d-flex"> 
+            <div class="me-3">
+                <label for="edadMin">Edad mínima</label>
             </div>
-        
-        <div class="d-flex">       
-          <div class="me-3">
-              <label for="codigo">Edad máxima </label>
-          </div>
-        <div> 
-            <input type="text" id="codigo" name="codigo" autocomplete="off" value="0.00" disabled="">
+            <div> 
+                <input type="text" id="edadMin" name="edadMin" autocomplete="off" >
+            </div>
+        </div>
+        <div class="d-flex"> 
+            <div class="me-3">
+                <label for="unidadMin">unidad</label>
+            </div>
+            <div> 
+                <select id="unidadMin" name="unidadMin"> 
+                    <option value="Días">Días</option>
+                    <option value="Meses">Meses</option>
+                    <option value="Años" selected="">Años   </option>
+                    <option value="-">-   </option>
+                </select>
+            </div>
         </div>
         
         `
         
     }
+
+
     innear3(div){
+        div.innerHTML=`
+        
+        
+        <div class="d-flex">       
+            <div class="me-3">
+                <label for="edadMax">Edad máxima </label>
+            </div>
+            <div> 
+                <input type="text" id="edadMax" name="edadMax" autocomplete="off" value="0" >
+            </div>
+        </div>
+        
+        <div class="d-flex"> 
+            <div class="me-3">
+                <label for="unidadMax">unidad</label>
+            </div>
+            <div> 
+                <select id="unidadMax" name="unidadMax"> 
+                    <option value="Días">Días</option>
+                    <option value="Meses">Meses</option>
+                    <option value="Años">Años   </option>
+                    <option value="-" selected="">-        </option>
+                </select>
+            </div>
+        </div>
+        
+        `
+
+    }
+
+
+
+    innear4(div){
         div.innerHTML=`
         <div class="d-flex">
              <div class="me-3">
-                <label for="tags">Valor mín.</label>
-        </div>
-        <div> 
-            <input type="text" id="tags" name="tags" autocomplete="off" value="0.00" disabled="">
-        </div>
+                <label for="valorMin">Valor mín.</label>
+             </div>
+             <div> 
+                 <input type="text" id="valorMin" name="valorMin" autocomplete="off" value="0.00" >
+             </div>
+        </div>     
         <div class="d-flex">
             <div class="me-3">
-                <label for="tags">Valor máx.</label>
+                <label for="valorMax">Valor máx.</label>
             </div>
             <div> 
-                <input type="text" id="tags" name="tags" autocomplete="off" value="0.00" disabled="">
+                <input type="text" id="valorMax" name="valorMax" autocomplete="off" value="0.00" >
             </div>
         </div>
         `
         
     }
-    innear4(div){
+    innear5(div){
         div.innerHTML=`
-       <div title="Eliminar">
+       <div title="Eliminar" class="btnsEditarVR">
              <svg class="bi bi-x-circle" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16">
                  </path>

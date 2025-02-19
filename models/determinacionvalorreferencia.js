@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'DeterminacionValorReferencia',
     tableName: 'DeterminacionValorReferencias',
-    timestamps: false
+    timestamps: true,
+    paranoid:true
   });
   return DeterminacionValorReferencia;
 };

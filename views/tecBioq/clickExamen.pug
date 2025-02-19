@@ -5,6 +5,6 @@ block content
   //
    if rtaCargarOrden 
         include ./rtaCargarOrden.pug
-  .container.d-flex.justify-content-start(id="divLista" )
+  .container.d-flex.flex-column.divContent(id="divLista" )  
     include ./formExamen.pug
     +formExamen("Editar",examen)
