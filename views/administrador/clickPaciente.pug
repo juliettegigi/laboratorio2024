@@ -4,6 +4,11 @@ block aside
 block content
     if rtaCargarOrden 
         include ./rtaCargarOrden.pug
+    if rta
+     div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
+      strong 
+          | #{rta.alertMessage}
+      button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
     .container.d-flex.justify-content-center(id="divLista" class=`${rtaCargarOrden?'oculto':''}`)
      ul(class=`list-group list-group-flush lista-datos-usuario`)
          li(class="list-group-item")= `Nombre: `+usuario.nombre  
@@ -56,26 +61,10 @@ block content
         const divFormOrden2=document.getElementById('divFormOrden2');
         const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
         const divEliminarOrden=document.getElementById('divEliminarOrden');
-        const origen = "#{origen}";
+        var rta =!{JSON.stringify(rta || {})};
         let active=divLista;
-
-        switch(origen){
-            case'postOrden':
-                active=divFormOrden
-                break;
-            case'putOrden':
-            case'deleteOrden':
-              active=divOrdenesNoInformadas
-              break;
-            case'putPaciente':
-              const divForm=document.getElementById('divForm');
-              active=divForm
-              break;
-            default: 
-                active=divLista 
-        }
-        
-        let newActive=null;
+        console.log("rtaaa")
+        console.log(rta.origen)
         const activar=(div)=>{
             if(rtaCargarOrden)
               rtaCargarOrden.remove();
@@ -83,6 +72,26 @@ block content
             active=div
             active.classList.remove('oculto');
         }
+        if(rta){  
+             switch(rta.origen){
+                 case'postOrden':
+                     activar(divOrdenesNoInformadas)
+                     break;
+                 case'putOrden':
+                    activar(divOrdenesNoInformadas)
+                      break;
+                 case'deleteOrden':
+                   activar(divOrdenesNoInformadas)
+                   break;
+                 case'putPaciente':
+                   activar(divForm)
+                   break;
+                 default: 
+                     active=divLista 
+             }
+            }
+        
+        
 
         //const form=document.getElementById('form')
         btnEditar.addEventListener('click',(event)=>{

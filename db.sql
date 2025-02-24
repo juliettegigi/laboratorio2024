@@ -11,7 +11,8 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 nombre varchar(70),
     createdAt DATETIME DEFAULT NOW(),
     updatedAt DATETIME DEFAULT NOW(),
-    deletedAt DATETIME DEFAULT NULL
+    deletedAt DATETIME DEFAULT NULL,
+    unique(nombre)
 );
 INSERT INTO muestras (id, nombre) VALUES
 (1,''),
@@ -2223,11 +2224,21 @@ CREATE TABLE determinaciones(
      codigo varchar(6),
      nombre varchar(70) unique,
      tags TEXT,
-     determinacionId int,
+     -- determinacionId int,
      createdAt datetime DEFAULT NOW(),
      updatedAt datetime DEFAULT NOW(),
-     deletedAt datetime DEFAULT NULL,
-     FOREIGN KEY (determinacionId) REFERENCES determinaciones(id)
+     deletedAt datetime DEFAULT NULL
+);
+
+create table determinacionPadres(
+id INT PRIMARY KEY AUTO_INCREMENT,
+determinacionId INT,
+padreId INT,
+FOREIGN KEY (determinacionId) REFERENCES determinaciones(id),
+FOREIGN KEY (padreId) REFERENCES determinaciones(id),
+  createdAt datetime DEFAULT NOW(),
+     updatedAt datetime DEFAULT NOW(),
+     deletedAt datetime DEFAULT NULL
 );
 
 	create table determinacionUnidades(
@@ -2235,7 +2246,8 @@ CREATE TABLE determinaciones(
     determinacionId int,
     unidadId int,
     FOREIGN KEY (determinacionId) REFERENCES determinaciones(id) ,
-    FOREIGN KEY (unidadId) REFERENCES unidades(id)  
+    FOREIGN KEY (unidadId) REFERENCES unidades(id)  ,
+    unique(determinacionId,unidadId)
 );
 
 
@@ -2272,36 +2284,33 @@ create table examenCategorias(
 );
 
 
-create table examenDeterminaciones(
-    id int primary key auto_increment,
-    examenId int,
-    determinacionId int,
-    FOREIGN KEY (examenId) REFERENCES examenes(id) ,
-    FOREIGN KEY (determinacionId) REFERENCES determinaciones(id)  
-);
-
 
 
 CREATE TABLE exCategDeterminaciones(
      id INT PRIMARY KEY AUTO_INCREMENT,
-     examenCategoriaId INT,
+     ExamenCategoriaId INT,
      determinacionId INT,
      createdAt DATETIME DEFAULT NOW(),
      updatedAt DATETIME DEFAULT NOW(),
      deletedAt DATETIME DEFAULT NULL,
-     FOREIGN KEY (examenCategoriaId) REFERENCES examenCategorias(id) ON DELETE CASCADE,   
-     FOREIGN KEY (determinacionId) REFERENCES determinaciones(id) 
+     FOREIGN KEY (ExamenCategoriaId) REFERENCES examenCategorias(id) ON DELETE CASCADE,   
+     FOREIGN KEY (DeterminacionId) REFERENCES determinaciones(id) ,
+     UNIQUE (ExamenCategoriaId, DeterminacionId)
 );
 
-CREATE TABLE exCategParametros(
-     id INT PRIMARY KEY AUTO_INCREMENT,
-     examenCategoriaId int,
-     parametroId int,
-     createdAt datetime DEFAULT NOW(),
-     updatedAt datetime DEFAULT NOW(),
-     deletedAt datetime DEFAULT NULL,
-     FOREIGN KEY(examenCategoriaId) REFERENCES examenCategorias(id) ON DELETE CASCADE,   
-     FOREIGN KEY(parametroId) REFERENCES parametros(id) 
+CREATE TABLE exCategParametros (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    ExamenCategoriaId INT,
+    parametroId INT,
+    createdAt DATETIME DEFAULT NOW(),
+    updatedAt DATETIME DEFAULT NOW(),
+    deletedAt DATETIME DEFAULT NULL,
+    FOREIGN KEY (ExamenCategoriaId)
+        REFERENCES examenCategorias (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (ParametroId)
+        REFERENCES parametros (id),
+    UNIQUE (ExamenCategoriaId , ParametroId)
 );
 
 CREATE TABLE ordenExamenes (
@@ -2320,7 +2329,9 @@ CREATE TABLE determinacionValorReferencias(
  id INT PRIMARY KEY AUTO_INCREMENT,
  determinacionId int  ,
  edadMin decimal(10,2) DEFAULT 0, -- dias
+ unidadMin ENUM('Días', 'Meses', 'Años','-') DEFAULT 'Años',
  edadMax decimal(10,2) DEFAULT 200,
+ unidadMax ENUM('Días', 'Meses', 'Años','-') DEFAULT 'Años',
  sexo ENUM('F', 'M', 'A') DEFAULT 'A',
  valorMin decimal(10,2) DEFAULT NULL,
  valorMax decimal(10,2) DEFAULT NULL,
@@ -2374,17 +2385,33 @@ createdAt DATETIME DEFAULT NOW(),
     deletedAt DATETIME DEFAULT NULL  
 );
 
-CREATE TABLE resultados(
+CREATE TABLE parametroResultados(
 id INT PRIMARY KEY AUTO_INCREMENT,
 ordenExamenId int,
+parametroId int,
 resultado decimal(10,2),
 unidadId int,
 FOREIGN KEY (ordenExamenId) REFERENCES ordenExamenes(id),
+FOREIGN KEY (parametroId) REFERENCES parametros(id),
 FOREIGN KEY (unidadId) REFERENCES unidades(id) ON DELETE CASCADE,
 createdAt DATETIME DEFAULT NOW(),
 updatedAt DATETIME DEFAULT NOW(),
 deletedAt DATETIME DEFAULT NULL  
 );
+CREATE TABLE determinacionResultados(
+id INT PRIMARY KEY AUTO_INCREMENT,
+ordenExamenId int,
+determinacionId int,
+resultado decimal(10,2),
+unidadId int,
+FOREIGN KEY (ordenExamenId) REFERENCES ordenExamenes(id),
+FOREIGN KEY (determinacionId) REFERENCES Determinaciones(id),
+FOREIGN KEY (unidadId) REFERENCES unidades(id) ON DELETE CASCADE,
+createdAt DATETIME DEFAULT NOW(),
+updatedAt DATETIME DEFAULT NOW(),
+deletedAt DATETIME DEFAULT NULL  
+);
+
 
 
 
@@ -2479,32 +2506,37 @@ values
         (5,'Sedimento urinario',1)
         ;  
 
-insert into determinaciones(id,codigo, nombre,tags,determinacionId)
+
+insert into determinaciones(id,codigo, nombre,tags)
 values  -- perfil lipídico
-      (1,'668298','Perfil lipídico','',null), 
-      (2,'660174','Colesterol total','',1 ), 
-      (3,'661035','Colesterol HDL','HDLC-C',1), 
-      (4,'661040','Colesterol LDL ','LDL-C',1),  
-      (5,'660876','Triglicéridos','Tg',1),
+      (1,'668298','Perfil lipídico',''), 
+      (2,'660174','Colesterol total','' ), 
+      (3,'661035','Colesterol HDL','HDLC-C'), 
+      (4,'661040','Colesterol LDL ','LDL-C'),  
+      (5,'660876','Triglicéridos','Tg'),
       -- Orina completa
-      (6,'660711','Orina completa','OC',null),
+      (6,'660711','Orina completa','OC'),
       -- 	Eritrosedimentación
-      (7,'660297','Eritrosedimentación','VSG-ES',7),
+      (7,'660297','Eritrosedimentación','VSG-ES'),
       -- coagulograma
-      (8,'660171','Coagulograma','',null),
-      (9,'660169','Coagulación, tiempo de ','',8),
-      (10, '660746','Plaquetas, recuento de','',8), 
-      (11,'660771','Protrombina, tiempo de','TP',8),
-      (12,'660887','Tromboplastina, tiempo de','KPTT / APTT / TTPC / KT',8),
+      (8,'660171','Coagulograma',''),
+      (9,'660169','Coagulación, tiempo de ',''),
+      (10, '660746','Plaquetas, recuento de',''), 
+      (11,'660771','Protrombina, tiempo de','TP'),
+      (12,'660887','Tromboplastina, tiempo de','KPTT / APTT / TTPC / KT'),
        -- Hemograma
-       (13,'660475','Hemograma','',null),
-      (14,'660410','Glóbulos rojos','',13),-- serie roja
-      (15,'660470','Hemoglobina','Hb',13),-- serie roja
-      (16,'660466','Hematocrito','Hto',13),-- serie roja
-      (17,'660354','Fórmula leucocitaria','',13), -- serie blanca
-      (18,'660409','Glóbulos blancos','',13) -- serie blanca
+       (13,'660475','Hemograma',''),
+      (14,'660410','Glóbulos rojos',''),-- serie roja
+      (15,'660470','Hemoglobina','Hb'),-- serie roja
+      (16,'660466','Hematocrito','Hto'),-- serie roja
+      (17,'660354','Fórmula leucocitaria',''), -- serie blanca
+      (18,'660409','Glóbulos blancos','') -- serie blanca
       ;        
 
+insert into determinacionPadres(determinacionId,padreId)
+values(2,1),(3,1),(4,1),(5,1),
+      (9,8),(10,8),(11,8),(12,8),
+      (14,13),(15,13),(16,13),(17,13),(18,13);
 insert into exCategDeterminaciones(examenCategoriaId,determinacionId)
 values
         -- Hemograma
@@ -2516,18 +2548,10 @@ values
 ;
 
 
-insert into examenDeterminaciones(examenId,determinacionId)
-values 
-       -- plaquetas
-       (5,10), -- plaquetas
-       -- coagulograma
-       (6,8),--  coagulograma
-       (6,9),-- Coagulación, tiempo de
-       (6,10),-- Plaquetas, recuento de
-       (6,11),-- Protrombina, tiempo de
-       (6,12) -- Tromboplastina, tiempo de
-      
-       ;
+
+
+
+
        
     
       
@@ -2560,7 +2584,8 @@ values -- orina completa todos los parametros que se ponen en una determinación
       (24,'Plaquetas'),
       (25,'VPM')
       ;  
-      
+      INSERT INTO parametros(nombre) VALUES
+('VPM');
       
       insert into exCategParametros(examenCategoriaId,parametroId)
 values
@@ -2582,80 +2607,80 @@ values
 ;
 
       
-      INSERT INTO determinacionValorReferencias(determinacionId,edadMin,edadMax,sexo,valorMin, valorMax,nota) VALUES
+      INSERT INTO determinacionValorReferencias( unidadMin,unidadMax,determinacionId,edadMin,edadMax,sexo,valorMin, valorMax,nota) VALUES
 -- colesterol total
-(2,2*365,19*365,'A',-1,169,'Deseable'),
-(2,2*365,19*365,'A',170,199,'Límite alto'),
-(2,2*365,19*365,'A',200,-1,'Límite alto'),
-(2,20*365,-1,'A',-1,199,'Deseable'),
-(2,20*365,-1,'A',200,239,'Límite alto'),
-(2,20*365,-1,'A',240,-1,'Alto'),
+('Años','Años',2,2*365,19*365,'A',-1,169,'Deseable'),
+('Años','Años',2,2*365,19*365,'A',170,199,'Límite alto'),
+('Años','Años',2,2*365,19*365,'A',200,-1,'Límite alto'),
+('Años','-',2,20*365,-1,'A',-1,199,'Deseable'),
+('Años','-',2,20*365,-1,'A',200,239,'Límite alto'),
+('Años','-',2,20*365,-1,'A',240,-1,'Alto'),
 -- hdl
-(3,2*365,19*365,'A',45,-1,'Deseable'),
-(3,2*365,19*365,'A',-1,44,'Límite bajo'),
-(3,20*365,-1,'M',40,-1,'Deseable'),
-(3,20*365,-1,'M',-1,39,'Límite bajo'),
-(3,20*365,-1,'F',50,-1,'Deseable'),
-(3,20*365,-1,'F',-1,49,'Límite bajo'),
+('Años','Años',3,2*365,19*365,'A',45,-1,'Deseable'),
+('Años','Años',3,2*365,19*365,'A',-1,44,'Límite bajo'),
+('Años','-',3,20*365,-1,'M',40,-1,'Deseable'),
+('Años','-',3,20*365,-1,'M',-1,39,'Límite bajo'),
+('Años','-',3,20*365,-1,'F',50,-1,'Deseable'),
+('Años','-',3,20*365,-1,'F',-1,49,'Límite bajo'),
 -- ldl
-(4,2*365,19*365,'A',-1,109,'Deseable'),
-(4,2*365,19*365,'A',110,129,'Límite alto'),
-(4,2*365,19*365,'A',130,-1,'Alto'),
-(4,20*365,-1,'A',-1,99,'Óptimo'),
-(4,20*365,-1,'A',100,129,'Casi óptimo'),
-(4,20*365,-1,'A',130,159,'Límite alto'),
-(4,20*365,-1,'A',160,189,'Alto'),
-(4,20*365,-1,'A',190,-1,'Alto'),
+('Años','Años',4,2*365,19*365,'A',-1,109,'Deseable'),
+('Años','Años',4,2*365,19*365,'A',110,129,'Límite alto'),
+('Años','Años',4,2*365,19*365,'A',130,-1,'Alto'),
+('Años','-',4,20*365,-1,'A',-1,99,'Óptimo'),
+('Años','-',4,20*365,-1,'A',100,129,'Casi óptimo'),
+('Años','-',4,20*365,-1,'A',130,159,'Límite alto'),
+('Años','-',4,20*365,-1,'A',160,189,'Alto'),
+('Años','-',4,20*365,-1,'A',190,-1,'Alto'),
 --  triglicéridos
-(5,0,9*365,'A',-1,74,'Deseable'),
-(5,0,9*365,'A',75,99,'Límite alto'),
-(5,0,9*365,'A',100,-1,'Alto'),
-(5,10*365,19*365,'A',-1,89,'Deseable'),
-(5,10*365,19*365,'A',90,129,'Límite alto'),
-(5,10*365,19*365,'A',130,-1,'Alto'),
-(5,20*365,-1,'A',-1,149,'Deseable'),
-(5,20*365,-1,'A',150,199,'Límite alto'),
-(5,20*365,-1,'A',200,499,'Alto'),
-(5,20*365,-1,'A',500,-1,'Muy alto'),
+('-','Años',5,0,9*365,'A',-1,74,'Deseable'),
+('-','Años',5,0,9*365,'A',75,99,'Límite alto'),
+('-','Años',5,0,9*365,'A',100,-1,'Alto'),
+('Años','Años',5,10*365,19*365,'A',-1,89,'Deseable'),
+('Años','Años',5,10*365,19*365,'A',90,129,'Límite alto'),
+('Años','Años',5,10*365,19*365,'A',130,-1,'Alto'),
+('Años','-',5,20*365,-1,'A',-1,149,'Deseable'),
+('Años','-',5,20*365,-1,'A',150,199,'Límite alto'),
+('Años','-',5,20*365,-1,'A',200,499,'Alto'),
+('Años','-',5,20*365,-1,'A',500,-1,'Muy alto'),
 -- 'Eritrosedimentación
-(7,0,28,'A',0,2,'normal'),
-(7,29,12*365,'A',0,10,'normal'),
-(7,12*365+1,50*365,'M',0,15,'normal'),
-(7,51*365,-1,'M',0,20,'normal'),
-(7,12*365+1,50*365,'F',0,20,'normal'),
-(7,51*365,-1,'F',0,30,'normal'),
+('-','Años',7,0,28,'A',0,2,'normal'),
+('Días','Años',7,29,12*365,'A',0,10,'normal'),
+('Años','Años',7,12*365+1,50*365,'M',0,15,'normal'),
+('Años','-',7,51*365,-1,'M',0,20,'normal'),
+('Años','Años',7,12*365+1,50*365,'F',0,20,'normal'),
+('Años','-',7,51*365,-1,'F',0,30,'normal'),
 -- tiempo de coagulación
-(9,0,28,'A',4,10,'normal'),
-(9,29,-1,'A',5,7,'normal'),
+('-','Días',9,0,28,'A',4,10,'normal'),
+('Días','-',9,29,-1,'A',5,7,'normal'),
 -- tiempo de protrombina
-(11,0,-1,'A',10,13,'normal'),
+('-','-',11,0,-1,'A',10,13,'normal'),
 -- tiempo de tromboplastina
-(12,0,-1,'A',10,13,'normal'),
+('-','-',12,0,-1,'A',10,13,'normal'),
 -- recuento de plaquetas
-(10,0,-1,'A',150,450,'normal'),
+('-','-',10,0,-1,'A',150,450,'normal'),
 -- Glóbulos rojos
-(14,0,28,'A',4.1,6.1,'normal'),
-(14,29,365,'A',3.9,5.5,'normal'),
-(14,366,12*365,'A',4.1,5.5,'normal'),
-(14,13*365,-1,'M',4.7,6.1,'normal'),
-(14,13*365,-1,'F',4.2,5.4,'normal'),
+('-','Días',14,0,28,'A',4.1,6.1,'normal'),
+('Días','Años',14,29,365,'A',3.9,5.5,'normal'),
+('Años','Años',14,366,12*365,'A',4.1,5.5,'normal'),
+('Años','-',14,13*365,-1,'M',4.7,6.1,'normal'),
+('Años','-',14,13*365,-1,'F',4.2,5.4,'normal'),
 -- hemoglobina
-(15,0,28,'A',14,24,'normal'),
-(15,29,365,'A',10,15,'normal'),
-(15,366,12*365,'A',11.5,15.5,'normal'),
-(15,13*365,-1,'M',13.8,17.2,'normal'),
-(15,13*365,-1,'F',12.1,15.1,'normal'),
+('-','Días',15,0,28,'A',14,24,'normal'),
+('Días','Años',15,29,365,'A',10,15,'normal'),
+('Años','Años',15,366,12*365,'A',11.5,15.5,'normal'),
+('Años','-',15,13*365,-1,'M',13.8,17.2,'normal'),
+('Años','-',15,13*365,-1,'F',12.1,15.1,'normal'),
 --  hematocrito
-(16,0,28,'A',45,65,'normal'),
-(16,29,365,'A',32,40,'normal'),
-(16,366,12*365,'A',34,44,'normal'),
-(16,13*365,-1,'M',42,52,'normal'),
-(16,13*365,-1,'F',37,47,'normal'),
+('-','Días',16,0,28,'A',45,65,'normal'),
+('Días','Años',16,29,365,'A',32,40,'normal'),
+('Años','Años',16,366,12*365,'A',34,44,'normal'),
+('Años','-',16,13*365,-1,'M',42,52,'normal'),
+('Años','-',16,13*365,-1,'F',37,47,'normal'),
 --  glob blancos
-(17,0,28,'A',9.1,34,'normal'),
-(17,29,365,'A',6,17.5,'normal'),
-(17,366,12*365,'A',5,15,'normal'),
-(17,13*365,-1,'A',4,11,'normal')
+('-','Días',17,0,28,'A',9.1,34,'normal'),
+('Días','Años',17,29,365,'A',6,17.5,'normal'),
+('Años','Años',17,366,12*365,'A',5,15,'normal'),
+('Años','-',17,13*365,-1,'A',4,11,'normal')
 ;
  
   
@@ -2740,3 +2765,5 @@ values
 (23,11), -- monp
 (24,13),  -- plaquetas
 (25,4); -- VPM
+
+DESC ExCategDeterminaciones;

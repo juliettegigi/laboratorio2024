@@ -10,9 +10,9 @@ router.get('/formOrden', getFormOrden);
 router.post('/orden', postOrden);
 router.put('/orden', putOrden);
 router.delete('/orden', deleteOrden);
-router.get('/paciente/:usuarioId', getPaciente);
+router.get('/paciente/:pacienteId', getPaciente);
 router.post('/paciente',crearPaciente);
-router.put('/paciente/:UsuarioId',putPaciente);
+router.put('/paciente/:PacienteId',putPaciente);
 router.put('/muestra',putMuestrasRequeridas)
 router.get('/pdf/',getPDF)
 // form(action=editarOrden?`/admins/orden?_method=put`:`/admins/orden/` method="post" class="formOrden")

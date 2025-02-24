@@ -1,7 +1,9 @@
-
-.container.d-flex.justify-content-center(id="divForm" class=origen!=='putPaciente'?"oculto":"")
-    form(action=editarPaciente?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
-        input(type="hidden" name="PacienteId" value=paciente.id)
+- console.log("origen")
+- console.log(rta)
+.container.d-flex.justify-content-center(id="divForm" class=(rta || paciente)?"oculto":"")
+    form(action=editarPaciente?`/admins/paciente/${paciente.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+        if usuario
+         input(type="hidden" name="UsuarioId" value=usuario.id)
         .row.text-center
             h1(class="h3 mb-3 fw-normal")
                     | Datos del paciente

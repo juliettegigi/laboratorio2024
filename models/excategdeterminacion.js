@@ -10,18 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      ExCategDeterminacion.belongsTo(models.ExamenCategoria, { foreignKey: 'ExamenCategoriaId' });
-      ExCategDeterminacion.belongsTo(models.Determinacion)
+      ExCategDeterminacion.belongsTo(models.Determinacion,{ foreignKey: 'ExamenCategoriaId' })
+      ExCategDeterminacion.belongsTo(models.ExamenCategoria)
     }
   }
   ExCategDeterminacion.init({
-   // ExamenCategoriaId:DataTypes.INTEGER
-    
   }, {
     sequelize,
     modelName: 'ExCategDeterminacion',
-    tableName: 'ExCategDeterminaciones',
-    timestamps: false
+    tableName:"exCategDeterminaciones"
   });
   return ExCategDeterminacion;
 };

@@ -41,11 +41,13 @@ const getBusqueda=async(req,res)=>{
 
 const getForm=async(req,res)=>{
     const url = 'https://apis.datos.gob.ar/georef/api/provincias';
-  
+  console.log("hello")
     try {
       const rta = await axios.get(url);
       const provincias = rta.data.provincias;
-      return res.render('administrador/form',{provincias})
+      return res.render('administrador/form',{provincias,
+        origen:"getForm"
+      })
     } catch (error) {
       console.error('Error en api provincias:', error.message);
       return res.render('administrador/form')
@@ -66,22 +68,27 @@ const getFormOrden=async(req,res)=>{
 
 const getPaciente=async(req,res)=>{
   try {
-    const {usuarioId}=req.params;
-    const rtaCargarOrden=req.flash('rtaCargarOrden')[0];
-    const usuario = await Usuario.findByPk(usuarioId,{ attributes: { exclude: ['password'] },});
-    if(usuario){
-      
-      //busco al paciente y le incluyo todas sus órdenes
-      const paciente= await Paciente.findOne({ where: { UsuarioId:usuario.id },
-                                               include:{model: Orden,
-                                                        where: {
-                                                          EstadoId: { [Op.ne]: 3 }, // Filtra órdenes donde estado sea diferente de 3
-                                                        },
-                                                        required: false
-                                                      },
-                                                order: [[{ model: Orden }, 'fecha', 'DESC']] 
-                                            });
-    
+    const {pacienteId}=req.params;
+    const rta=req.flash('rta')[0];
+
+    //busco al paciente y le incluyo todas sus órdenes
+    const paciente= await Paciente.findOne({ where: { id:pacienteId },
+      include:{model: Orden,
+               where: {
+                 EstadoId: { [Op.ne]: 3 }, // Filtra órdenes donde estado sea diferente de 3
+               },
+               required: false
+             },
+       order: [[{ model: Orden }, 'fecha', 'DESC']] 
+   });
+
+
+   if(paciente){
+     console.log("id:  " ,paciente)
+     console.log("id:  " ,paciente.UsuarioId)
+     const usuario = await Usuario.findByPk(paciente.UsuarioId,{ attributes: { exclude: ['password'] },});
+      console.log('------------------------------------------------');
+    console.log(usuario)
     const arr=[]; 
     for(let orden of paciente.Ordens){ //todas las ordenes del paciente
       const [diagnostico,medico,estado,examenes]=await Promise.all([orden.getDiagnostico(),
@@ -114,8 +121,8 @@ const getPaciente=async(req,res)=>{
                                                        telefonos:await usuario.getTelefonos(),
                                                        ordenes:arr,
                                                        medicos:await Medico.findAll(),
-                                                       origen:rtaCargarOrden?rtaCargarOrden.origen:'getPaciente',
-                                                       rtaCargarOrden})
+                                                       rta
+                                                       })
     }
   } catch (error) {
     console.error(error);
@@ -130,17 +137,17 @@ const getPaciente=async(req,res)=>{
 
 const putPaciente=async(req,res)=>{
   const transaction = await sequelize.transaction();
+  const {PacienteId}=req.params;
   try {
-    const {UsuarioId}=req.params;
     
-    const {PacienteId,email,nombre,apellido,documento,
-           sexo,nacimiento, embarazada, provincia, localidad, direccion,
+    const {UsuarioId,email,nombre,apellido,documento,
+           sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,
            telefono}=req.body
     const [updatedRows1]=await Usuario.update({email,nombre,apellido,documento}, {where:{id:UsuarioId}},{ transaction });
-    const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion}, {where:{UsuarioId}},{ transaction });
+    const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad}, {where:{id:PacienteId}},{ transaction });
     const [updatedRows3]=await Telefono.update({numero:telefono}, {where:{UsuarioId}},{ transaction });
     await transaction.commit();
-      req.flash('rtaCargarOrden',{ 
+      req.flash('rta',{ 
         origen:'putPaciente',
         alertType: 'success',
         alertMessage: 'Registro editado' })
@@ -148,6 +155,14 @@ const putPaciente=async(req,res)=>{
   } catch (error) {
     console.error(error);
     await transaction.rollback();
+    if(error.parent.code==='ER_DUP_ENTRY'){
+      req.flash('rta',{ 
+        origen:'putPaciente',
+        alertType: 'danger',
+        alertMessage: 'Error: el email pertenece a otro usuario' })
+        return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+    }
+
     return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
   };
 
@@ -162,13 +177,13 @@ const crearPaciente=async(req,res)=>{
   const transaction = await sequelize.transaction();
     try {
         const {email,nombre,apellido,documento,
-               sexo,nacimiento, embarazada, provincia, localidad, direccion,
+               sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,
                telefono}=req.body
         
       const nuevoUsuario = await Usuario.create({email,nombre,apellido,documento},
                                                 { transaction });
       const usuarioId=nuevoUsuario.id;
-      await Paciente.create({UsuarioId:usuarioId,nacimiento, embarazada:embarazada?1:0, provincia, localidad, direccion,sexo},
+      const paciente=await Paciente.create({UsuarioId:usuarioId,nacimiento, embarazada:embarazada?1:0, provincia, localidad,edad, direccion,sexo},
                             { transaction }) 
       
       await Telefono.create({UsuarioId:usuarioId,numero:telefono,descripcion:"propio"},
@@ -177,7 +192,12 @@ const crearPaciente=async(req,res)=>{
                             { transaction })
         
       await transaction.commit();
-      return res.render('administrador/rtaRegistrar', { alertType: 'success', alertMessage: 'Registro creado' })
+      req.flash('rta',{ 
+        origen:'crearPaciente',
+        alertType: 'success',
+        alertMessage: 'Persona registrada.' })
+        console.log(paciente.id)
+      return res.redirect(`http://localhost:3000/admins/paciente/${paciente.id}`)
 
     } catch (error) {
       try{
@@ -188,6 +208,8 @@ const crearPaciente=async(req,res)=>{
             return res.render('administrador/rtaRegistrar',{ alertType: 'danger', alertMessage: error.errors.message })
           }catch(error){
             return res.render('administrador/rtaRegistrar',{ alertType: 'danger', alertMessage:'Error: no se ha podido crear el registro. ' })
+          }finally{
+            console.log(error)
           }
     };
 
@@ -278,7 +300,7 @@ const postOrden=async(req,res)=>{
      //TODO: decir en que fecha van a estar todos los resultados ,
 
       await transaction.commit();  
-      req.flash('rtaCargarOrden',{ 
+      req.flash('rta',{ 
         origen:'postOrden',
          alertType: 'success',
          alertMessage: 'Orden cargada.', 
@@ -352,7 +374,7 @@ const putOrden=async(req,res)=>{
     await MuestraRequerida.bulkCreate(muestrasRequeridasNuevasRelaciones, { transaction });
 
     await transaction.commit();  
-    req.flash('rtaCargarOrden',{ 
+    req.flash('rta',{ 
       origen:'putOrden',
        alertType: 'success',
        alertMessage: `Orden ${ordenId} actualizada.` })
@@ -394,7 +416,7 @@ const putMuestrasRequeridas=async(req,res)=>{
      }
      await Promise.all(promises);
      await transaction.commit();  
-     req.flash('rtaCargarOrden',{ 
+     req.flash('rta',{ 
        origen:'putOrden',
         alertType: 'success',
         alertMessage: `Orden ${OrdenId} muestras actualizadas.` })
@@ -419,7 +441,7 @@ const deleteOrden=async(req,res)=>{
                                 { transaction });
     await transaction.commit();  
 
-    req.flash('rtaCargarOrden',{ 
+    req.flash('rta',{ 
       origen:'deleteOrden',
       alertType: 'success',
       alertMessage: `Registro ${OrdenId} eliminado` })

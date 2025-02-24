@@ -5,7 +5,7 @@
 }
 .card-flip {
     perspective: 1000px;
-    width: 30%;
+    width: 360px;
     z-index: 9;
     
 }

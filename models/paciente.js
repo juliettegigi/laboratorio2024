@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Paciente.hasMany(models.Orden)
-      Paciente.belongsTo(models.Usuario)
+      Paciente.belongsTo(models.Usuario, { foreignKey: 'UsuarioId', as: 'Usuario' })
     }
   }
   Paciente.init({

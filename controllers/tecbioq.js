@@ -2,8 +2,8 @@ const { Op } = require('sequelize');
 
 const {
   Determinacion,DeterminacionPadre,DeterminacionUnidad,DeterminacionValorReferencia,
-  Examen,ExCategDeterminacion,ExamenCategoria,ExCategParametro,Parametro,
-  Muestra,
+  Examen,ExCategDeterminacion,ExamenCategoria,ExCategParametro,ExamenDeterminacion,Orden,OrdenExamen,Parametro,Paciente,
+  Muestra,Usuario,
   Unidad,sequelize,
    } = require('../models');
 const { post } = require('../routes/tecbioq');
@@ -69,6 +69,83 @@ const getInicio=async(req,res)=>{
       });
      return res.render('tecBioq/indexMuestra',{inputSearch,
                                       muestras:rows,
+                                      limit,
+                                      totalRegistros:count,
+                                      page,
+                                      PAGES_CANTIDADxGRUPO:3,
+                                      group})
+}catch(error){  console.log(error)
+               return res.render('tecBioq/index')
+ } 
+  
+}
+
+
+
+ const  getInicioOrdenes=async(req,res)=>{
+
+  try{  
+     let{page=1,inputSearch="",group=1}=req.query;
+     const limit=5;
+     page=parseInt(page)
+     group=parseInt(group)
+     let offset=page*limit-limit;
+     
+     let whereCondition = {};
+    if (inputSearch !== "") {
+      const numericValue = Number(inputSearch);
+      if (!isNaN(numericValue)) {
+        whereCondition = {
+          [Op.or]: [
+            { id: numericValue },
+            { '$Paciente.Usuario.id$': numericValue }
+          ]
+        };
+      } else {
+        whereCondition = {
+          [Op.or]: [
+            { '$Paciente.Usuario.nombre$': {  [Op.like]: `%${inputSearch}%`} },
+            { '$Paciente.Usuario.apellido$': {  [Op.like]: `%${inputSearch}%` } }
+          ]
+        };
+      }
+    }
+
+    const { count, rows } = await Orden.findAndCountAll({
+      where: whereCondition,
+      include: [
+        {
+          model: Paciente,
+          as: 'Paciente',
+          include: [
+            {
+              model: Usuario,
+              as: 'Usuario'
+            }
+          ]
+        },
+        {
+          model: Examen,
+          as: 'Examens',
+          include: [
+            {
+              model: Muestra,
+              as: 'Muestra'
+            }
+          ]
+        }
+      ],
+      limit,
+      offset,
+      order: [['id', 'ASC']],
+      subQuery: false // Evita que se generen subconsultas que rompan los alias
+    });
+        console.log('------------------------------------------------ORDENES  ');
+        console.log(rows)
+        console.log('------------------------------------------------ORDENES  ');
+        console.log(rows[0].Examens)
+     return res.render('tecBioq/indexOrden',{inputSearch,
+                                      ordenes:rows,
                                       limit,
                                       totalRegistros:count,
                                       page,
@@ -379,6 +456,57 @@ const getMuestra=async(req,res)=>{
 }
 
 
+const getOrdenExamen=async(req,res)=>{
+  try {
+    const {OrdenId,ExamenId}=req.params;
+    console.log("************************************************************************************")
+    console.log("************************************************************************************")
+    console.log("***********************************************************************************",OrdenId)
+    console.log("***********************************************************************************",ExamenId)
+    console.log("************************************************************************************")
+    const ordenExamen = await OrdenExamen.findOne({
+      where: { OrdenId, ExamenId },
+      include: [
+        {
+          model: Examen,
+          include: [
+            {
+              model: ExamenCategoria, include: [
+                {
+                  model: ExCategDeterminacion, include: [
+                    {
+                      model: Determinacion, }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+   
+
+      console.log(ordenExamen)
+      console.log('------------------------------------------------ ordenExamen.Examen.ExamenCategoria');
+      console.log(ordenExamen.Examen.ExamenCategoria[0])
+      console.log('------------------------------------------------ ordenExamen.Examen.ExamenCategoria[0].ExCategDeterminacion');
+      console.log(ordenExamen.Examen.ExamenCategoria[0].ExCategParametros)
+      return res.render('tecBioq/clickOrden',{ordenExamen})
+    
+  } catch (error) {
+    console.error(error);
+    return res.render('tecBioq/clickMuestras')
+  };
+
+
+
+  
+}
+
+
+
+
+
 const getAddCategDet=async(req,res)=>{
    try {
       const {id}=req.params;
@@ -442,6 +570,7 @@ const putExamen=async(req,res)=>{
 
  const postCategDet=async(req,res)=>{
   const transaction = await sequelize.transaction();
+  console.log(req.body)
   const {id}=req.params;
    try {
 
@@ -449,9 +578,15 @@ const putExamen=async(req,res)=>{
                                                         :  [req.body.categorias];
     let i=0;
     for(let nombre of categorias){
+
       
-      const exCateg=await ExamenCategoria.create({ExamenId:id,nombre},
-                                                 { transaction })
+      
+      const [exCateg, created] = await ExamenCategoria.findOrCreate({
+        where: { ExamenId: id, nombre },
+        defaults: { ExamenId: id, nombre },
+        transaction
+      });
+      
       const detId=req.body[`${i}`]?Array.isArray(req.body[`${i}`]) ? req.body[`${i}`]
                                                  : [req.body[`${i}`]]
                                   : []          
@@ -837,6 +972,35 @@ const postVr=async(req,res)=>{
 
 
 
+const postResultados=async(req,res)=>{
+  const transaction = await sequelize.transaction();
+  try {
+    console.log('------------------------------------------------ POST resultados'); //TODO
+    
+  
+
+   console.log(req.body)
+
+for(let propiedad in req.body){
+req.body[`${propiedad}`]=Array.isArray(req.body[`${propiedad}`])
+         ?req.body[`${propiedad}`]
+         :[req.body[`${propiedad}`]];
+}
+
+const{determinacionResultado,parametroResultado,parametroId,determinacionId}=req.body;
+    await transaction.commit();
+    return res.redirect(`http://localhost:3000/tecBioq/ordenes`)
+
+  } catch (error) {
+    console.error(error);
+    await transaction.rollback()
+    return res.redirect(`http://localhost:3000/tecBioq/`)
+  };
+
+}
+
+
+
  module.exports={
   deleteCategoria,
   deleteCategDet,
@@ -850,14 +1014,17 @@ const postVr=async(req,res)=>{
   getInicio,
   getInicioDeterminaciones,
   getInicioMuestras,
+  getInicioOrdenes,
   getFormExamen,
   getMuestra,
+  getOrdenExamen,
   postCategDet,
   postDet,
   postVr,
   postDetCateg,
   postParamCateg,
   postExamen,
+  postResultados,
   postMuestra,
   putDet,
   putvr,

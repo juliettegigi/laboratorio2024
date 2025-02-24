@@ -12,10 +12,12 @@ const {
     getInicio,
     getInicioDeterminaciones,
     getInicioMuestras,
+    getInicioOrdenes,
     getFormExamen,
     getAddDeterminacion,  
     getAddMuestra,
     getMuestra,
+    getOrdenExamen,
     postCategDet, 
     postDet,
     postVr,
@@ -23,6 +25,7 @@ const {
     postParamCateg,
     postExamen,
     postMuestra,
+    postResultados,
     putDet,
     putvr,
     putExamen,
@@ -50,11 +53,14 @@ router.get('/getFormExamen', getFormExamen);
 router.get('/addDet', getAddDeterminacion);
 router.get('/addMuestra', getAddMuestra);
 router.get('/muestra/:id', getMuestra);
+router.get('/ordenes/', getInicioOrdenes);
+router.get('/ordenExamenes/:OrdenId/:ExamenId', getOrdenExamen);
+//router.get('/orden/:id', getMuestra);
 router.put('/', putExamen);
 router.put('/categ/:id/:examenId', putCateg);
 router.put('/det', putDet)
-router.put('/vr',[
-    bodyPostVr,
+router.put('/vr',
+    [    bodyPostVr,
     check('edadMinAmbos').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Ambos')),
     check('edadMinFemenino').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Femenino')),
     check('edadMinMasculino').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Masculino')),
@@ -132,5 +138,6 @@ router.post('/examen/:id/addCategDet', postCategDet)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addDetCateg', postDetCateg)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addParamCateg', postParamCateg)
 router.post('/addMuestra', postMuestra)
+router.post('/results', postResultados)
 
 module.exports = router;

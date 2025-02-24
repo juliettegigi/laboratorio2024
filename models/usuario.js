@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       Usuario.belongsToMany(models.Rol, {through:"UsuarioRol"})
       Usuario.hasMany(models.UsuarioRol);
      
-      Usuario.hasOne(models.Paciente)
+      Usuario.hasOne(models.Paciente, { foreignKey: 'UsuarioId', as: 'Paciente' });
       Usuario.hasMany(models.Telefono)
     }
     

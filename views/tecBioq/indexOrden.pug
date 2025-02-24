@@ -1,0 +1,7 @@
+extends layout
+
+block content
+ div(id="divContentLista" )
+  include ./inputSearch.pug
+  +inputSearch("/tecBioq/ordenes","id orden/ código paciente /nombre/apellido a buscar","ccc","http://localhost:3000/tecBioq/addOrden")
+  include ./listaOrdenes.pug

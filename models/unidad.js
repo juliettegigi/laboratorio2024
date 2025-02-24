@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Unidad.hasMany(models.DeterminacionUnidad);
       Unidad.hasMany(models.ParametroUnidad);
-      Unidad.hasMany(models.Resultado);
+      //Unidad.hasMany(models.Resultado);
      // Unidad.belongsToMany(models.Muestra,{through:'Determinacion'})
-     Unidad.belongsToMany(models.Resultado,{through:'ResultadoUnidad'})
+    // Unidad.belongsToMany(models.Resultado,{through:'ResultadoUnidad'})
      Unidad.belongsToMany(models.Determinacion,{through:'DeterminacionUnidad'})
       
       

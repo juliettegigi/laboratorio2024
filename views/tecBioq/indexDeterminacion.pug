@@ -3,5 +3,5 @@ extends layout
 block content
  div(id="divContentLista" )
   include ./inputSearch.pug
-  +inputSearch("/tecBioq/determinacion","nombre/codigo/tag a buscar","Crear Determinación","http://localhost:3000/tecBioq/addDet")
+  +inputSearch("/tecBioq/determinaciones","nombre/codigo/tag a buscar","Crear Determinación","http://localhost:3000/tecBioq/addDet")
   include ./listaDeterminaciones.pug
