@@ -1,0 +1,69 @@
+div(id="divForm" class=`${(rta || oculto)?"oculto":""} container d-flex justify-content-center`)
+    - errores={}
+    if errors 
+     - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
+     - for (let elem of arr)
+       - let encontrado = errors.find(e => e.path === elem)
+       - if (encontrado)
+          - errores[elem] = encontrado.value
+    form(action=editarBioquimico?`/admins2/bioquimico/${usuario.id}?_method=put`:`/admins2/bioquimico/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+        .row.text-center
+            h1(class="h3 mb-3 fw-normal")
+                    | Datos del bioquímico
+            .col
+                .form-floating
+                    input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
+                    label(for="nombre") Nombre
+            .col        
+                .form-floating
+                    input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${apellido || (usuario && usuario.apellido) || ''}`)
+                    label(for="apellido") Apellido
+        .row 
+            .col           
+                .form-floating
+                    input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
+                    label(for="dni") Dni
+            .col        
+                .form-floating
+                    input(type="email" class=`form-control ${errors && Object.hasOwn(errores, 'email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${email || (usuario && usuario.email) || ''}` )
+                    label(for="floatingInput") Email
+        .row                      
+            .col        
+                .form-floating
+                    input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'titulo')?'text-danger':''}` id="titulo"  name="titulo"  value=`${titulo || (bioquimico && bioquimico.titulo) || ''}`)
+                    label(for="titulo") Título               
+        .row                      
+            .col        
+                .form-floating
+                    input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'matricula')?'text-danger':''}` id="matricula"  name="matricula"  value=`${matricula || (bioquimico && bioquimico.matricula) || ''}`)
+                    label(for="matricula") Matrícula               
+        .row                      
+            .col        
+                .form-floating
+                    input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
+                    input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
+                    label(for="telefono") Teléfono                
+        .row                      
+            .col        
+                .form-group
+                 label(for="roles") Asignar Roles:
+                  each role in roles
+                   .form-check
+                     input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
+                                           checked=rolesUsuario.some(r => r.nombre.toLowerCase() === role.nombre.toLowerCase()))
+                     label.form-check-label(for=`role-${role.id}`) #{role.nombre}              
+                                                                  
+        .row   
+            .col         
+                button(class="btn btn-secondary w-100 py-2" type="submit") 
+                    if editarBioquimico
+                        | Guardar cambios
+                    else
+                        | Registrar
+        if errors                
+         .row(class="alert alert-danger" role="alert")
+          .col 
+           each e in errors
+            p= e.msg 
+script(src="/javascripts/errores.js")
+ 

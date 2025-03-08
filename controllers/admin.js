@@ -24,7 +24,7 @@ const getBusqueda=async(req,res)=>{
         page=parseInt(page)
         group=parseInt(group)
         let offset=page*limit-limit;
-        const {rows,count}=await Usuario.getUsuariosByEmailOdniOnombre(inputSearch,limit,offset);
+        const {rows,count}=await Usuario.getUsuariosByEmailOdniOnombre(inputSearch,limit,offset,'Paciente');
         return res.render('administrador/rtaBusqueda',{inputSearch,
                                          usuarios:rows,
                                          limit,
@@ -114,8 +114,8 @@ const getPaciente=async(req,res)=>{
         })
      }
 
-     
-     
+     console.log('------------------------------------------------');
+     console.log(rta)
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
                                                        telefonos:await usuario.getTelefonos(),
@@ -263,7 +263,7 @@ const postOrden=async(req,res)=>{
       let tiempoDeProcesamientoTotal=0;      
       let examenesNoRealizados=[]                              
       let promises = examenesId.map(async (ExamenId) => { 
-                                                       await OrdenExamen.create({ OrdenId: orden.id, ExamenId }, { transaction });
+                                                       await OrdenExamen.create({ OrdenId: orden.id, ExamenId,tieneResultado:0 }, { transaction });
                                                        const examen = await Examen.findByPk(ExamenId);
                                                       
                                                        tiempoDeProcesamientoTotal+=examen.tiempoProcesamiento;
@@ -465,8 +465,8 @@ const deleteOrden=async(req,res)=>{
 
 const getPDF=async(req,res)=>{
   
-
- 
+  const { ordenId, nombre, apellido, documento,personaId } = req.query;
+ console.log(ordenId,personaId, nombre, apellido, documento)
   try  { 
     const today = new Date();
     const fecha=new Date().toLocaleDateString('es-ES',{
@@ -491,10 +491,10 @@ const getPDF=async(req,res)=>{
     };
     
     const etiquetaData = {
-      numeroOrden: "12345",
-      codigoPersona: "A6789",
-      nombre: "Juan Pérez",
-      documento: "DNI 12345678",
+      numeroOrden: ordenId,
+      codigoPersona: personaId,
+      nombre: `${nombre} ${apellido}`,
+      documento: `${documento}`,
       fechaYhora:`${fecha} ${hora}`
     };
     

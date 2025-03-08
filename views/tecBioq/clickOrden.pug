@@ -3,26 +3,11 @@ append styles
   link(rel='stylesheet', href='/stylesheets/tecbioq/resultados.css')
 block aside 
 block content
+
   .container.d-flex.flex-column.divContent(id="divLista" )  
-   form(action="http://localhost:3000/tecBioq/results" method="POST" name="formResults")
-    each categoria in ordenExamen.Examen.ExamenCategoria
-     if categoria.nombre
-      p.categoria= categoria.nombre
-     each det in categoria.ExCategDeterminacions
-      div.form-div
-       div
-        label(class=`${!categoria.nombre?"categoria":""}`)= det.Determinacion.nombre  
-       div
-        input(type="number", name="determinacionResultado", )   
-        input(type="hidden", name="determinacionId", value=det.Determinacion.id, )  
-       div 
-        p= det.Determinacion.unidad
-     each param in categoria.ExCategParametros
-      div.form-div
-       div
-        label(class=`${!categoria.nombre?"categoria":""}`)= param.Parametro.nombre     
-       div 
-        input(type="number", name="parametroResultado", )   
-        input(type="hidden", name="parametroId", value=param.Parametro.id, )
-      div.form-btn   
-      button.btn.btn-primary#btnEditar(type="submit") Enviar
+   if rta
+    div(class=`alert alert-${rta.tipo} alert-dismissible fade show` role="alert")= rta.msg
+     button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+    - console.log("tiene resultado????  ",ordenExamen.tieneResultado)
+   include ./formResultados.pug
+   +formResultados(`formResultados`,examen,ordenExamen)

@@ -1,0 +1,55 @@
+mixin formResultados(formName,unExamen,ordenExamen)
+ form(action=ordenExamen.tieneResultado? `http://localhost:3000/tecBioq/results/${ordenExamen.id}?_method=put`
+    :`http://localhost:3000/tecBioq/results/${ordenExamen.id}` method="POST" name=`${formName}`)
+     each categoria in unExamen.ExamenCategoria
+      if categoria.nombre
+       p.categoria= categoria.nombre
+      if categoria.ExCategDeterminacions.length>0
+       each det in categoria.ExCategDeterminacions
+        div.form-div2
+         div
+          label(class=` ${!categoria.nombre?"categoria":""}`)= det.Determinacion.nombre  
+         div
+          input(type="text", name="determinacionResultado",step="0.01",onfocus="this.select()" autofocus,value=det.Determinacion.DeterminacionResultados[0]?det.Determinacion.DeterminacionResultados[0].resultado:0 )   
+          input(type="hidden", name="determinacionId", value=det.Determinacion.id, )  
+         div.unidad 
+          div
+           label(for="unidad") Unidad: 
+          div 
+           select.form-select(name="detUnidadId"  tabindex="-1")
+            if det.Determinacion.Unidads.length>0
+             each unidad in det.Determinacion.Unidads
+              option(value=unidad.id ) #{unidad.unidad}
+            else 
+             option(value='1') Sin Unidad  
+      if categoria.ExCategParametros   
+       each param in categoria.ExCategParametros
+        div.form-div2
+         div
+          label(class=`${!categoria.nombre?"categoria":""}`)= param.Parametro.nombre     
+         div 
+          input(type="text", name="parametroResultado",step="0.01" , value=param.Parametro.ParametroResultados[0]?param.Parametro.ParametroResultados[0].resultado:0 )   
+          input(type="hidden", name="parametroId", value=param.Parametro.id, )
+         div.unidad 
+          div
+           label(for="unidad") Unidad: 
+          div 
+           select.form-select(id="unidad" name="parametroUnidadId"  tabindex="-1")
+            if param.Parametro.Unidads.length>0
+             each unidad in param.Parametro.Unidads
+              option(value=unidad.id ) #{unidad.unidad} 
+            else 
+             option(value=1) Sin Unidad    
+     div.form-btn  
+       if validar==1
+        button.btn.btn-primary#btnEditar(type="submit") Guardar cambios
+        button.btn.btn-primary#btnEditar(type="submit" onclick=`cambiarAction('${formName}', ${ordenExamen.id})`) Validar
+       else 
+        button.btn.btn-primary#btnEditar(type="submit") Guardar cambios
+ script.
+  function cambiarAction(formName, ordenId) {
+      var form = document.forms[formName];
+      if (form) {
+        form.action = `http://localhost:3000/tecBioq/ordenExamenIsValidado/${ordenId}?_method=put`;
+      }
+    }

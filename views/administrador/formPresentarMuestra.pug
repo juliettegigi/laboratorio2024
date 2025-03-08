@@ -26,4 +26,10 @@
                                )
                  tr
                   td(colspan="3" class="text-center") 
-                   a(href="http://localhost:3000/admins/pdf") imprimir etiqueta 
+                   a(href=`http://localhost:3000/admins/pdf?${(new URLSearchParams({
+                    ordenId: orden.id,
+                    personaId: paciente.id,
+                    nombre: usuario.nombre,
+                    apellido: usuario.apellido,
+                    documento: usuario.documento
+                   })).toString()}`) imprimir etiqueta 

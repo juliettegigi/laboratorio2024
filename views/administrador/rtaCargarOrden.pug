@@ -1,22 +1,19 @@
-.container.d-flex.justify-content-center.flex-column#rtaCargarOrden(class=`alert alert-${rtaCargarOrden.alertType} alert-dismissible fade show` role="alert")
-  if rtaCargarOrden.alertType && rtaCargarOrden.alertMessage
-    strong 
-        | #{rtaCargarOrden.alertMessage}
-    button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-  if rtaCargarOrden.origen && rtaCargarOrden.origen==='postOrden'  
+.container.d-flex.justify-content-center.flex-column#rta(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
+  if rta.alertType && rta.alertMessage
+  if rta.origen && rta.origen==='postOrden'  
    h1 Detalles de la Orden
-   if rtaCargarOrden.muestrasRequeridas && rtaCargarOrden.muestrasRequeridas.length
+   if rta.muestrasRequeridas && rta.muestrasRequeridas.length
     h2 Muestras Requeridas
      ul
-      each muestra in rtaCargarOrden.muestrasRequeridas
+      each muestra in rta.muestrasRequeridas
        li #{muestra.nombre}
-   if rtaCargarOrden.examenesNoRealizados && rtaCargarOrden.examenesNoRealizados.length
+   if rta.examenesNoRealizados && rta.examenesNoRealizados.length
     h2 Exámenes No Realizados
      ul
-      each examen in rtaCargarOrden.examenesNoRealizados
+      each examen in rta.examenesNoRealizados
        li= ` ${examen.nombre} (${examen.laboratorioQueLoRealiza})`
  
-   if rtaCargarOrden.fechaResultados
+   if rta.fechaResultados
     h2 Fecha en que estarán listos los resultados: 
      ul 
-      li #{rtaCargarOrden.fechaResultados}
+      li= `${new Date(rta.fechaResultados).toLocaleDateString('es-AR')}`

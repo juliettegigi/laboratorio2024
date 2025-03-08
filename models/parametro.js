@@ -4,15 +4,15 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Parametro extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+    
     static associate(models) {
       Parametro.hasMany(models.ExCategParametro)
       Parametro.hasMany(models.ParametroValorReferencia)
       Parametro.hasMany(models.ParametroUnidad)
+      Parametro.hasMany(models.ParametroResultado)
+      
+      Parametro.belongsToMany(models.Unidad,{through:'ParametroUnidad'})
+      
     }
   }
   Parametro.init({

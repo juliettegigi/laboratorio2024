@@ -5,10 +5,10 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Determinacion extends Model {
     static associate(models) {
-      Determinacion.hasMany(models.ExamenDeterminacion)
       Determinacion.hasMany(models.DeterminacionValorReferencia, { as: 'valoresReferencia' });
       Determinacion.hasMany(models.DeterminacionUnidad)
       Determinacion.hasMany(models.ExCategDeterminacion)
+      Determinacion.hasMany(models.DeterminacionResultado)
 
       Determinacion.belongsToMany(models.Determinacion, {
         through: models.DeterminacionPadre,

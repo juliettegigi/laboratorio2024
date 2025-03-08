@@ -1,5 +1,43 @@
+
+form{
+    padding-left: 3rem;
+    width: 80%;
+}
 .categoria{
     font-weight: bolder;
     margin-top: 20px;
     margin-bottom: 10px;
 }
+.unidad{
+    display: flex;
+    align-items: first baseline;
+}
+
+select.form-select{
+    width:10rem;
+}
+.form-div2{
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    align-items: baseline;
+  }
+
+  label{
+    color: #333333; 
+    font-weight: 700;
+    margin-bottom: 5px;
+    margin-right:1rem;
+    
+    }
+    
+    .form-div2 input{
+      border:0 ;
+      outline: 0;
+      width: 100%;
+    }
+    
+    .form-div2 div+div {
+      width:80%;
+    }

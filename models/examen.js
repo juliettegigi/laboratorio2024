@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Examen.hasMany(models.OrdenExamen)
       Examen.hasMany(models.LaboratorioExamen)
-      Examen.hasMany(models.ExamenDeterminacion)
       Examen.hasMany(models.ExamenCategoria)
 
       Examen.belongsTo(models.Muestra)

@@ -1,6 +1,11 @@
-extends layout
-
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+doctype html
+html
+  head
+    title Error
+  body
+    h1 Error
+    - console.log("daaa => ",msg)
+    h2= msg
+    if codigo==401
+     p Código de error: 401 (Unauthorized)
+     a(href="http://localhost:3000/") Volver al inicio

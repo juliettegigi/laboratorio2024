@@ -11,7 +11,8 @@ const { googleVerify } = require('./validaciones');
 
 
 const login=async(req,res)=>{  
-try{  
+try{   
+  console.log(req.body)
   let usuario={}; 
   const authHeader = req.headers['authorization'];
   
@@ -20,13 +21,21 @@ try{
     //obtengo el token
     const token = authHeader.split(' ')[1];
         if (!token) {
-            return res.status(401).json({ error: 'Token missing' });
+          return res.status(401).json({
+            error: true,
+            msg: 'Token missing'
+          });
         }
     // obtengo el email 
     const {email}=await googleVerify(token);
     // busco al usuario en mi base de datos
     usuario=await Usuario.findOne({where:{email}, include:[{ model: Rol}]});
-    if(!usuario)return res.render("index"); 
+    if(!usuario){
+      return res.status(404).json({
+        error: true,
+        msg: "Para poder ingresar con Google, primero debe registrarse presencialmente en el sistema"
+      });
+    }
     req.session.google=true;   
   }
   else{  //si no se auth con google
@@ -34,23 +43,29 @@ try{
     let {nickName,pass}=req.body;
     //busco al usuario en mi base de datos
     usuario=await Usuario.findOne({where:{nickName}, include: [{model: Rol}]});
-    if(!usuario)return res.render("index");
+    if(!usuario)return res.render("login/index",{error:true,msg:"Para poder ingresar, primero debe registrarse presencialmente en el sistema"});
     // tengo que ver si la contraseña es correcta
     const passValida=await bcryptjs.compare(pass,usuario.pass);
-    if(!passValida) return res.render("index");
+    if(!passValida) return res.render("login/index",{error:true,msg:"Los datos ingresados son incorrectos"});
     req.session.google=false;
   }
         const roles=usuario.Rols.map(elem=>elem.nombre)
         req.session.usuario = usuario;
         req.session.roles=roles;
+        req.session.isTecnico = roles.includes('Técnico');
+        req.session.isBioquimico = roles.includes('Bioquímico');   
+        req.session.isPaciente = roles.includes('Paciente');   
+        console.log("eeeeeeeeeeeeeeeee2")
+        console.log(req.session.roles)
         //si el usuario tiene un único rol
         if(usuario.Rols.length===1){
           console.log(usuario.Rols[0])
         switch(usuario.Rols[0].nombre){
           case "Paciente": return res.redirect(`/pacientes`);
           case "Recepcionista":return res.redirect(`/admins`);
-          case "Tecnico":return res.redirect(`/vistaTecBioq/inicio`);
-          case "Bioquimico":return res.redirect(`/vistaTecBioq/inicio`);
+          case "Administrativo":return res.redirect(`/admins2`);
+          case "Técnico":return res.redirect(`/tecBioq/`);
+          case "Bioquímico":return res.redirect(`/tecBioq/`);
         }
     }     } 
     catch(error){
@@ -61,7 +76,6 @@ try{
   
   
   const registro=async(req,res)=>{
-    console.log("----------------------------------------------------------");
     console.log(req.body);
    const{documento,pass,nickName}=req.body;
        try{
@@ -70,13 +84,30 @@ try{
                
              });
 
-         if(!usuario)return res.render("login/index")
+         if(!usuario)return res.redirect("login/index",
+          {registro:true,ruta:'/?_method=put',title:"Registro",msg:"No hay registro del DNI ingresado."})
+          const nick = await Usuario.findOne({
+            where: {nickName:null,documento},
+            
+          });
 
+          if(nick) {
+            const nick2 = await Usuario.findOne({
+              where: {nickName},
+              
+            });
+            if(nick2)
+             return res.render("login/index",{registro:true,ruta:'/?_method=put',title:"Registro",msg:"El nombre de usuario ya está en uso."})
+          }
+          else{
+            return res.render("login/index", {error:true,title:"Iniciar sesión",msg:"Ya posee un nombre de usuario."})
+          }
+         
          const salt=bcryptjs.genSaltSync();
          usuario.pass=bcryptjs.hashSync(pass,salt);
          usuario.nickName=nickName;
          await usuario.save(); 
-         return res.render("login/index",{msg:"Ahora podés loguearte"})
+         return res.render("login/index",{title:"Iniciar sesión",msg:"Ahora podés loguearte"})
        }
        catch(error){
         console.log(error);

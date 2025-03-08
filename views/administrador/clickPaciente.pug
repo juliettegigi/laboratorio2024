@@ -2,14 +2,14 @@ extends layout
 block aside 
     include ./menuLateral.pug
 block content
-    if rtaCargarOrden 
-        include ./rtaCargarOrden.pug
     if rta
      div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
       strong 
           | #{rta.alertMessage}
       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-    .container.d-flex.justify-content-center(id="divLista" class=`${rtaCargarOrden?'oculto':''}`)
+      if rta.origen==="postOrden"
+          include ./rtaCargarOrden.pug
+    .container.d-flex.justify-content-center(id="divLista" class=`${rta && rta.origen==="postOrden"?'oculto':''}`)
      ul(class=`list-group list-group-flush lista-datos-usuario`)
          li(class="list-group-item")= `Nombre: `+usuario.nombre  
          li(class="list-group-item") Apellido: 

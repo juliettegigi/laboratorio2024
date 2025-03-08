@@ -13,11 +13,13 @@ const {
     getInicioDeterminaciones,
     getInicioMuestras,
     getInicioOrdenes,
+    getInicioValidar,
     getFormExamen,
     getAddDeterminacion,  
     getAddMuestra,
     getMuestra,
     getOrdenExamen,
+    getOrdenExamenes,
     postCategDet, 
     postDet,
     postVr,
@@ -28,18 +30,25 @@ const {
     postResultados,
     putDet,
     putvr,
+    putEstadoOrden,
+    putOrdenExamenIsValidado,
     putExamen,
     putCateg,
+    putResultados
     } = require('../controllers/tecbioq');
     const{bodyPostVr, seSolapaPostVr,validarCampos, valoresMayorMenor}=require('../middlewares')
 const {
     Determinacion,Unidad
      } = require('../models');
+const { isAuth,tieneRole } = require('../controllers/validaciones');
   
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', getInicio);
+router.get('/',[
+    isAuth,
+    tieneRole("bioquimico","tecnico")
+], getInicio);
 router.get('/muestras', getInicioMuestras);
 router.get('/categ/:examenId/:id',deleteCategoria)
 router.get('/categDetDelete/:DeterminacionId/:ExamenCategoriaId/:examenId/',deleteCategDet)
@@ -53,14 +62,25 @@ router.get('/getFormExamen', getFormExamen);
 router.get('/addDet', getAddDeterminacion);
 router.get('/addMuestra', getAddMuestra);
 router.get('/muestra/:id', getMuestra);
-router.get('/ordenes/', getInicioOrdenes);
-router.get('/ordenExamenes/:OrdenId/:ExamenId', getOrdenExamen);
+router.get('/ordenes/',[
+    isAuth,
+    tieneRole("tecnico")
+] ,getInicioOrdenes);
+router.get('/ordenesV/',[
+    isAuth,
+    tieneRole("bioquimico")
+], getInicioValidar);
+
+router.get('/ordenExamen/:OrdenId/:ExamenId', getOrdenExamen);
+router.get('/ordenExamenes/:OrdenId', getOrdenExamenes);
 //router.get('/orden/:id', getMuestra);
 router.put('/', putExamen);
 router.put('/categ/:id/:examenId', putCateg);
 router.put('/det', putDet)
-router.put('/vr',
-    [    bodyPostVr,
+router.put('/estadoOrden/:OrdenId', putEstadoOrden)
+router.put('/ordenExamenIsValidado/:OrdenExamenId', putOrdenExamenIsValidado)
+router.put('/vr',[    
+    bodyPostVr,
     check('edadMinAmbos').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Ambos')),
     check('edadMinFemenino').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Femenino')),
     check('edadMinMasculino').optional().custom((valor, { req }) => seSolapaPostVr(valor,req,'Masculino')),
@@ -110,8 +130,9 @@ router.put('/vr',
         next();
       },
     validarCampos
-], putvr);
-
+],putvr);
+router.put('/results/:OrdenExamenId', putResultados)
+router.post('/results/:OrdenExamenId', postResultados)
 router.post('', postExamen)
 router.post('/addDet',           
     postDet);
@@ -138,6 +159,6 @@ router.post('/examen/:id/addCategDet', postCategDet)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addDetCateg', postDetCateg)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addParamCateg', postParamCateg)
 router.post('/addMuestra', postMuestra)
-router.post('/results', postResultados)
+router.post('/results/:OrdenExamenId', postResultados)
 
 module.exports = router;

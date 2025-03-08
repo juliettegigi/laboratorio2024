@@ -6,7 +6,7 @@
 }
 
 .oculto {
-    display: none;
+    display: none !important;
 }
 
 .ocultoHijo {

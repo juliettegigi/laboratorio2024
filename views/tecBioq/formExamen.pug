@@ -36,10 +36,10 @@ mixin formExamen(btnContent,examen)
       div
        label(for="MuestraId") Muestra 
       div 
-       select.form-select#selectMuestra(name="MuestraId" disabled)
+       .form-select#selectMuestra(name="MuestraId" disabled)
         each muestra in muestras
              option(value=muestra.id selected=(muestra.id===examen.Muestra.id)) #{muestra.nombre}
-     div.form-div 
+     div.form-div select
       div
        label(for="tiempoProcesamiento") Tiempo de procesamiento(minutos) 
       div 

@@ -1,15 +1,31 @@
 .container.divLista
  ul.list-group.list-group-flush
+            if ordenes.length>0
              each o in ordenes
+              if validar==1 
+               a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/ordenExamenes/${o.id}?validar=${validar?1:0}`)
+                li.list-group-item.list-group-item-action
+                 div
+                  p 
+                   | #{o.id || ''} #{o.Paciente.Usuario.nombre || ''} #{o.Paciente.Usuario.apellido || ''}
+                  each e in o.Examens 
+                   p= `${e.nombre} (${e.Muestra.nombre})` 
+               
+              else 
                li.list-group-item.list-group-item-action
                  div
                   p 
                    | #{o.id || ''} #{o.Paciente.Usuario.nombre || ''} #{o.Paciente.Usuario.apellido || ''}
                   each e in o.Examens 
                    p  
-                    a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/ordenExamenes/${o.id}/${e.id}`)= `${e.nombre} (${e.Muestra.nombre})`    
+                    a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/ordenExamen/${o.id}/${e.id}?validar=${validar?1:0}`)= `${e.nombre} (${e.Muestra.nombre})`    
              - for(let i=ordenes.length; i<limit;i++)
                li.list-group-item.list-group-item-action &nbsp;
              if totalRegistros
                include ../paginado.pug
                +paginado('http://localhost:3000/tecBioq/ordenes')
+            else  
+             li.list-group-item.list-group-item-action
+                 div
+                  p No se encontraron oordenes ordenes
+                 

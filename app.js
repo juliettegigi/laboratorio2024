@@ -10,6 +10,7 @@ const flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminsRouter = require('./routes/admins');
+var admins2Router = require('./routes/admins2');
 var tecBioqRouter = require('./routes/tecbioq');
 
 var app = express();
@@ -39,6 +40,7 @@ app.use(flash());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
+app.use('/admins2', admins2Router);
 app.use('/tecBioq', tecBioqRouter);
 
 // catch 404 and forward to error handler

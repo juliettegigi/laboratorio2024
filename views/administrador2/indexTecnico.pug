@@ -1,0 +1,7 @@
+extends layout
+
+block content
+ div(id="divContentLista" )
+  include ../tecBioq/inputSearch.pug
+  +inputSearch("/admin2/tecnicos","nombre/codigo/tag a buscar","Registrar","http://localhost:3000/admin2/registrar")
+  include ./listaTecnicos.pug

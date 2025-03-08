@@ -14,21 +14,27 @@ module.exports = (sequelize, DataTypes) => {
       Usuario.hasMany(models.UsuarioRol);
      
       Usuario.hasOne(models.Paciente, { foreignKey: 'UsuarioId', as: 'Paciente' });
+      Usuario.hasOne(models.Bioquimico, { foreignKey: 'UsuarioId', as: 'Bioquimico' });
       Usuario.hasMany(models.Telefono)
     }
     
 
 
-    static getUsuariosByEmailOdniOnombre=async(termino,limit=5,offset=0)=>{
+    static getUsuariosByEmailOdniOnombre=async(termino,limit=5,offset=0,rol)=>{
       try{
-        const pacientes= await Usuario.findAndCountAll({ include: [ { model: sequelize.models.Rol, through: sequelize.models.UsuarioRol, 
-                                                                       where: { nombre: 'Paciente' }},
+
+        let where={}
+     if(termino!==""){
+      where={ [Op.or]: [{ documento: { [Op.regexp]: termino } },
+      { email: { [Op.regexp]: termino } },
+      { apellido: { [Op.regexp]: termino } }]}
+     }
+        const usuarios= await Usuario.findAndCountAll({ include: [ { model: sequelize.models.Rol, through: sequelize.models.UsuarioRol, 
+                                                                       where: { nombre:rol }},
                                                                     {model: sequelize.models.Telefono}
                                                                       
                                                                       ],
-                                                        where: { [Op.or]: [{ documento: { [Op.regexp]: termino } },
-                                                                           { email: { [Op.regexp]: termino } },
-                                                                           { apellido: { [Op.regexp]: termino } }]},
+                                                        where,
                                                         attributes: { exclude: ['pass'] },
                                                         order: [
                                                           ['apellido', 'ASC'],  
@@ -38,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
                                                         offset
                                                       });
         
-        return pacientes; //retorna objeto.count() y objeto.rows(este es el arreglo de pacientes)
+        return usuarios; //retorna objeto.count() y objeto.rows(este es el arreglo de pacientes)
       }catch(error){
         console.log('models==>usuario');
         throw error;

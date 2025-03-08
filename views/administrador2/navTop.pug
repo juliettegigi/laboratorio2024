@@ -24,28 +24,20 @@ nav(class="navbar navbar-expand-lg bg-body-tertiary ")
 
     div.collapse.navbar-collapse#navbarSupportedContent
      ul.navbar-nav.me-auto.mb-2.mb-lg-0
-      li.nav-item
-       a.nav-link.active(aria-current="page" 
-                                         href=`http://localhost:3000/tecBioq`
+      li.nav-item.dropdown
+       a.nav-link.active.dropdown-toggle(aria-current="page" 
+                                         href=`http://localhost:3000/admins2=${encodeURIComponent("Bioquímico")}`
                                          role="button" 
+                                         data-bs-toggle="dropdown" 
                                          aria-expanded="false"
-                                         ) Examenes
+                                         ) Personal
  
+       ul.dropdown-menu(aria-labelledby="navbarDropdown")
+        li
+          a.dropdown-item(href=`http://localhost:3000/admins2?rol=${encodeURIComponent("Bioquímico")}`) Bioquímicos
+        li
+          a.dropdown-item(href=`http://localhost:3000/admins2?rol=${encodeURIComponent("Técnico")}`) Técnicos
       li.nav-item
-       a.nav-link(href="http://localhost:3000/tecBioq/determinaciones"
+       a.nav-link(href="http://localhost:3000/admins2/muestras"
                                   aria-expanded="false"
-                                  role="button") Determinaciones
-      li.nav-item
-       a.nav-link(href="http://localhost:3000/tecBioq/muestras"
-                                  aria-expanded="false"
-                                  role="button") Muestras  
-      if isTecnico                            
-       li.nav-item
-        a.nav-link(href="http://localhost:3000/tecBioq/ordenes"
-                                   aria-expanded="false"
-                                   role="button") Cargar resultados  
-      if isBioquimico                                                                                 
-       li.nav-item
-        a.nav-link(href="http://localhost:3000/tecBioq/ordenesV"
-                                   aria-expanded="false"
-                                   role="button") Validar resultados                                                      
+                                  role="button") Ordenes 
