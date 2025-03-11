@@ -16,16 +16,12 @@ block content
              span= usuario.email
          li(class="list-group-item") Telefono:
              span= telefonos[0].numero
-         li(class="list-group-item") Titulo:
-             span= bioquimico.titulo
-         li(class="list-group-item") Matricula:
-             span= bioquimico.matricula
          li(class="list-group-item") Roles:
              span= rolesString
      .row-m3
         .col-2         
             button(class="btn btn-secondary w-100 py-2" id='btnEditar') Editar
-    - rol='Bioquímico'        
+    - rol='Técnico'        
     include ./soloForm.pug
      script.
       console.log("ok lamote")

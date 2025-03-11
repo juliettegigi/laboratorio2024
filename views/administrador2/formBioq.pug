@@ -1,0 +1,10 @@
+.row                      
+     .col        
+         .form-floating
+             input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'titulo')?'text-danger':''}` id="titulo"  name="titulo"  value=`${titulo || (bioquimico && bioquimico.titulo) || ''}`)
+             label(for="titulo") Título               
+.row                      
+     .col        
+         .form-floating
+             input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'matricula')?'text-danger':''}` id="matricula"  name="matricula"  value=`${matricula || (bioquimico && bioquimico.matricula) || ''}`)
+             label(for="matricula") Matrícula

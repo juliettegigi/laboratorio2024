@@ -13,6 +13,7 @@ const {
     OrdenEliminada,
     OrdenExamen,
     Rol,
+    Tecnico,
     Telefono,
     Usuario,
     UsuarioRol,
@@ -64,24 +65,18 @@ const getBusqueda=async(req,res)=>{
 
 
 const getForm=async(req,res)=>{
+  const{ rol}=req.query
     try {
-      return res.render('administrador2/form',{
-        origen:"getForm"
-      })
+      console.log("www", rol)
+      console.log(rol)
+      const roles=await Rol.findAll();
+      return res.render(`administrador2/form`,{roles,rol,origen:"getForm"})
     } catch (error) {
-      return res.render('administrador2/form',{editarBioquimico:false})
+      console.log(error)
+      return res.render('administrador2/form',{editarUsuario:false, rol})
     };    
 }
 
-const getRegistrarTecnico=async(req,res)=>{
-    try {
-      return res.render('administrador2/form',{
-        origen:"getForm"
-      })
-    } catch (error) {
-      return res.render('administrador2/form',{editarBioquimico:false})
-    };    
-}
 
 
 
@@ -108,7 +103,7 @@ const getBioquimico=async(req,res)=>{
                                                        bioquimico,
                                                        telefonos:await usuario.getTelefonos(),
                                                        rta,
-                                                       editarBioquimico:true,
+                                                       editarUsuario:true,
                                                        oculto:true,
                                                        roles,
                                                        rolesUsuario,
@@ -120,6 +115,46 @@ const getBioquimico=async(req,res)=>{
   } catch (error) {
     console.error(error);
     return res.render('administrador/clickBioquimico')
+  };
+
+
+
+  
+}
+const getTecnico=async(req,res)=>{
+  try {
+      const {UsuarioId}=req.params;
+    const rta=req.flash('rta')[0];
+     console.log("usuario id  ",UsuarioId)
+    const tecnico= await Tecnico.findOne({ where: { UsuarioId },
+     
+   });
+   if(tecnico){
+     const usuario = await Usuario.findByPk(tecnico.UsuarioId,{
+      attributes: { exclude: ['password'] },
+      include: {
+        model: Rol, 
+        attributes: ['nombre'] 
+      }});
+      console.log('usaurio  ',usuario)
+       const roles=await Rol.findAll();
+      const rolesUsuario=await usuario.getRols()
+      const rolesString = rolesUsuario.map(r => r.nombre).join(', ');
+      return res.render('administrador2/clickTecnico',{usuario,
+                                                       telefonos:await usuario.getTelefonos(),
+                                                       rta,
+                                                       editarUsuario:true,
+                                                       oculto:true,
+                                                       roles,
+                                                       rolesUsuario,
+                                                       rolesString
+                                                       })
+    }
+    
+    return res.render('administrador2/clickTecnico')
+  } catch (error) {
+    console.error(error);
+    return res.render('administrador/clickTecnico')
   };
 
 
@@ -178,9 +213,57 @@ const putBioquimico=async(req,res)=>{
 
   
 }
+const putTecnico=async(req,res)=>{
+  console.log(req.body)
+  const transaction = await sequelize.transaction();
+  const {UsuarioId}=req.params;
+  console.log("UsuarioId*** ",UsuarioId)
+  try {
+    
+   
+    const {
+           telefono}=req.body
+    const roles=req.body.roles?
+                     Array.isArray(req.body.roles)?req.body.roles:[req.body.roles]
+                :[];
+    const usuario = await Usuario.findByPk(UsuarioId);
+    await usuario.setRols([]);
+    if (roles.length > 0) {
+      const rolesSeleccionados = await Rol.findAll({ where: {id: roles }});
+      await usuario.setRols(rolesSeleccionados);
+    }
+             
+    const [updatedRows1]=await Usuario.update(req.datosActualizar, 
+                                              {where:{id:UsuarioId}, transaction });
+    const [updatedRows3]=await Telefono.update({numero:telefono}, 
+                                               {where:{UsuarioId}, transaction });
+    await transaction.commit();
+      req.flash('rta',{ 
+        origen:'putTecnico',
+        alertType: 'success',
+        alertMessage: 'Registro editado' })
+    return res.redirect(`http://localhost:3000/admins2/tecnico/${UsuarioId}`)
+  } catch (error) {
+    console.error(error);
+    await transaction.rollback();
+    if(error.parent.code==='ER_DUP_ENTRY'){
+      req.flash('rta',{ 
+        origen:'putTecnico',
+        alertType: 'danger',
+        alertMessage: 'Error: el email pertenece a otro usuario' })
+        return res.redirect(`http://localhost:3000/admins2/tecnico/${UsuarioId}`)
+    }
+
+    return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
+  };
 
 
-const crearBioquimico=async(req,res)=>{
+
+  
+}
+
+
+const postBioquimico=async(req,res)=>{
   
   const transaction = await sequelize.transaction();
     try {
@@ -200,10 +283,54 @@ const crearBioquimico=async(req,res)=>{
         
       await transaction.commit();
       req.flash('rta',{ 
-        origen:'crearBioquimico',
+        origen:'postBioquimico',
         alertType: 'success',
         alertMessage: 'Persona registrada.' })
       return res.redirect(`http://localhost:3000/admins2/bioquimico/${usuarioId}`)
+
+    } catch (error) {
+      try{
+           await transaction.rollback();
+           if(error.parent.code==='ER_DUP_ENTRY')
+              //,{ alertType: 'danger', alertMessage: 'El correo ingresado ya se encuentra registrado.' }
+              return res.redirect('http://localhost:3000/admins2')
+           else
+            return res.render('admins2',{ alertType: 'danger', alertMessage: error.errors.message })
+          }catch(error){
+            return res.render('admins2',{ alertType: 'danger', alertMessage:'Error: no se ha podido crear el registro. ' })
+          }finally{
+            console.log(error)
+          }
+    };
+
+
+
+    
+}
+
+
+const postTecnico=async(req,res)=>{
+  
+  const transaction = await sequelize.transaction();
+    try {
+        const {email,nombre,apellido,documento,
+               telefono}=req.body
+      const nuevoUsuario = await Usuario.create({email,nombre,apellido,documento},
+                                                { transaction });
+      const usuarioId=nuevoUsuario.id;
+      await Tecnico.create({UsuarioId:usuarioId},
+                            { transaction }) 
+      await Telefono.create({UsuarioId:usuarioId,numero:telefono,descripcion:"propio"},
+                            { transaction })
+      await UsuarioRol.create({UsuarioId:usuarioId,RolId:3},
+                            { transaction })
+        
+      await transaction.commit();
+      req.flash('rta',{ 
+        origen:'postTecnico',
+        alertType: 'success',
+        alertMessage: 'Persona registrada.' })
+      return res.redirect(`http://localhost:3000/admins2/tecnico/${usuarioId}`)
 
     } catch (error) {
       try{
@@ -234,7 +361,9 @@ module.exports={
     getInicio,
     getForm,
     getBioquimico,
-    getRegistrarTecnico,
-    crearBioquimico,
+    getTecnico,
+    postBioquimico,
+    postTecnico,
     putBioquimico,
+    putTecnico,
 }
