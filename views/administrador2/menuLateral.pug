@@ -1,0 +1,36 @@
+aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height));")
+  nav(class="nav flex-column bg-light p-3" style="width: 240px;")
+    h6 Aplicar filtros
+    form(action=`/admins2/` , method="get")
+     ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
+       li(class="nav-item")
+         p Por roles
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="admin" name="roles" value="Paciente")
+             label(for="admin" class="form-check-label") Paciente
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="bioquimico" name="roles" value="Bioquímico")
+             label(for="bioquimico" class="form-check-label") Bioquímico
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Técnico")
+             label(for="usuario" class="form-check-label") Técnico
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Administrativo")
+             label(for="usuario" class="form-check-label") Administrativo
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Recepcionista")
+             label(for="usuario" class="form-check-label") Recepcionista 
+       li(class="nav-item")
+         p Por tabla
+         form
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="admin" name="tablas" value="paciente")
+             label(for="admin" class="form-check-label") Pacientes
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="bioquimico" name="tablas" value="bioquimico")
+             label(for="bioquimico" class="form-check-label") Bioquímicos
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="usuario" name="tablas" value="tecnico")
+             label(for="usuario" class="form-check-label") Técnicos
+       li(class="nav-item")
+         button Aplicar      

@@ -1,6 +1,5 @@
 doctype html
 html
-  - console.log("paja3")
   head
     title= title 
     //- title lo envía el server o no {title:"mi title"}
@@ -33,10 +32,8 @@ html
     main(class="d-flex  position-relative" )
       block aside
       block content
-       div(id="divContentLista")
-         include ../tecBioq/inputSearch.pug
-         +inputSearch("/admins2","apellido/email/DNI a buscar","Registrar",`/admins2/form?rol=${encodeURIComponent('Bioquímico')}`)
-         include ./listaBioquimicos.pug
+       div(id="divContentLista") 
+        include ./listaUsuarios.pug
         
     footer
       block footer

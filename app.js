@@ -40,7 +40,7 @@ app.use(flash());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
-app.use('/admins2', admins2Router);
+app.use(`/admins2`, admins2Router);
 app.use('/tecBioq', tecBioqRouter);
 
 // catch 404 and forward to error handler

@@ -1,7 +1,0 @@
-extends layout
-
-block content
- div(id="divContentLista" )
-  include ../tecBioq/inputSearch.pug
-  +inputSearch("/admins2/tecnicos","nombre/codigo/tag a buscar","Registrar",`http://localhost:3000/admins2/form?rol=${encodeURIComponent('Técnico')}`)
-  include ./listaTecnicos.pug

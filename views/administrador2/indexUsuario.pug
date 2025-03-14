@@ -1,0 +1,8 @@
+extends layout
+block aside 
+    include ./menuLateral.pug
+block content
+ div(id="divContentLista" )
+  include ../tecBioq/inputSearch.pug
+  +inputSearch(`/admins2`,"nombre/email/DNI a buscar","",`http://localhost:3000/admins2/form?rol=${encodeURIComponent(rol)}`)
+  include ./listaUsuarios.pug

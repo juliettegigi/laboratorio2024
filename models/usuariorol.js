@@ -13,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'UsuarioRol',
-    tableName:"usuarioroles",
-    paranoid:true
+    tableName:"usuarioroles"
   });
   return UsuarioRol;
 };

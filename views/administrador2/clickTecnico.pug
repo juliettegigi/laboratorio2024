@@ -6,32 +6,30 @@ block content
        strong 
            | #{rta.alertMessage}
        button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-     ul(class=`list-group list-group-flush lista-datos-usuario`)
-         li(class="list-group-item")= `Nombre: `+usuario.nombre  
-         li(class="list-group-item") Apellido: 
-             span= usuario.apellido 
-         li(class="list-group-item") Documento:
-             span= usuario.documento
-         li(class="list-group-item") Email:
-             span= usuario.email
-         li(class="list-group-item") Telefono:
-             span= telefonos[0].numero
-         li(class="list-group-item") Roles:
-             span= rolesString
-     .row-m3
-        .col-2         
-            button(class="btn btn-secondary w-100 py-2" id='btnEditar') Editar
-    - rol='Técnico'        
-    include ./soloForm.pug
-     script.
-      console.log("ok lamote")
-
-        const btnEditar=document.querySelector('#btnEditar');
-        console.log("rrr ==>",btnEditar)
-        btnEditar.addEventListener('click',()=>{
-          console.log("ok lamote")
-            const divForm=document.getElementById('divForm');
-            divForm.classList.toggle('oculto');
-            const divLista=document.getElementById('divLista');
-            divLista.classList.toggle('oculto');
-        })
+     if usuario  
+      ul(class=`list-group list-group-flush lista-datos-usuario`)
+          li(class="list-group-item")= `Nombre: `+usuario.nombre  
+          li(class="list-group-item") Apellido: 
+              span= usuario.apellido 
+          li(class="list-group-item") Documento:
+              span= usuario.documento
+          li(class="list-group-item") Email:
+              span= usuario.email
+          li(class="list-group-item") Telefono:
+              span= telefonos[0].numero
+          li(class="list-group-item") Roles:
+              span= rolesString
+      .row-m3
+         .col-2         
+             button(class="btn btn-secondary w-100 py-2" id='btnEditar') Editar
+      - rol='Técnico'        
+      include ./soloForm.pug
+       script.
+  
+          const btnEditar=document.querySelector('#btnEditar');
+          btnEditar.addEventListener('click',()=>{
+              const divForm=document.getElementById('divForm');
+              divForm.classList.toggle('oculto');
+              const divLista=document.getElementById('divLista');
+              divLista.classList.toggle('oculto');
+          })

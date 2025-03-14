@@ -28,12 +28,9 @@ block content
     - rol='Bioquímico'        
     include ./soloForm.pug
      script.
-      console.log("ok lamote")
 
         const btnEditar=document.querySelector('#btnEditar');
-        console.log("rrr ==>",btnEditar)
         btnEditar.addEventListener('click',()=>{
-          console.log("ok lamote")
             const divForm=document.getElementById('divForm');
             divForm.classList.toggle('oculto');
             const divLista=document.getElementById('divLista');

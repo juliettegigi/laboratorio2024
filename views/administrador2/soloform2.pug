@@ -1,20 +1,8 @@
 div(id="divForm" class=`${(rta || oculto)?"oculto":""} container d-flex justify-content-center`)
-    - var rolTransformado = rol.charAt(0).toLowerCase() + rol.slice(1).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    - errores={}
-    if errors 
-     - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
-     - for (let elem of arr)
-       - let encontrado = errors.find(e => e.path === elem)
-       - if (encontrado)
-          - errores[elem] = encontrado.value    
     form(action=editarUsuario?`/admins2/${rol}/${usuario.id}?_method=put`:`/admins2/${rol}?rol=${rol}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
         .row.text-center
             h1(class="h3 mb-3 fw-normal")
-             case rol
-              when 'Técnico'
-               | Datos del técnico
-              when 'Bioquímico'
-               | Datos del bioquímico
+               | Datos de usuario
             .col
                 .form-floating
                     input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
@@ -37,20 +25,8 @@ div(id="divForm" class=`${(rta || oculto)?"oculto":""} container d-flex justify-
                 .form-floating
                     input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
                     input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
-                    label(for="telefono") Teléfono            
-        if rolesUsuario                      
-         .row                      
-             .col        
-                 .form-group
-                  label(for="roles") Asignar Roles:
-                   each role in roles
-                    .form-check
-                      input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
-                                            checked=rolesUsuario.some(r => r.nombre.toLowerCase() === role.nombre.toLowerCase()))
-                      label(for=`role-${role.id}`)= role.nombre                       
-        case rol
-         when 'Bioquímico'
-          include formBioq                                                                
+                    label(for="telefono") Teléfono 
+                                                                                
         .row   
             .col         
                 button(class="btn btn-secondary w-100 py-2" type="submit") 
@@ -58,10 +34,12 @@ div(id="divForm" class=`${(rta || oculto)?"oculto":""} container d-flex justify-
                         | Guardar cambios
                     else
                         | Registrar
-        if errors                
-         .row(class="alert alert-danger" role="alert")
-          .col 
-           each e in errors
-            p= e.msg 
+        if rolesArray.includes('Bioquímico') 
+         form(action=editarUsuario?`/admins2/${rol}/${usuario.id}?_method=put`:`/admins2/${rol}?rol=${rol}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+          include formBioq 
+        if rolesArray.includes('Paciente') 
+         form(action=editarUsuario?`/admins2/${rol}/${usuario.id}?_method=put`:`/admins2/${rol}?rol=${rol}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+          include formPaciente
+
 script(src="/javascripts/errores.js")
  

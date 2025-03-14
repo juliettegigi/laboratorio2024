@@ -1,0 +1,243 @@
+mixin listaDatosPaciente(paciente)
+ ul(class=`list-group list-group-flush lista-datos-usuario`)
+  li(class="list-group-item") Edad: 
+      span= paciente.edad 
+  li(class="list-group-item") Fecha de nacimiento:
+      span= paciente.nacimiento
+  li(class="list-group-item")= "Embarazada: "
+      span= paciente.embarazada
+  li(class="list-group-item") Provincia: 
+      span= paciente.provincia
+  li(class="list-group-item") Localidad: 
+      span= paciente.localidad
+  li(class="list-group-item") Dirección:
+      span= paciente.direccion
+  li(class="list-group-item") Sexo:
+      span= paciente.sexo
+
+mixin listaDatosBioquimico(bioquimico)
+ ul(class=`list-group list-group-flush lista-datos-usuario`)
+  li(class="list-group-item") Matrícula: 
+      span= bioquimico?bioquimico.matricula:"" 
+  li(class="list-group-item") Título:
+      span= bioquimico?bioquimico.titulo:""
+
+
+
+mixin formPaciente(paciente,usuarioId)
+ .container.d-flex.justify-content-center(id="divForm2" class=(rta || paciente)?"oculto":"")
+     form(action=editarPaciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+         if usuarioId
+          input(type="hidden" name="UsuarioId" value=usuario.id)
+         .row.text-center
+             h1(class="h3 mb-3 fw-normal")
+                     | Datos del paciente            
+         .row                      
+             .col        
+                 .form-floating
+                     input(type="number" class="form-control" id="edad"  name="edad"  value=paciente?paciente.edad:'')
+                     label(for="edad") Edad                
+         .row                      
+             .col        
+                 .form-floating
+                     input(type="tel" class="form-control" id="telefono"  name="telefono"  value=telefonos && telefonos.length>0?telefonos[0].numero:'')
+                     label(for="telefono") Teléfono                
+         .row                      
+             .col        
+                 .form-floating
+                     input(type="date" class="form-control" id="nacimiento"  name="nacimiento" value=paciente?paciente.nacimiento:'' )
+                     label(for="nacimiento") Fecha de nacimiento                
+         .row 
+             .col 
+                 p Sexo:
+                 .form-check
+                     label(class="form-check-label") Masculino 
+                         input(type="radio" name="sexo" value="Masculino"  class="form-check-input" 
+                               checked=paciente? (paciente.sexo==='Masculino'?true:false)
+                                               :true
+                               )
+                 .form-check
+                     label(class="form-check-label")  Femenino 
+                         input( type="radio" name="sexo" value="Femenino" class="form-check-input" checked=paciente && paciente.sexo==='Femenino'?true:false)
+                 .form-check
+                     label(class="form-check-label")  Otro   
+                     input( type="radio" name="sexo" value="Otro" class="form-check-input" checked=paciente && paciente.sexo==='Otro'?true:false)
+                 .form-check
+                     label(class="form-check-label")  Prefiero no decirlo   
+                     input( type="radio" name="sexo" value="Prefiero no decirlo" class="form-check-input" checked=paciente && paciente.sexo==='Prefiero no decirlo'?true:false)
+                 .form-check.form-switch
+                   label(class="form-check-label") Embarazada
+                     input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
+                           disabled=(paciente && paciente.sexo==='Hombre')?true:false
+                           checked=(paciente  && paciente.embarazada)?true:false
+                           )
+         .row
+             .col 
+                 .form-floating
+                     input#provincia.form-control(list="provincias", 
+                                                  name="provincia", 
+                                                  placeholder="Type to search..." 
+                                                  value=paciente?paciente.provincia:'' 
+                                                  autocomplete="off")
+                     label(for="provincia") Provincia
+                     datalist(id="provincias") 
+                       if provincias
+                         each p in provincias
+                           option(value=p.nombre)
+         .row
+             .col 
+                 .form-floating
+                     input#departamento.form-control(list="localidades", name="localidad", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.localidad:'')
+                     label(for="localidades") Localidad
+                     datalist(id="localidades") 
+         .row
+             .col 
+                 .form-floating
+                     input#direccion.form-control(list="calles", name="direccion", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.direccion:'')
+                     label(for="calles") Dirección
+                     datalist(id="calles")                                                          
+         .row   
+             .col         
+                 button(class="btn btn-secondary w-100 py-2" type="submit") 
+                     if editarPaciente
+                         | Guardar cambios
+                     else
+                         | Registrar
+             .col(id="divRegresarForm2")            
+     script(src="/javascripts/administrador/form.js")              
+     script. 
+         (async()=>{
+             const inputProvincia=document.getElementById('provincia')
+             // cambia el value del input de provincia ==>
+             inputProvincia.addEventListener('change', async(e)=> {
+               const provinciaSeleccionada = inputProvincia.value;
+               const opciones = document.getElementById('provincias').options;
+               const esOpcionValida = Array.from(opciones).some(function(opcion) {
+                    return opcion.value === provinciaSeleccionada;
+               }); 
+         if (esOpcionValida) {
+             const dataListLocalidades=document.getElementById('localidades');
+             dataListLocalidades.innerHTML="";
+             let rta=await fetch(`https://apis.datos.gob.ar/georef/api/localidades?provincia=${provinciaSeleccionada}&campos=nombre&max=1000`);
+             let data=await rta.json();
+             const localidades=data.localidades;
+             for(let localidad of localidades){
+                 const opc=document.createElement('option');
+                 opc.value=localidad.nombre;
+                 dataListLocalidades.appendChild(opc);
+             }
+             const dataListCalles=document.getElementById('calles');
+                 dataListCalles.innerHTML="";
+                 rta=await fetch(`https://apis.datos.gob.ar/georef/api/calles?provincia=${inputProvincia.value}&max=5000`)
+                 data=await rta.json();
+                 const calles=data.calles;
+                 for(let calle of calles){
+                     const opc=document.createElement('option');
+                     opc.value=calle.nombre;
+                     dataListCalles.appendChild(opc);
+                 }
+         } else {
+         }
+         });
+         })();   
+         (function () {
+           'use strict'
+           // Obtener todos los formularios que queremos validar
+           var forms = document.querySelectorAll('.needs-validation')
+           // Validar cada formulario en el evento de envío
+           Array.prototype.slice.call(forms).forEach(function (form) {
+             form.addEventListener('submit', function (event) {
+               if (!form.checkValidity()) {
+                 event.preventDefault()
+                 event.stopPropagation()
+               }
+               form.classList.add('was-validated')
+             }, false)
+           })
+         })()      
+
+mixin formUsuario(usuario)
+ div(id="divForm1" class=`${editarUsuario?"oculto":""} container d-flex justify-content-center`)
+  - errores={}
+  if errors 
+   - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
+   - for (let elem of arr)
+    - let encontrado = errors.find(e => e.path === elem)
+    - if (encontrado)
+     - errores[elem] = encontrado.value    
+  form(action=editarUsuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/${rol}?rol=${rol}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+   .row.text-center
+       h1(class="h3 mb-3 fw-normal")
+          | Datos de usuario
+       .col
+           .form-floating
+               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
+               label(for="nombre") Nombre
+       .col        
+           .form-floating
+               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${apellido || (usuario && usuario.apellido) || ''}`)
+               label(for="apellido") Apellido
+   .row 
+       .col           
+           .form-floating
+               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
+               label(for="dni") Dni
+       .col        
+           .form-floating
+               input(type="email" class=`form-control ${errors && Object.hasOwn(errores, 'email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${email || (usuario && usuario.email) || ''}` )
+               label(for="floatingInput") Email               
+   .row                      
+       .col        
+           .form-floating
+               input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
+               input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
+               label(for="telefono") Teléfono          
+   if rolesArray                      
+    .row                      
+        .col        
+            .form-group
+             label(for="roles") Asignar Roles:
+              each role in roles
+               .form-check
+                 input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
+                                       checked=rolesArray.some(r => r.toLowerCase() === role.nombre.toLowerCase()))
+                 label(for=`role-${role.id}`)= role.nombre                                                                
+   .row   
+       .col         
+           button(class="btn btn-secondary w-100 py-2" type="submit") 
+               if editarUsuario
+                   | Guardar cambios
+               else
+                   | Registrar
+       .col(id="divRegresarForm1")            
+  if errors                
+   .row(class="alert alert-danger" role="alert")
+    .col 
+     each e in errors
+      p= e.msg 
+       
+mixin formBioquimico(bioquimico,usuarioId)
+ - console.log("BIQUIMICO:      ",bioquimico)
+ div(id="divForm3" class=`${editarBioquimico?"oculto":""} container d-flex justify-content-center`)
+   form(action=bioquimico?`/admins2/bioquimico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+    if usuarioId
+          input(type="hidden" name="UsuarioId" value=usuario.id)
+    .row                      
+      .col        
+          .form-floating
+              input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'titulo')?'text-danger':''}` id="titulo"  name="titulo"  value=`${titulo || (bioquimico && bioquimico.titulo) || ''}`)
+              label(for="titulo") Título               
+    .row                      
+         .col        
+             .form-floating
+                 input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'matricula')?'text-danger':''}` id="matricula"  name="matricula"  value=`${matricula || (bioquimico && bioquimico.matricula) || ''}`)
+                 label(for="matricula") Matrícula
+    .row   
+       .col         
+           button(class="btn btn-secondary w-100 py-2" type="submit") 
+               if editarUsuario
+                   | Guardar cambios
+               else
+                   | Registrar
+       .col(id="divRegresarForm3")                        
+       

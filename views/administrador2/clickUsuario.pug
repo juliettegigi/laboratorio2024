@@ -1,0 +1,106 @@
+extends layout
+append styles 
+      link(rel='stylesheet', href='/stylesheets/admins2/clickUsuario.css')
+block content
+    - editatUsuario=true
+    include ../listaDatosUsuarios
+    +formUsuario(usuario)
+    if rolesArray.includes('Paciente')
+     - editarPaciente=true
+     +formPaciente(usuario.Paciente,usuario.id)
+    if rolesArray.includes('Bioquímico')
+     - editarBioquimico=true
+     +formBioquimico(usuario.Bioquimico,usuario.id)
+    .container(id="divLista")
+     if rta
+      div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
+       strong 
+           | #{rta.alertMessage}
+       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+     ul(class=`list-group list-group-flush lista-datos-usuario`)
+         li(class="list-group-item")= `Nombre: `+usuario.nombre  
+         li(class="list-group-item") Apellido: 
+             span= usuario.apellido 
+         li(class="list-group-item") Documento:
+             span= usuario.documento
+         li(class="list-group-item") Email:
+             span= usuario.email
+         li(class="list-group-item") Telefono:
+             span= telefonos[0].numero
+         li(class="list-group-item") Roles:
+             span= rolesString
+     .row-m3
+        .col-6(id="colBtnInicioUsuario")         
+            button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarUsuario') Editar datos de usuario
+     if rolesArray.includes('Paciente')
+      if usuario.Paciente
+       +listaDatosPaciente(usuario.Paciente)
+       .row-m3
+        .col-6(id="colBtnInicioPaciente")        
+            button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarPaciente') Editar datos de paciente 
+     if rolesArray.includes('Bioquímico')
+       +listaDatosBioquimico(usuario.Bioquimico)  
+       .row-m3
+        .col-6(id="colBtnInicioBioquimico")        
+            button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarBioquimico') 
+              | Editar datos de bioquímico
+     script(src="/javascripts/errores.js")  
+     script.
+        const divForm1=document.getElementById('divForm1');
+        const divForm2=document.getElementById('divForm2');
+        const divForm3=document.getElementById('divForm3');
+        const divRegresarForm1=document.getElementById('divRegresarForm1');
+        const divRegresarForm2=document.getElementById('divRegresarForm2');
+        const divRegresarForm3=document.getElementById('divRegresarForm3');
+        const divLista=document.getElementById('divLista');
+        const colBtnInicioPaciente=document.getElementById('colBtnInicioPaciente');
+        const colBtnInicioUsuario=document.getElementById('colBtnInicioUsuario');
+        const colBtnInicioBioquimico=document.getElementById('colBtnInicioBioquimico');
+
+        const btnEditar=document.querySelectorAll('.btnEditar');
+        for(let btn of btnEditar){
+               btn.addEventListener('click',()=>{
+                   divLista.classList.toggle('oculto');
+               })
+
+               switch(btn.id){
+                case 'btnEditarUsuario': 
+                    btn.addEventListener('click',()=>{ 
+                   divForm1.classList.toggle('oculto');
+                   if (!divForm1.classList.contains('oculto')) {
+                     divRegresarForm1.appendChild(btn)
+                   btn.textContent="Volver"
+                   }else{
+                     colBtnInicioUsuario.appendChild(btn)
+                      btn.textContent="Editar datos de usuario"
+                   }
+                   })
+                   
+                   break;
+                case 'btnEditarPaciente': 
+                   btn.addEventListener('click',()=>{ 
+                   divForm2.classList.toggle('oculto');
+                    if (!divForm2.classList.contains('oculto')) {
+                     divRegresarForm2.appendChild(btn)
+                   btn.textContent="Volver"
+                   }else{
+                     colBtnInicioPaciente.appendChild(btn)
+                      btn.textContent="Editar datos de paciente"
+                   }
+                   })
+                   break;
+                case 'btnEditarBioquimico':
+                 btn.addEventListener('click',()=>{  
+                   divForm3.classList.toggle('oculto');
+                    if (!divForm3.classList.contains('oculto')) {
+                     divRegresarForm3.appendChild(btn)
+                   btn.textContent="Volver"
+                   }else{
+                     colBtnInicioBioquimico.appendChild(btn)
+                      btn.textContent="Editar datos de bioquímico"
+                   }
+                   })
+                   break;
+               }
+
+        }

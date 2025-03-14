@@ -60,10 +60,8 @@ const existeUsuario=async (id) => {
 const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false) => {
   if(editar ){
     const {email,nombre,apellido,documento,
-      matricula,titulo,
       telefono}=req.body
     const datosActualizar = {nombre,apellido,documento,email,
-                             matricula,titulo,
                              telefono};
     delete datosActualizar[campo];                                  
     if (valorNuevo !== req.usuarioActual[campo]) {
