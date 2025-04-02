@@ -45,9 +45,16 @@ const input1=new InputDataList(form['medico'],listaMedicos,eventoBuscarMedico,li
 
 const lis=Array.from(document.querySelectorAll('.liExamenes'))
 
+const addCruz=(li,funcionCruz)=>{
+    const cruz = document.createElement('button');
+    cruz.type="button"
+    cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
+    cruz.addEventListener('click',funcionCruz) 
+    li.appendChild(cruz);
+}
 
-
-for(let li of lis)addCruz(li,(evento)=>{li.remove()})
+for(let li of lis)
+    addCruz(li,(evento)=>{li.remove()})
     
 
  

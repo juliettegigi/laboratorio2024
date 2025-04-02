@@ -57,7 +57,7 @@ const existeUsuario=async (id) => {
 }
 
 
-const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false) => {
+const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false,href="") => {
   if(editar ){
     const {email,nombre,apellido,documento,
       telefono}=req.body
@@ -73,7 +73,10 @@ const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false) => {
  if(((editar && valorNuevo !== req.usuarioActual[campo]) || !editar)){
      const existeCampo = await Usuario.findOne({ where: { [campo]:valorNuevo } });
      if (existeCampo) {
-         throw new Error(`${campo} ya está registrado`);
+      console.log("entroooooooooooooogggggggggggggggggggddddddddd")
+      const error=new Error(`${campo} ya está registrado`)
+      req.href=`${href}${existeCampo.id}` //http://localhost:3000/admins2/
+         throw error;
      }
 }
 

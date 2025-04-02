@@ -58,7 +58,7 @@ try{
         console.log("eeeeeeeeeeeeeeeee2")
         console.log(req.session.roles)
         //si el usuario tiene un único rol
-        if(usuario.Rols.length===1){
+        if(usuario.Rols.length>0){
           console.log(usuario.Rols[0])
         switch(usuario.Rols[0].nombre){
           case "Paciente": return res.redirect(`/pacientes`);

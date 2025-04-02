@@ -24,7 +24,7 @@ const getBusqueda=async(req,res)=>{
         page=parseInt(page)
         group=parseInt(group)
         let offset=page*limit-limit;
-        const {rows,count}=await Usuario.getUsuariosByEmailOdniOnombre(inputSearch,limit,offset,'Paciente');
+        const {rows,count}=await Usuario.getUsuariosByEmailOdniOnombre(inputSearch,limit,offset,{tablas:["paciente"]},false);
         return res.render('administrador/rtaBusqueda',{inputSearch,
                                          usuarios:rows,
                                          limit,
@@ -68,11 +68,11 @@ const getFormOrden=async(req,res)=>{
 
 const getPaciente=async(req,res)=>{
   try {
-    const {pacienteId}=req.params;
+    const {UsuarioId}=req.params;
     const rta=req.flash('rta')[0];
 
     //busco al paciente y le incluyo todas sus órdenes
-    const paciente= await Paciente.findOne({ where: { id:pacienteId },
+    const paciente= await Paciente.findOne({ where: { UsuarioId },
       include:{model: Orden,
                where: {
                  EstadoId: { [Op.ne]: 3 }, // Filtra órdenes donde estado sea diferente de 3
@@ -86,7 +86,8 @@ const getPaciente=async(req,res)=>{
    if(paciente){
      console.log("id:  " ,paciente)
      console.log("id:  " ,paciente.UsuarioId)
-     const usuario = await Usuario.findByPk(paciente.UsuarioId,{ attributes: { exclude: ['password'] },});
+     const usuario = await Usuario.findByPk(paciente.UsuarioId,{ attributes: { exclude: ['password'] }, 
+                                                                 include: [{ model: Telefono }]});
       console.log('------------------------------------------------');
     console.log(usuario)
     const arr=[]; 
@@ -115,6 +116,10 @@ const getPaciente=async(req,res)=>{
      }
 
      console.log('------------------------------------------------');
+     console.log('------------------------------------------------ TELEGONOSSSSSS');
+     
+     console.log(usuario.id);
+     console.log(await usuario.getTelefonos());
      console.log(rta)
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
@@ -137,21 +142,28 @@ const getPaciente=async(req,res)=>{
 
 const putPaciente=async(req,res)=>{
   const transaction = await sequelize.transaction();
-  const {PacienteId}=req.params;
+  const {UsuarioId}=req.params;
   try {
     
-    const {UsuarioId,email,nombre,apellido,documento,
+    const {
            sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,
            telefono}=req.body
-    const [updatedRows1]=await Usuario.update({email,nombre,apellido,documento}, {where:{id:UsuarioId}},{ transaction });
-    const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad}, {where:{id:PacienteId}},{ transaction });
-    const [updatedRows3]=await Telefono.update({numero:telefono}, {where:{UsuarioId}},{ transaction });
+    const [updatedRows1]=await Usuario.update(req.datosActualizar, 
+                                              {where:{id:UsuarioId},
+                                               transaction,
+                                               userId:req.session.usuario.id});
+    const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad}, 
+                                               {where:{UsuarioId}, 
+                                                transaction });
+    const [updatedRows3]=await Telefono.update({numero:telefono}, 
+                                               {where:{UsuarioId},
+                                                transaction });
     await transaction.commit();
       req.flash('rta',{ 
         origen:'putPaciente',
         alertType: 'success',
         alertMessage: 'Registro editado' })
-    return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+    return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
   } catch (error) {
     console.error(error);
     await transaction.rollback();
@@ -160,7 +172,7 @@ const putPaciente=async(req,res)=>{
         origen:'putPaciente',
         alertType: 'danger',
         alertMessage: 'Error: el email pertenece a otro usuario' })
-        return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+        return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
     }
 
     return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
@@ -181,7 +193,8 @@ const crearPaciente=async(req,res)=>{
                telefono}=req.body
         
       const nuevoUsuario = await Usuario.create({email,nombre,apellido,documento},
-                                                { transaction });
+                                                { transaction , 
+                                                  userId: req.session.usuario.id});
       const usuarioId=nuevoUsuario.id;
       const paciente=await Paciente.create({UsuarioId:usuarioId,nacimiento, embarazada:embarazada?1:0, provincia, localidad,edad, direccion,sexo},
                             { transaction }) 
@@ -191,13 +204,13 @@ const crearPaciente=async(req,res)=>{
       await UsuarioRol.create({UsuarioId:usuarioId,RolId:1},
                             { transaction })
         
-      await transaction.commit();
+      await transaction.commit();/* 
       req.flash('rta',{ 
         origen:'crearPaciente',
         alertType: 'success',
         alertMessage: 'Persona registrada.' })
-        console.log(paciente.id)
-      return res.redirect(`http://localhost:3000/admins/paciente/${paciente.id}`)
+        console.log(paciente.id) */
+      return res.redirect(`http://localhost:3000/admins/paciente/${usuarioId}`)
 
     } catch (error) {
       try{

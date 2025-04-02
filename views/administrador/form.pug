@@ -2,4 +2,5 @@ extends layout
 
 block content
   - editarPaciente=false
-  include ./soloForm.pug
+  include ../forms/formPaciente.pug
+  +formPaciente("divForm",false,false,)

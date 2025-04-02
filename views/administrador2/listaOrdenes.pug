@@ -1,0 +1,12 @@
+.container.divLista
+ ul.list-group.list-group-flush
+  if ordenes
+   each o in ordenes
+     li.list-group-item.list-group-item-action
+       a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/admins2/orden/${o.id}`)
+           | #{o.id || ''} -- #{new Date(o.fecha).toLocaleDateString('es-AR')} -- #{o.Estado.nombre || '' } -- #{o.Paciente.Usuario.nombre || '' } #{o.Paciente.Usuario.apellido || '' } 
+   - for(let i=ordenes.length; i<limit;i++)
+     li.list-group-item.list-group-item-action &nbsp;
+   if totalRegistros
+     include ../paginado.pug
+     +paginado(`http://localhost:3000/admins2`)

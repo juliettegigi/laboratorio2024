@@ -10,8 +10,10 @@ mixin inputSearch(action,placeholder,btn,href="#")
          input(type="hidden" name="group" value=1)
          input(type="hidden" name="page" value=1)
          if queryString
-          input(type="hidden", name="tablas", value=queryString.tablas)
-          input(type="hidden", name="roles", value=queryString.roles)
+          - for(let key in queryString)
+           - {
+            input(type="hidden", name=key, value=queryString[key])
+           - }
       if btn
        div 
         a(href=href class="btn btn-secondary btn-add"  role="button" type="button" )= btn

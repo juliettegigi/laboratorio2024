@@ -4,11 +4,6 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       Usuario.belongsToMany(models.Rol, {through:"UsuarioRol"})
       Usuario.hasMany(models.UsuarioRol);
@@ -16,15 +11,14 @@ module.exports = (sequelize, DataTypes) => {
       Usuario.hasOne(models.Paciente, { foreignKey: 'UsuarioId', as: 'Paciente' });
       Usuario.hasOne(models.Bioquimico, { foreignKey: 'UsuarioId', as: 'Bioquimico' });
       Usuario.hasOne(models.Tecnico, { foreignKey: 'UsuarioId', as: 'Tecnico' });
-      Usuario.hasMany(models.Telefono)
+      Usuario.hasMany(models.Telefono, { foreignKey: 'UsuarioId' });
+      Usuario.hasMany(models.UsuarioAuditoria, { foreignKey: 'UsuarioId' });
     }
     
 
-    static getUsuariosByEmailOdniOnombre = async (termino, limit = 5, offset = 0, modelos = [], roles = []) => {
+    static getUsuariosByEmailOdniOnombre = async (termino, limit = 5, offset = 0, {tablas, roles},paranoid=true) => {
       try {
         let where = {};
-        console.log("termino ---> ", termino);
-        console.log("roles ---> ", roles);
     
         // Filtros para el término de búsqueda
         if (termino !== "") {
@@ -39,17 +33,17 @@ module.exports = (sequelize, DataTypes) => {
         }
     
         let includes = [{ model: sequelize.models.Telefono }];
-        // Incluir modelos adicionales en la consulta
-       if(modelos.length>0){ 
+        // Incluir tablas adicionales en la consulta
+       if(tablas){ 
             
-                // Incluir los modelos relacionados si los parámetros lo indican
-                if (modelos.includes("paciente")) {
+                // Incluir los tablas relacionados si los parámetros lo indican
+                if (tablas.includes("paciente")) {
                   includes.push({ model: sequelize.models.Paciente, as: 'Paciente', required: true });
                 }
-                if (modelos.includes("bioquimico")) {
+                if (tablas.includes("bioquimico")) {
                   includes.push({ model: sequelize.models.Bioquimico, as: 'Bioquimico', required: true });
                 }
-                if (modelos.includes("tecnico")) {
+                if (tablas.includes("tecnico")) {
                   includes.push({ model: sequelize.models.Tecnico, as: 'Tecnico', required: true });
                 }
         }else{
@@ -59,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     
         // Incluir los roles y filtrar por los roles proporcionados
-        if (roles.length > 0) {
+        if (roles) {
           includes.push({
             model: sequelize.models.Rol, // Ajusta el nombre de tu modelo Rol si es diferente
             where: {
@@ -80,14 +74,10 @@ module.exports = (sequelize, DataTypes) => {
           ],
           limit,
           offset,
+          paranoid
         });
     
-        console.log("count  ", usuarios.count);
-        console.log("count ******************************************** ", usuarios.count);
-        console.log("count  ", usuarios.rows);
-        
-        console.log("cojones ******************************************** ", usuarios.count);
-        console.log("count  ", usuarios.rows[0].Rols);
+      
     
         return usuarios; // Retorna los usuarios con los roles filtrados
       } catch (error) {
@@ -111,5 +101,105 @@ module.exports = (sequelize, DataTypes) => {
     tableName:'usuarios',
     paranoid:true
   });
+
+
+  
+
+  Usuario.afterCreate(async (usuario, options) => {
+    if (!options.transaction) {
+      console.error("❌ Error: La transacción no fue pasada correctamente.");
+      return;
+    }
+    
+    await sequelize.models.UsuarioAuditoria.create({
+      operacion: 'CREATE',
+      registroId: usuario.id,
+      usuarioId: options.userId || null,
+      datosNuevos: JSON.stringify(usuario.toJSON()),
+      fecha: new Date()
+    }, { transaction: options.transaction });
+  });
+
+  Usuario.beforeUpdate(async (usuario, options) => {
+
+    console.log("✅ beforeUpdate ejecutado para Usuario ID:", usuario.id);
+    if (!options.transaction) {
+      throw new Error("❌ beforeUpdate debe ejecutarse dentro de una transacción.");
+    }
+  
+    // ⚠️ Verificar que options.userId esté definido
+    if (!options.userId) {
+      console.warn("⚠️ options.userId no está definido en beforeUpdate");
+      return;
+    }
+  
+    // 1️⃣ Obtener los datos antiguos antes de actualizar
+    const usuarioAnterior = await Usuario.findOne({
+      where: { id: usuario.id },
+      transaction: options.transaction,
+      raw: true
+    });
+  
+    if (!usuarioAnterior) return;
+  
+    // 2️⃣ Registrar auditoría
+    await sequelize.models.UsuarioAuditoria.create({
+      operacion: 'UPDATE',
+      registroId: usuario.id,
+      usuarioId: options.userId, // ⚠️ Ahora debería existir
+      datosAntiguos: JSON.stringify(usuarioAnterior),
+      datosNuevos: JSON.stringify(usuario.dataValues),
+      fecha: new Date()
+    }, { transaction: options.transaction });
+  });
+
+  Usuario.beforeDestroy(async (usuario, options) => {
+    const transaction = options.transaction || null;
+  
+    // Marcar los registros relacionados como eliminados (soft delete)
+    await sequelize.models.Paciente.update(
+      { deletedAt: new Date() },
+      { where: { UsuarioId: usuario.id }, transaction }
+    );
+    await sequelize.models.Bioquimico.update(
+      { deletedAt: new Date() },
+      { where: { UsuarioId: usuario.id }, transaction }
+    );
+    await sequelize.models.Tecnico.update(
+      { deletedAt: new Date() },
+      { where: { UsuarioId: usuario.id }, transaction }
+    );
+  
+    // Registrar la auditoría de la eliminación
+    await sequelize.models.UsuarioAuditoria.create({
+      operacion: 'DELETE',
+      registroId: usuario.id,
+      usuarioId: options.userId || null
+    }, { transaction });
+  });
+
+
+  Usuario.afterRestore(async (usuario, options) => {
+    await sequelize.models.Paciente.restore({
+      where: { UsuarioId: usuario.id }
+    });
+    await sequelize.models.Bioquimico.restore({
+      where: { UsuarioId: usuario.id }
+    });
+    await sequelize.models.Tecnico.restore({
+      where: { UsuarioId: usuario.id }
+    });
+
+
+    await sequelize.models.UsuarioAuditoria.create({
+      operacion: "RESTORE",
+      registroId: usuario.id,
+      usuarioId: options.userId || null, // Quién hizo la restauración
+      fecha: new Date()
+    });
+
+
+  });
+
   return Usuario;
 };

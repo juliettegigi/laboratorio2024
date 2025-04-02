@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     tableName:'Bioquimicos',
     timestamps:true,
     paranoid:true
+
   });
   return Bioquimico;
 };

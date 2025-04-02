@@ -1,0 +1,28 @@
+aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height));")
+  nav(class="nav flex-column bg-light p-3" style="width: 240px;")
+    h6 Aplicar filtros
+    - console.log("QUERY STRING")
+    - console.log(queryString)
+
+    form(action=`/admins2/ordenes` , method="get")
+     ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
+       li(class="nav-item")
+         p Por estado
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="Esperando toma de muestra" name="estados" value="Esperando toma de muestra")
+             label(for="Esperando toma de muestra" class="form-check-label") Esperando toma de muestra
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="Analítica" name="estados" value="Analítica")
+             label(for="Analítica" class="form-check-label") Analítica
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="Preinforme" name="estados" value="Preinforme")
+             label(for="Preinforme" class="form-check-label") Preinforme
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="Para validar" name="estados" value="Para validar")
+             label(for="Para validar" class="form-check-label") Para validar
+           div(class="form-check")
+             input(type="checkbox" class="form-check-input" id="Informada" name="estados" value="Informada")
+             label(for="Informada" class="form-check-label") Informada
+       
+       li(class="nav-item")
+         button Aplicar   

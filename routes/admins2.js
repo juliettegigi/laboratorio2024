@@ -3,16 +3,26 @@ const { check } = require('express-validator');
 
 const {Rol} = require('../models');
 const { 
-        postBioquimico, 
-        postTecnico, 
+        patchBioquimico,
+        patchPaciente,
+        patchTecnico,
+        patchUsuario,
         getBusqueda,
         getForm,
+        getOrdenes,
+        getOrden,
+        getRegistrarUsuario,
         getUsuario,
+        postBioquimico, 
+        postTecnico, 
         putBioquimico,
+        putOrden,
         putTecnico,
         putUsuario,
         putPaciente,
-        postUsuario
+        postUsuario,
+        postPaciente
+
         
 } = require('../controllers/admin2');
 const {tieneRole, isCampoUnicoUsuario, existeUsuario} = require('../controllers/validaciones');
@@ -24,11 +34,27 @@ router.get('/',[
         //tieneRole("recepcionista","administrativo")
                ],
             getBusqueda);
+router.get('/ordenes',[ 
+        //tieneRole("recepcionista","administrativo")
+               ],
+            getOrdenes);
+router.get('/orden/:id',[ 
+        //tieneRole("recepcionista","administrativo")
+               ],
+            getOrden);
 
 router.get('/form', [ 
     //tieneRole("recepcionista","administrativo")
                 ],
         getForm);
+
+
+router.get(`/registrarUsuario`,[ 
+        //tieneRole("recepcionista","administrativo")
+                                   ], 
+            getRegistrarUsuario);
+
+
 router.get(`/:UsuarioId`,[ 
         //tieneRole("recepcionista","administrativo")
                                    ], 
@@ -39,8 +65,9 @@ router.get(`/:UsuarioId`,[
 
 
 
-router.post(`/${encodeURIComponent('técnico')}`,[ 
+router.post(`/usuario`,[ 
         //tieneRole("recepcionista","administrativo"),
+        check('roles').notEmpty().withMessage('Debe seleccionar un rol.'),
         check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
         check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
        
@@ -56,36 +83,36 @@ router.post(`/${encodeURIComponent('técnico')}`,[
                  console.log(errors)
                  const {email,nombre,apellido,documento,
                         telefono}=req.body
-                 return res.render(`administrador2/form`,{oculto:false,editarBioquimico:false,errors,email,nombre,apellido,documento,telefono}) }
+                 const roles=await Rol.findAll();     
+                 const obj={errors,email,nombre,apellido,documento,telefono,
+                        rolesArray:[],roles};
+                if(req.href){obj.href=req.href}
+                 return res.render(`administrador2/clickRegistrarUsuario`,obj) }
                 next();
               },
               validarCampos
                         ],
             postUsuario);
 
-            router.post(`/${encodeURIComponent('técnico')}`,[ 
+ router.post(`/paciente`,[ 
+                            //tieneRole("recepcionista","administrativo"),
+                                            ],
+                                postPaciente);
+router.post(`/${encodeURIComponent('técnico')}/:UsuarioId`,[ 
                 //tieneRole("recepcionista","administrativo"),
-                check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
-                check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
                
-                check('documento').notEmpty().withMessage('El documento es obligatorio')
-                                  .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req)),
-                check('email').notEmpty().withMessage('El email es obligatorio')
-                              .isEmail().withMessage('El email no es válido')
-                              .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req)),
         
                 (req, res, next) => {
                         req.renderizar = async (errors) => {
                          console.log(" ERRORES------------------------------------------------------------------------")
                          console.log(errors)
-                         const {email,nombre,apellido,documento,
-                                telefono}=req.body
-                         return res.render(`administrador2/form`,{oculto:false,editarBioquimico:false,errors,email,nombre,apellido,documento,telefono}) }
-                        next();
+                         const {UsuarioId}=req.params
+                         return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)}
+                         next();
                       },
                       validarCampos
                                 ],
-                    postUsuario);
+                    postTecnico);
 
                     
 router.post(`/${encodeURIComponent('bioquímico')}`,[ 
@@ -93,27 +120,21 @@ router.post(`/${encodeURIComponent('bioquímico')}`,[
                
                                 ],
                     postBioquimico);
+                    
+
 
 router.put(`/${encodeURIComponent('bioquímico')}/:UsuarioId`,[ 
         //tieneRole("recepcionista","administrativo")
-        check('UsuarioId').custom(existeUsuario),
-        check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
-        check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
         check('titulo').notEmpty().withMessage('El título es obligatorio'),
         check('matricula').notEmpty().withMessage('La matrícula es obligatoria'),
-        check('documento').notEmpty().withMessage('El documento es obligatorio')
-                          .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,'true')).withMessage(`documento ya está registrado`),
-        check('email').notEmpty().withMessage('El email es obligatorio')
-                      .isEmail().withMessage('El email no es válido')
-                      .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,'true')).withMessage(`email ya está registrado`),
-        (req, res, next) => {
+       (req, res, next) => {
                 req.renderizar = async (errors) => {
+                const {UsuarioId}=req.params;        
                 console.log(" ERRORES------------------------------------------------------------------------")
                 console.log(errors)
-                const {email,nombre,apellido,documento,
-                       matricula,titulo,
-                       telefono}=req.body
-                return res.render(`administrador2/form`,{oculto:false,usuario:{id:req.params.UsuarioId},editarBioquimico:true,errors,email,nombre,apellido,documento,matricula,titulo,telefono}) }
+                const { matricula,titulo}=req.body
+                return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
+        }
                 next();
                 },
         validarCampos
@@ -168,5 +189,25 @@ router.put(`/paciente/:id`,[
                 //tieneRole("recepcionista","administrativo")
                 ],
                 putPaciente);        
+router.put(`/orden/:id`,[ 
+                //tieneRole("recepcionista","administrativo")
+                ],
+                putOrden);        
+router.patch(`/:id/usuario`,[ 
+                //tieneRole("recepcionista","administrativo")
+                ],
+                patchUsuario);        
+router.patch(`/:id/paciente`,[ 
+                //tieneRole("recepcionista","administrativo")
+                ],
+                patchPaciente);        
+router.patch(`/:id/tecnico`,[ 
+                //tieneRole("recepcionista","administrativo")
+                ],
+                patchTecnico);        
+router.patch(`/:id/bioquimico`,[ 
+                //tieneRole("recepcionista","administrativo")
+                ],
+                patchBioquimico);        
 
 module.exports = router;

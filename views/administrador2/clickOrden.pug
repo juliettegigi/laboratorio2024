@@ -1,0 +1,7 @@
+extends layout
+block aside 
+block content
+ div(class="content col-12 col-md-6 col-lg-4 z-1" id="divContent" style="margin-top:3rem;margin-left: 200px;padding: 20px;width: calc(100% - 200px);")
+  div(id='divFormOrden' )
+   include ../forms/formOrden
+   +formOrden("divFormOrden", true,false,orden)

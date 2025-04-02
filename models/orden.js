@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model,
+  Model,Op,
   BOOLEAN
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
@@ -28,6 +28,63 @@ module.exports = (sequelize, DataTypes) => {
       
      
     }
+
+static getOrdenById = async (termino, limit = 5, offset = 0,{estados}, paranoid=true) => {
+      try {
+        let where = {};
+      
+    
+        // Filtros para el término de búsqueda
+        if (termino !== "") {
+          where = {
+            [Op.or]: [
+              { id: { [Op.regexp]: termino } },
+              { PacienteId: { [Op.regexp]: termino } }
+            ],
+          };
+        }
+    
+       
+        let includes = [{ model: sequelize.models.Paciente , include: [{ model: sequelize.models.Usuario , as: 'Usuario'}]}];
+        // Incluir tablas adicionales en la consulta
+        if(estados){ 
+          includes.push(  {
+            model: sequelize.models.Estado,
+            where: {
+              nombre: {
+                [Op.in]: estados, // Filtra por nombres de estados que estén en el array
+              },
+            },
+            required: true 
+          },);
+      
+        }
+        else{
+          includes.push(  {
+            model: sequelize.models.Estado,
+        });
+        }
+       
+        // Realizar la consulta con las condiciones de búsqueda
+        const ordenes = await Orden.findAndCountAll({
+          include:includes,
+          where,
+          limit,
+          offset,
+          paranoid
+        });
+    
+      console.log("ORDENESSSSSSSSSSS***************")
+      console.log(ordenes.rows[0])
+    
+        return ordenes; // Retorna los usuarios con los roles filtrados
+      } catch (error) {
+        console.log('models==>usuario');
+        throw error;
+      }
+    };
+
+
   }
   Orden.init({
     isPresuntivo:DataTypes.BOOLEAN,

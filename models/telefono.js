@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Telefono.belongsTo(models.Usuario)
+      Telefono.belongsTo(models.Usuario, { foreignKey: 'UsuarioId' });
     }
   }
   Telefono.init({
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Telefono',
     tableName:'Telefonos',
-    timestamps: false,
+    paranoid:true
   });
   return Telefono;
 };

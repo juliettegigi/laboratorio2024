@@ -26,7 +26,7 @@ nav(class="navbar navbar-expand-lg bg-body-tertiary ")
      ul.navbar-nav.me-auto.mb-2.mb-lg-0
       li.nav-item.dropdown
        a.nav-link.active(aria-current="page" 
-                                         href=`http://localhost:3000/admins2=${encodeURIComponent("Bioquímico")}`
+                                         href=`http://localhost:3000/admins2/registrarUsuario`
                                          role="button" 
                                          aria-expanded="false"
                                          ) Registrar usuario
@@ -37,6 +37,6 @@ nav(class="navbar navbar-expand-lg bg-body-tertiary ")
         li
           a.dropdown-item(href=`http://localhost:3000/admins2/form?rol=${encodeURIComponent("Técnico")}`) Técnicos
       li.nav-item
-       a.nav-link(href="http://localhost:3000/admins2/muestras"
+       a.nav-link(href="http://localhost:3000/admins2/ordenes"
                                   aria-expanded="false"
                                   role="button") Ordenes                           

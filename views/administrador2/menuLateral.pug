@@ -1,6 +1,9 @@
 aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height));")
   nav(class="nav flex-column bg-light p-3" style="width: 240px;")
     h6 Aplicar filtros
+    - console.log("QUERY STRING")
+    - console.log(queryString)
+
     form(action=`/admins2/` , method="get")
      ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
        li(class="nav-item")
@@ -24,7 +27,12 @@ aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height)
          p Por tabla
          form
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="admin" name="tablas" value="paciente")
+             input(type="checkbox" 
+                   class="form-check-input" 
+                   id="admin" 
+                   name="tablas" 
+                   value="paciente"
+                   checked=((Object.keys(queryString).length > 0) && queryString.tablas.length>0 && queryString.tablas.includes('paciente')))
              label(for="admin" class="form-check-label") Pacientes
            div(class="form-check")
              input(type="checkbox" class="form-check-input" id="bioquimico" name="tablas" value="bioquimico")

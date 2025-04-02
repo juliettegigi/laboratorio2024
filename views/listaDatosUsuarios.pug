@@ -1,5 +1,5 @@
 mixin listaDatosPaciente(paciente)
- ul(class=`list-group list-group-flush lista-datos-usuario`)
+ ul(class=`list-group list-group-flush lista-datos-usuario ${paciente.deletedAt?"lista-datos-usuarioEliminado":""}`)
   li(class="list-group-item") Edad: 
       span= paciente.edad 
   li(class="list-group-item") Fecha de nacimiento:
@@ -16,7 +16,7 @@ mixin listaDatosPaciente(paciente)
       span= paciente.sexo
 
 mixin listaDatosBioquimico(bioquimico)
- ul(class=`list-group list-group-flush lista-datos-usuario`)
+ ul(class=`list-group list-group-flush lista-datos-usuario ${bioquimico.deletedAt?"lista-datos-usuarioEliminado":""}`)
   li(class="list-group-item") Matrícula: 
       span= bioquimico?bioquimico.matricula:"" 
   li(class="list-group-item") Título:
@@ -24,9 +24,9 @@ mixin listaDatosBioquimico(bioquimico)
 
 
 
-mixin formPaciente(paciente,usuarioId)
- .container.d-flex.justify-content-center(id="divForm2" class=(rta || paciente)?"oculto":"")
-     form(action=editarPaciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+mixin formPaciente(paciente,usuarioId,oculto)
+ .container.d-flex.justify-content-center(id="divForm2" class=(rta || oculto)?"oculto":"")
+     form(action=paciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins2/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
          if usuarioId
           input(type="hidden" name="UsuarioId" value=usuario.id)
          .row.text-center
@@ -37,11 +37,7 @@ mixin formPaciente(paciente,usuarioId)
                  .form-floating
                      input(type="number" class="form-control" id="edad"  name="edad"  value=paciente?paciente.edad:'')
                      label(for="edad") Edad                
-         .row                      
-             .col        
-                 .form-floating
-                     input(type="tel" class="form-control" id="telefono"  name="telefono"  value=telefonos && telefonos.length>0?telefonos[0].numero:'')
-                     label(for="telefono") Teléfono                
+                     
          .row                      
              .col        
                  .form-floating
@@ -99,11 +95,12 @@ mixin formPaciente(paciente,usuarioId)
          .row   
              .col         
                  button(class="btn btn-secondary w-100 py-2" type="submit") 
-                     if editarPaciente
+                     if paciente
                          | Guardar cambios
                      else
                          | Registrar
-             .col(id="divRegresarForm2")            
+             .col(id="divRegresarForm2")
+              button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar           
      script(src="/javascripts/administrador/form.js")              
      script. 
          (async()=>{
@@ -156,8 +153,8 @@ mixin formPaciente(paciente,usuarioId)
            })
          })()      
 
-mixin formUsuario(usuario)
- div(id="divForm1" class=`${editarUsuario?"oculto":""} container d-flex justify-content-center`)
+mixin formUsuario(usuario,oculto)
+ div(id="divForm1" class=`${oculto?"oculto":""} container d-flex flex-column align-items-center justify-content-center`)
   - errores={}
   if errors 
    - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
@@ -165,7 +162,7 @@ mixin formUsuario(usuario)
     - let encontrado = errors.find(e => e.path === elem)
     - if (encontrado)
      - errores[elem] = encontrado.value    
-  form(action=editarUsuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/${rol}?rol=${rol}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+  form(action=usuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/usuario` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
    .row.text-center
        h1(class="h3 mb-3 fw-normal")
           | Datos de usuario
@@ -191,17 +188,16 @@ mixin formUsuario(usuario)
            .form-floating
                input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
                input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
-               label(for="telefono") Teléfono          
-   if rolesArray                      
-    .row                      
-        .col        
-            .form-group
-             label(for="roles") Asignar Roles:
-              each role in roles
-               .form-check
-                 input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
-                                       checked=rolesArray.some(r => r.toLowerCase() === role.nombre.toLowerCase()))
-                 label(for=`role-${role.id}`)= role.nombre                                                                
+               label(for="telefono") Teléfono                      
+   .row                      
+       .col        
+           .form-group
+            label(for="roles") Asignar Roles:
+             each role in roles
+              .form-check
+                input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
+                                      checked=rolesArray.some(r => r.toLowerCase() === role.nombre.toLowerCase()))
+                label(for=`role-${role.id}`)= role.nombre                                                                
    .row   
        .col         
            button(class="btn btn-secondary w-100 py-2" type="submit") 
@@ -209,17 +205,20 @@ mixin formUsuario(usuario)
                    | Guardar cambios
                else
                    | Registrar
-       .col(id="divRegresarForm1")            
+       if usuario           
+        .col(id="divRegresarForm1")
+         button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar            
   if errors                
    .row(class="alert alert-danger" role="alert")
     .col 
      each e in errors
       p= e.msg 
+     if href 
+      a(href=href) Ver usuario ya registrado
        
-mixin formBioquimico(bioquimico,usuarioId)
- - console.log("BIQUIMICO:      ",bioquimico)
- div(id="divForm3" class=`${editarBioquimico?"oculto":""} container d-flex justify-content-center`)
-   form(action=bioquimico?`/admins2/bioquimico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+mixin formBioquimico(bioquimico,usuarioId,oculto)
+ div(id="divForm3" class=`${oculto?"oculto":""} container d-flex justify-content-center`)
+   form(action=bioquimico?`/admins2/bioquímico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
     if usuarioId
           input(type="hidden" name="UsuarioId" value=usuario.id)
     .row                      
@@ -236,6 +235,22 @@ mixin formBioquimico(bioquimico,usuarioId)
        .col         
            button(class="btn btn-secondary w-100 py-2" type="submit") 
                if editarUsuario
+                   | Guardar cambios
+               else
+                   | Registrar
+       .col(id="divRegresarForm3")
+        button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar 
+
+mixin formTecnico(tecnico,usuarioId,oculto)
+ div(id="divForm4" class=`${oculto?"oculto":""} container d-flex justify-content-center`)
+   form(action=tecnico?`/admins2/técnico/${usuarioId}?_method=put`:`/admins2/técnico/${usuarioId}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+    if usuarioId
+          input(type="hidden" name="UsuarioId" value=usuario.id)
+    
+    .row   
+       .col         
+           button(class="btn btn-secondary w-100 py-2" type="submit") 
+               if tecnico
                    | Guardar cambios
                else
                    | Registrar

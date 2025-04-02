@@ -21,11 +21,15 @@ block content
          li(class="list-group-item") Email:
              span= usuario.email
          li(class="list-group-item") Telefono:
-             span= telefonos[0].numero
+             span 
+              if telefonos[0]
+               | #{telefonos[0].numero}
+              else 
+               | noo 
          li(class="list-group-item") Fecha de nacimiento:
              span= paciente.nacimiento
          li(class="list-group-item")= "Embarazada: "
-             span= paciente.embarazada
+             span= paciente.embarazada?"si":"no"
          li(class="list-group-item") Provincia: 
              span= paciente.provincia
          li(class="list-group-item") Localidad: 
@@ -35,14 +39,13 @@ block content
          li(class="list-group-item") Sexo:
              span= paciente.sexo
     - let editarPaciente=true    
-    include ./soloForm.pug
+    include ../forms/formPaciente.pug
+    +formPaciente("divForm", true,true) 
     include ./formOrden.pug
     +formOrden("divFormOrden1", false)
     include ./ordenesNoInformadas.pug      
-    //    
-        div(class="d-flex  w-50 justify-content-end")
-         button(type="button" class="btn btn-outline-primary w-auto" id='btnEditar') Editar
-         button(type="button" class="btn btn-outline-primary w-auto mx-3") Cargar orden    
+
+    
     script.
         const addCruz=(li,funcionCruz)=>{
             const cruz = document.createElement('button');
@@ -63,8 +66,6 @@ block content
         const divEliminarOrden=document.getElementById('divEliminarOrden');
         var rta =!{JSON.stringify(rta || {})};
         let active=divLista;
-        console.log("rtaaa")
-        console.log(rta.origen)
         const activar=(div)=>{
             if(rtaCargarOrden)
               rtaCargarOrden.remove();

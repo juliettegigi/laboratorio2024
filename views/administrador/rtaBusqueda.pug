@@ -7,10 +7,12 @@ block content
             button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
     else
         ul.list-group.list-group-flush
-            each p in usuarios
+            each u in usuarios
+              - console.log("--------------------------------------------------")
+              - console.log(u)
               li.list-group-item.list-group-item-action
-                a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/admins/paciente/${p.id}`)
-                    | #{p.nombre || ''} #{p.apellido || ''} - #{p.email || ''} - #{p.documento || ''}
+                a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/admins/paciente/${u.id}`)
+                    | #{u.nombre || ''} #{u.apellido || ''} - #{u.email || ''} - #{u.documento || ''}
             - for(let i=usuarios.length; i<limit;i++)
               li.list-group-item.list-group-item-action &nbsp;
             if totalRegistros

@@ -1,0 +1,99 @@
+mixin formOrden(divFormOrden,editar, oculto,orden)
+ .container.d-flex.justify-content-center(id=divFormOrden class=oculto ?"oculto":"")
+  form(action=editar?`/admins2/orden/${orden.id}?_method=put`:`/admins2/orden/` method="post" class="formOrden")
+      // input(type="hidden" name="PacienteId" value=paciente.id)
+      input(type="hidden" name="MedicoId" value=editar?orden.Medico.id:'')
+      input(type="hidden" name="DiagnosticoId" value=editar?orden.Diagnostico.id:'')
+       
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center
+        if editar
+         h1.mb-5 Edición de orden
+        else
+         h1.mb-5 Registro de orden
+ 
+
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         label(for="estado") Seleccionar Estado:
+         select#estado.form-control(name="EstadoId")
+           option(value="1" selected=editar && orden.EstadoId==1) Esperando toma de la muestra
+           option(value="2" selected=editar && orden.EstadoId==2) Analítica
+           option(value="3" selected=editar && orden.EstadoId==3) Informada
+           option(value="4" selected=editar && orden.EstadoId==4) Para validar
+           option(value="5" selected=editar && orden.EstadoId==5) Pre informe  
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         label(for="fecha") Fecha:
+        .col-md-auto
+         input#fecha.form-control(type="date" 
+                                  name="fecha" 
+                                  required
+                                  value=editar
+                                        ?`${new Date(orden.fecha).toISOString().split('T')[0]}`
+                                        :`${new Date().toISOString().split('T')[0]}` 
+                                )
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center
+        label(for="medico") Médico:
+       .col-md-auto.position-relative
+         input#medico.form-control( name="medico",autocomplete="off", placeholder="Type to search...",required,value=editar?orden.Medico.nombre:'')
+         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+          ul(id="listaMedicos")
+ 
+ 
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center
+        label(for="diagnostico") Diagnóstico:
+       .col-md-auto.position-relative
+         input#diagnostico.form-control(name="diagnostico" autocomplete="off", 
+                                        placeholder="Type to search...",
+                                        required,
+                                        value=editar?orden.Diagnostico.codigo+'-'+orden.Diagnostico.diagnostico:'')
+         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+          ul(id="listaDiagnosticos")
+       .col-md-auto
+         div.form-check
+          input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault1" value="true" checked=(!editar?true: 
+                                                                                                                       orden.isPresuntivo === true?true:false ))
+          label(class="form-check-label" for="flexRadioDefault1") Presuntivo 
+         div.form-check
+          input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault2" value="false" checked=(!editar?false: 
+                                                                                                                         orden.isPresuntivo === false?true:false))
+          label(class="form-check-label" for="flexRadioDefault2") Confirmado
+       .col-md-auto
+         div.form-check
+          input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3" checked=(!editar?false: 
+                                                                                                                       orden.isUrgente === 1?true:false ))
+          label(class="form-check-label" for="flexRadioDefault3") Urgente
+
+      
+
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center
+        label(for="examen") Exámenes:
+       .col-md-auto.position-relative
+         input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required=!editar)
+         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+          ul(id="listaExamenes") 
+      .row.mt-4.justify-content-center
+       .col-md-auto.d-flex.align-items-center 
+        div 
+           ul(id="listaExamenesSeleccionados")
+            if editar           
+             each examen in orden.Examens 
+              li(class="liExamenes")= `${examen.codigo}-${examen.nombre}`
+               input(type="hidden" name="examenes" value= `${examen.codigo}-${examen.nombre}`)
+               input(type="hidden" name="examenesId" value= `${examen.id}`)
+      .row.mt-5.justify-content-center 
+       if editar  
+        .col-md-auto.d-flex.justify-content-center 
+         button.btn.btn-secondary Guardar cambios
+       else    
+        .col-md-auto.d-flex.justify-content-center 
+         button.btn.btn-secondary Enviar
+
+    
+ 
+ 
+ script( type="module" src='/javascripts/administrador/formOrden.js')

@@ -2137,8 +2137,8 @@ CREATE TABLE roles(
 );
 insert into roles(nombre)values
 ('Paciente'),
-('Bioquimico'),
-('Tecnico'),
+('Bioquímico'),
+('Técnico'),
 ('Administrativo'),
 ('Recepcionista');
 
@@ -2155,8 +2155,20 @@ CREATE TABLE usuarios(
     createdAt DATETIME DEFAULT NOW(),
     updatedAt DATETIME DEFAULT NOW(),
     deletedAt DATETIME DEFAULT NULL
+    
 );
 
+CREATE TABLE usuarioAuditorias(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    operacion ENUM('CREATE', 'UPDATE', 'DELETE') NOT NULL,  -- Tipo de operación
+    registroId INT NOT NULL,          -- ID del registro afectado
+    usuarioId INT NULL,               -- ID del usuario que hizo la acción
+    datosAntiguos JSON NULL,          -- Datos anteriores (solo para UPDATE)
+    datosNuevos JSON NULL,            -- Datos nuevos (solo para UPDATE y CREATE)
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha y hora de la acción
+    FOREIGN KEY(registroId) REFERENCES usuarios(id),
+    FOREIGN KEY(usuarioId) REFERENCES usuarios(id)
+);
 
 
 CREATE TABLE usuarioRoles(
@@ -2188,11 +2200,36 @@ deletedAt datetime DEFAULT NULL,
     FOREIGN KEY(usuarioId) REFERENCES usuarios(id)
 );
 
+CREATE TABLE bioquimicos(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuarioId int not null unique,
+    matricula varchar(20),
+   titulo varchar(100),
+    createdAt datetime DEFAULT NOW(),
+updatedAt datetime DEFAULT NOW(),
+deletedAt datetime DEFAULT NULL,
+    FOREIGN KEY(usuarioId) REFERENCES usuarios(id)
+);
+
+
+CREATE TABLE tecnicos(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuarioId int not null unique,
+    createdAt datetime DEFAULT NOW(),
+updatedAt datetime DEFAULT NOW(),
+deletedAt datetime DEFAULT NULL,
+    FOREIGN KEY(usuarioId) REFERENCES usuarios(id)
+);
+
+
 CREATE TABLE telefonos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     usuarioId INT NOT NULL,
     numero VARCHAR(20),
     descripcion tinytext,
+    createdAt datetime DEFAULT NOW(),
+updatedAt datetime DEFAULT NOW(),
+deletedAt datetime DEFAULT NULL,
     FOREIGN KEY (usuarioId) REFERENCES usuarios(id)
 );
 
@@ -2317,6 +2354,8 @@ CREATE TABLE ordenExamenes (
   id INT PRIMARY KEY AUTO_INCREMENT,
   ordenId INT,
   examenId INT,
+  tieneResultado bit DEFAULT 0,
+  isValidado bit DEFAULT 0,
   createdAt DATETIME DEFAULT NOW(),
   updatedAt DATETIME DEFAULT NOW(),
   deletedAt DATETIME DEFAULT NULL,
@@ -2389,14 +2428,15 @@ CREATE TABLE parametroResultados(
 id INT PRIMARY KEY AUTO_INCREMENT,
 ordenExamenId int,
 parametroId int,
-resultado decimal(10,2),
+resultado varchar(100),
 unidadId int,
 FOREIGN KEY (ordenExamenId) REFERENCES ordenExamenes(id),
 FOREIGN KEY (parametroId) REFERENCES parametros(id),
 FOREIGN KEY (unidadId) REFERENCES unidades(id) ON DELETE CASCADE,
 createdAt DATETIME DEFAULT NOW(),
 updatedAt DATETIME DEFAULT NOW(),
-deletedAt DATETIME DEFAULT NULL  
+deletedAt DATETIME DEFAULT NULL ,
+unique(ordenExamenId,parametroId)   
 );
 CREATE TABLE determinacionResultados(
 id INT PRIMARY KEY AUTO_INCREMENT,
@@ -2409,7 +2449,8 @@ FOREIGN KEY (determinacionId) REFERENCES Determinaciones(id),
 FOREIGN KEY (unidadId) REFERENCES unidades(id) ON DELETE CASCADE,
 createdAt DATETIME DEFAULT NOW(),
 updatedAt DATETIME DEFAULT NOW(),
-deletedAt DATETIME DEFAULT NULL  
+deletedAt DATETIME DEFAULT NULL,
+unique(ordenExamenId,determinacionId)  
 );
 
 

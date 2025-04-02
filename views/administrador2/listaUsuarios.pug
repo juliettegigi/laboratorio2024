@@ -9,4 +9,7 @@
      li.list-group-item.list-group-item-action &nbsp;
    if totalRegistros
      include ../paginado.pug
-     +paginado(`http://localhost:3000/admins2?${new URLSearchParams(queryString).toString()}`)
+     +paginado(`http://localhost:3000/admins2${Object.keys(queryString).length === 0
+                                             ?""
+                                             :`?${new URLSearchParams(queryString).toString()}`
+              }`)

@@ -47,7 +47,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/',[
     isAuth,
-    tieneRole("bioquimico","tecnico")
+    tieneRole("bioquímico","técnico")
 ], getInicio);
 router.get('/muestras', getInicioMuestras);
 router.get('/categ/:examenId/:id',deleteCategoria)

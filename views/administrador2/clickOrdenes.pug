@@ -1,0 +1,9 @@
+extends layout
+block aside 
+    include ./menuLateralOrdenes.pug
+block content
+ div(id="divContentLista" )
+  include ../tecBioq/inputSearch.pug
+  +inputSearch(`/admins2/ordenes`,"id de la orden o id del paciente",)
+  include ./listaOrdenes.pug
+  
