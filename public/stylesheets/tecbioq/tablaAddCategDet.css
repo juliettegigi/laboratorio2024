@@ -1,0 +1,67 @@
+
+.cabecera h2{
+  font-size: 1.1rem;
+  color: #021425;
+}
+
+.cabecera{
+  border-bottom: #021425 solid 0.15rem;
+}
+
+
+
+.formCategDet-input-1ro:disabled {
+      background-color: #F8F9FA;
+      cursor: text;
+      color:  #021425;
+      border:0 ;
+      outline: 0;
+      width:100%;
+  }
+
+.formCategDet-input-1ro {
+    background-color: #FFFFFF; /* Color de fondo para habilitado */
+    cursor: pointer;
+    color: #000000;
+    border: 1px solid #ccc;
+    outline: none;
+    width:100%;
+}
+.tablaCategDet2{
+   background-color: #F8F9FA;
+}
+
+a.btn.formCategDet-cruz{
+  background-color: #F8F9FA;
+
+}
+
+.formCategDet-btn-editarCategoria:hover{
+  cursor: pointer;
+}
+
+ ul {
+  margin-left:-12px;
+  margin-right:-12px;
+  list-style-type: none;
+  padding-left: 0; 
+  text-align: left;
+} 
+
+
+
+
+.divListaSeleccionados .btn{
+  background-color: #F8F9FA;
+}
+
+.divListaSeleccionados .btn:hover{
+  background-color:  #F8F9FA;
+  border: 1px solid #261290;
+  color: #FFFFFF !important;
+}
+
+.divListaSeleccionados li{
+  display:flex;
+  flex-wrap: nowrap;
+}

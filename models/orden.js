@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       Orden.hasMany(models.OrdenEliminada);
       Orden.hasMany(models.OrdenExamen);
       Orden.hasMany(models.MuestraRequerida);
-
+      Orden.hasMany(models.OrdenAuditoria, { foreignKey: 'RegistroId' });
      
       Orden.belongsToMany(models.Muestra,{through:'MuestraRequerida'});
       Orden.belongsToMany(models.Examen,{through:'OrdenExamen'});
@@ -74,9 +74,6 @@ static getOrdenById = async (termino, limit = 5, offset = 0,{estados}, paranoid=
           paranoid
         });
     
-      console.log("ORDENESSSSSSSSSSS***************")
-      console.log(ordenes.rows[0])
-    
         return ordenes; // Retorna los usuarios con los roles filtrados
       } catch (error) {
         console.log('models==>usuario');
@@ -98,5 +95,83 @@ static getOrdenById = async (termino, limit = 5, offset = 0,{estados}, paranoid=
     tableName:'ordenes',
     paranoid:true
   });
+
+  Orden.afterCreate(async (orden, options) => {
+    if (!options.transaction) {
+      console.error("❌ Error: La transacción no fue pasada correctamente.");
+      return;
+    }
+    
+    await sequelize.models.OrdenAuditoria.create({
+      operacion: 'CREATE',
+      registroId: orden.id,
+      usuarioId: options.userId || null,
+      datosNuevos: JSON.stringify(orden.toJSON()),
+      fecha: new Date()
+    }, { transaction: options.transaction });
+  });
+
+  Orden.beforeUpdate(async (orden, options) => {
+
+    if (options.skipAudit) return;
+    if (!options.transaction) throw new Error("❌ beforeUpdate debe ejecutarse dentro de una transacción.");
+    
+  
+    // ⚠️ Verificar que options.userId esté definido
+    if (!options.userId) {
+      console.warn("⚠️ options.userId no está definido en beforeUpdate");
+      return;
+    }
+  
+    // 1️⃣ Obtener los datos antiguos antes de actualizar
+    const ordenAnterior = await Orden.findOne({
+      where: { id: orden.id },
+      include: [
+        { model: sequelize.models.OrdenExamen },
+        { model: sequelize.models.MuestraRequerida }
+      ],
+      transaction: options.transaction
+    });
+  
+    if (!ordenAnterior) return;
+  
+    // 2️⃣ Registrar auditoría
+    await sequelize.models.OrdenAuditoria.create({
+      operacion: 'UPDATE',
+      registroId: orden.id,
+      usuarioId: options.userId, // ⚠️ Ahora debería existir
+      datosAntiguos: JSON.stringify(ordenAnterior.toJSON()),
+      datosNuevos: JSON.stringify(orden.toJSON()),
+      fecha: new Date()
+    }, { transaction: options.transaction });
+  });
+
+
+
+  Orden.beforeDestroy(async (orden, options) => {
+    const transaction = options.transaction || null;
+  
+    // Registrar la auditoría de la eliminación
+    await sequelize.models.OrdenAuditoria.create({
+      operacion: 'DELETE',
+      registroId: orden.id,
+      usuarioId: options.userId || null
+    }, { transaction });
+  });
+
+
+  Orden.afterRestore(async (orden, options) => {
+
+
+    await sequelize.models.OrdenAuditoria.create({
+      operacion: "RESTORE",
+      registroId: orden.id,
+      usuarioId: options.userId || null, // Quién hizo la restauración
+      fecha: new Date()
+    });
+
+
+  });
+
   return Orden;
 };

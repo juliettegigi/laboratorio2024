@@ -5,6 +5,7 @@ const cruz=document.querySelector('.tablaCategorias-cruz');
 const tablaDiv=document.querySelector('#divTabla');
 const btnAddRow=document.querySelectorAll('.btnAddRow');
 const tBody=document.querySelectorAll('tbody')
+const btnEditCategDet=document.querySelectorAll('.formCategDet-btn-editarCategoria');
 
 const LIMIT=5;
 const OFFSET=0;
@@ -177,8 +178,10 @@ const crearRow=()=>{
 ) */
 
 const eventoAddRow=()=>{
+  if(tBody[1])
     tBody[1].appendChild(crearRow(1));
-
+  else
+   tBody[0].appendChild(crearRow(1))
     const eventoBuscarDeterminacion='buscarDeterminacion'
     const liTextCbDeterminaciones=elem=>`${elem.codigo}-${elem.nombre}`
     const listaDeterminaciones=formExamen.querySelector(`#listaDeterminaciones-${i2}`);
@@ -209,7 +212,11 @@ btnAddRow[0].addEventListener('keydown', (event) => {
 
 
   const focusPrimerInput=()=>{
-    const lastRow = tBody[1].querySelector(" tr:last-child");
+    let lastRow=null;
+    if(tBody[1])
+     lastRow = tBody[1].querySelector(" tr:last-child");
+    else
+      lastRow = tBody[0].querySelector(" tr:last-child");
     if(lastRow){
         const input = lastRow.querySelector("input");
         input.focus();
@@ -252,3 +259,96 @@ btnAddRow[0].addEventListener('keydown', (event) => {
 
 
  
+
+  btnEditCategDet.forEach((btn,index)=>{
+    btn.addEventListener('click',function(){
+                               const rowDelBtn=btn.closest(".row")
+                               const input= rowDelBtn.querySelector('.formCategDet-input-1ro');
+                               if(input.disabled)
+                                 agregarRows(rowDelBtn);
+                               else{
+                                 rowDelBtn.nextElementSibling?.remove();
+                                 rowDelBtn.nextElementSibling?.remove();
+                               } 
+                               input.disabled=!input.disabled;
+                               if(!input.disabled){
+                                input.focus();
+                                 input.select();
+                               }
+                          }
+                        )
+
+  })
+
+
+
+  
+
+  const agregarRows=(rowDelBtn)=>{
+    console.log("aloja")
+    const div1=document.createElement('div');
+                                div1.classList.add('row');
+                                div1.innerHTML=`
+                                      <div class="col"></div>
+                                      <div class="col"> 
+                                        <div class="row">
+                                           
+                                           <div class="col-xxl-12">
+                                               <input type="text" name="parametros" placeholder="Agregar parámetro" autocomplete="off">
+                                           </div>    
+                                           
+                                           <div class="col-xxl-12 divInputLista">
+                                               <ul class="listaParametros"></ul>
+                                           </div>
+                                
+                                           <div class="col-xxl-12 divListaSeleccionados">
+                                               <ul class="listaParametrosSeleccionados"></ul>
+                                           </div>
+                                        </div>
+                                      </div>
+                                        
+                                      <div class="col">
+                                         <div class="row">
+                                             <div class="col-xxl-12">
+                                                   <input type="text" name="determinaciones" placeholder="agregar determinación" autocomplete="off">
+                                                   <div class="divInputLista">
+                                                      <ul class="listaDeterminaciones "></ul>
+                                                    </div>
+                                             </div>
+                                             <div class="col-xxl-12">
+                                                   <ul class="listaDeterminacionesSeleccionadas divListaSeleccionados"></ul>
+                                             </div> 
+                                         </div>               
+                                      </div>      
+                                      
+                                      <div class="col col-1"></div>
+                                `
+                               
+                                const div2=document.createElement('div');
+                                div2.classList.add('row','justify-content-center');
+                                div2.innerHTML=`
+                                      <div class="col-auto">
+                                          <button class="btnGuardarCambios">
+                                              Guardar cambios
+                                           </button> 
+                                      </div>
+                                `
+const inputs=div1.getElementsByTagName('input');
+const listaDeterminaciones=div1.querySelector(`.listaDeterminaciones`);
+const listaParametros=div1.querySelector(`.listaParametros`);
+const listaParametrosSeleccionados=div1.querySelector(`.listaParametrosSeleccionados`);
+const listaDeterminacionesSeleccionadas=div1.querySelector(`.listaDeterminacionesSeleccionadas`);
+const liTextCbParametros=elem=>`${elem.nombre}`
+const liTextCbDeterminaciones=elem=>`${elem.codigo}-${elem.nombre}`
+ const eventoBuscarDeterminacion='buscarDeterminacion'
+        const eventoBuscarParametro='buscarParametro'
+console.log("LISTAA ",inputs[1])
+rowDelBtn.parentNode.insertBefore(div2, rowDelBtn.nextElementSibling);
+rowDelBtn.parentNode.insertBefore(div1, rowDelBtn.nextElementSibling);  
+const input1=new InputDataList(inputs[1],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",`det`,listaDeterminacionesSeleccionadas);
+const  input2=new InputDataList(inputs[0],listaParametros,eventoBuscarParametro,liTextCbParametros,LIMIT,OFFSET,"",`param`,listaParametrosSeleccionados);      
+input1.inicializarInput()
+input2.inicializarInput()
+                              
+
+  }

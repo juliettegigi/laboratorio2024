@@ -1,73 +1,98 @@
 mixin formExamen(btnContent,examen)
- .container
-  form(action="http://localhost:3000/tecBioq?_method=put" method="POST" name="formExamen" )
-     input(type="hidden" name="id" value=examen.id)
-     div.form-div 
-      div
-       label(for="nombre") Nombre 
-      div 
-       input(type="text" 
-             id="nombre" 
-             name="nombre"
-             autocomplete="off"
-             value=examen.nombre
-             disabled) 
-     div.form-div 
-      div
-       label(for="codigo") Código 
-      div.form-div-input 
-       input(type="text" 
-             id="codigo" 
-             name="codigo"
-             autocomplete="off"
-             value=examen.codigo
-             disabled) 
-     div.form-div 
-      div
-       label(for="tags") Tags 
-      div 
-       input(type="text" 
-             id="tags" 
-             name="tags"
-             autocomplete="off"
-             value=examen.tags
-             disabled) 
-     div.form-div 
-      div
-       label(for="MuestraId") Muestra 
-      div 
-       .form-select#selectMuestra(name="MuestraId" disabled)
-        each muestra in muestras
-             option(value=muestra.id selected=(muestra.id===examen.Muestra.id)) #{muestra.nombre}
-     div.form-div select
-      div
-       label(for="tiempoProcesamiento") Tiempo de procesamiento(minutos) 
-      div 
-       input(type="text" 
-             id="tiempoProcesamiento" 
-             name="tiempoProcesamiento"
-             autocomplete="off"
-             value=examen.tiempoProcesamiento
-             disabled)   
-     div.form-div 
-      div
-       label(for="laboratorioQueLoRealiza") Laboratorio que lo realiza 
-      div 
-       input(type="text" 
-             id="laboratorioQueLoRealiza" 
-             name="laboratorioQueLoRealiza"
-             autocomplete="off"
-             value=examen.laboratorioQueLoRealiza
-             disabled) 
-     
-     
-     
- 
- 
- 
+ .container.divFormulario
+  if errors
+   - const arr = ["nombre", "codigo", "tiempoProcesamiento", ]
+   - errores= arr.filter(elem=>errors.find(e=>e.path===elem))
+  div#ancla1
+    h2.subtitulo-h2 Examen
+  .container
+   form(action=examen?"http://localhost:3000/tecBioq?_method=put":"http://localhost:3000/tecBioq/" method="POST" name="formExamen" )
+      input(type="hidden" name="id" value=examen? examen.id : "")
+      div.form-div 
+       div
+        label(for="nombre") Nombre 
+       div 
+        input(type="text" 
+              id="nombre" 
+              name="nombre"
+              autocomplete="off"
+              value=examen ? examen.nombre 
+                           : (nombre || "") 
+              autofocus
+              class=`${errors && errores.includes('nombre')?'text-danger':''}`
+              ) 
+      div.form-div 
+       div
+        label(for="codigo") Código 
+       div.form-div-input 
+        input(type="text" 
+              id="codigo" 
+              name="codigo"
+              autocomplete="off"
+              value=examen ? examen.codigo 
+                           : (codigo || "") 
+              class=`${errors && errores.includes('codigo')?'text-danger':''}`
+              ) 
+      div.form-div 
+       div
+        label(for="tags") Tags 
+       div 
+        input(type="text" 
+              id="tags" 
+              name="tags"
+              autocomplete="off"
+              value=examen ? examen.tags
+                           : (tags|| "") 
+              ) 
+      div.form-div 
+       div
+        label(for="selectId") Muestra 
+       div 
+        select.form-select#selectId(name="MuestraId")
+         each muestra in muestras
+          option(value=muestra.id selected=(examen?muestra.id == examen.MuestraId
+                                                  :muestra.id==MuestraId) ) #{muestra.nombre}
+      div.form-div
+       div
+        label(for="tiempoProcesamiento") Tiempo de procesamiento(minutos) 
+       div 
+        input(type="text" 
+              id="tiempoProcesamiento" 
+              name="tiempoProcesamiento"
+              autocomplete="off"
+              value=examen ? examen.tiempoProcesamiento 
+                           : (tiempoProcesamiento || "") 
+              class=` ${errors && errores.includes('tiempoProcesamiento')?'text-danger':''}`
+             )   
+      div.form-div 
+       div
+        label(for="laboratorioQueLoRealiza") Laboratorio que lo realiza 
+       div 
+        input(type="text" 
+              id="laboratorioQueLoRealiza" 
+              name="laboratorioQueLoRealiza"
+              autocomplete="off"
+              value=examen ? examen.laboratorioQueLoRealiza  
+                           : (laboratorioQueLoRealiza  || "") 
+              ) 
       
-     div.form-btn   
-      button.btn.btn-primary#btnEditar(type="button")= btnContent 
-script( type="module" src='/javascripts/tecBioq/formExamen.js')       
+      
+      
+  
+  
+  
+       
+      div.form-btn   
+       button.btn.btn-primary#btnEditar= btnContent 
+   if errors                
+    .row(class="alert alert-danger" role="alert")
+     .col 
+      each e in errors
+       p= e.msg 
+      if href 
+       a(href=href) Ver usuario ya registrado    
+ if examen       
+  script( type="module" src='/javascripts/tecBioq/formExamen.js') 
+ script(src="/javascripts/errores.js")         
            
  

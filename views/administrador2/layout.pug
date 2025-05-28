@@ -15,27 +15,15 @@ html
       script(src="/socket.io/socket.io.js")
       script(src="/javascripts/socket-client.js")
     block styles  
-      link(rel='stylesheet', href='/stylesheets/tecbioq/body.css')
       link(rel='stylesheet', href='/stylesheets/tecbioq/style.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/addCategDet.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/formExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/menuLateralExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/inputSearch.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/examenDatos.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/divContent.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
-  body 
-    header( style="top: 0; background-color: #f0f0f0;width:100%")
-      block header
-        include navTop
-    
-    main(class="d-flex  position-relative" )
-      block aside
-      block content
-       div(id="divContentLista") 
-        include ./listaUsuarios.pug
+  body.d-flex.flex-column.min-vh-100  
+   block header
+    include navTop
+
+   div(class="container-fluid d-flex main-wrapper" )
+    block content
+     
         
-    footer
-      block footer
-        //- Bloque por defecto para el footer
-        p &copy; 2024 Mi sitio web        
+   footer
+    block footer
+     p &copy; 2024 Mi sitio web       

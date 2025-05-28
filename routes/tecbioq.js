@@ -38,9 +38,9 @@ const {
     } = require('../controllers/tecbioq');
     const{bodyPostVr, seSolapaPostVr,validarCampos, valoresMayorMenor}=require('../middlewares')
 const {
-    Determinacion,Unidad
+    Determinacion,Muestra,Unidad
      } = require('../models');
-const { isAuth,tieneRole } = require('../controllers/validaciones');
+const { isAuth,tieneRole, isCampoUnicoExamen } = require('../controllers/validaciones');
   
 var router = express.Router();
 
@@ -58,24 +58,24 @@ router.get('/determinacion/:id', getDeterminacion);
 router.get('/detDelete/:id', deleteDeterminacion);
 router.get('/examen/:id', getExamen);
 router.get('/examen/:id/addCategDet', getAddCategDet);
-router.get('/getFormExamen', getFormExamen);
+router.get('/addExamen', getFormExamen);
 router.get('/addDet', getAddDeterminacion);
 router.get('/addMuestra', getAddMuestra);
 router.get('/muestra/:id', getMuestra);
 router.get('/ordenes/',[
     isAuth,
-    tieneRole("tecnico")
+    tieneRole("técnico")
 ] ,getInicioOrdenes);
 router.get('/ordenesV/',[
     isAuth,
-    tieneRole("bioquimico")
+    tieneRole("bioquímico")
 ], getInicioValidar);
 
 router.get('/ordenExamen/:OrdenId/:ExamenId', getOrdenExamen);
 router.get('/ordenExamenes/:OrdenId', getOrdenExamenes);
 //router.get('/orden/:id', getMuestra);
 router.put('/', putExamen);
-router.put('/categ/:id/:examenId', putCateg);
+router.put('/categ/:ExamenCategoriaId/:ExamenId', putCateg);//id de examenCategoría
 router.put('/det', putDet)
 router.put('/estadoOrden/:OrdenId', putEstadoOrden)
 router.put('/ordenExamenIsValidado/:OrdenExamenId', putOrdenExamenIsValidado)
@@ -133,7 +133,31 @@ router.put('/vr',[
 ],putvr);
 router.put('/results/:OrdenExamenId', putResultados)
 router.post('/results/:OrdenExamenId', postResultados)
-router.post('', postExamen)
+router.post('',[
+    check('tiempoProcesamiento').optional()
+                                .isInt()
+                                .withMessage('El tiempo de procesamiento debe ser un número entero'),
+    check('nombre').optional()
+                   .custom((valor,{req,path})=>isCampoUnicoExamen(path,valor,req))
+                   .withMessage(`Este nombre ya está registrado`),
+                                          
+    (req, res, next) => {
+        req.renderizar = async (errors) => {
+         console.log("HAY ERRORES---------------------$$----------------------------------------------------")
+         console.log(errors)
+         const{nombre,codigo,id,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza}=req.body
+         const muestras= await Muestra.findAll();
+         return res.render('tecBioq/addExamen',{muestras,
+                                           isTecnico:req.session.isTecnico,
+                                           isBioquimico:req.session.isBioquimico,
+                                           nombre,codigo,id,tags,MuestraId,tiempoProcesamiento,laboratorioQueLoRealiza,
+                                           errors}) 
+        }
+        next();
+      },
+    validarCampos
+    ],
+    postExamen)
 router.post('/addDet',           
     postDet);
 router.post('/addVr', [

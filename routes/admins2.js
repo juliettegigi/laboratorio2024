@@ -31,32 +31,32 @@ var router = express.Router();
 
 
 router.get('/',[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo")
                ],
             getBusqueda);
 router.get('/ordenes',[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo")
                ],
             getOrdenes);
 router.get('/orden/:id',[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo")
                ],
             getOrden);
 
 router.get('/form', [ 
-    //tieneRole("recepcionista","administrativo")
+    tieneRole("recepcionista","administrativo")
                 ],
         getForm);
 
 
 router.get(`/registrarUsuario`,[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo")
                                    ], 
             getRegistrarUsuario);
 
 
 router.get(`/:UsuarioId`,[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo")
                                    ], 
             getUsuario);
 
@@ -66,7 +66,7 @@ router.get(`/:UsuarioId`,[
 
 
 router.post(`/usuario`,[ 
-        //tieneRole("recepcionista","administrativo"),
+        tieneRole("recepcionista","administrativo"),
         check('roles').notEmpty().withMessage('Debe seleccionar un rol.'),
         check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
         check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
@@ -95,11 +95,11 @@ router.post(`/usuario`,[
             postUsuario);
 
  router.post(`/paciente`,[ 
-                            //tieneRole("recepcionista","administrativo"),
+                            tieneRole("recepcionista","administrativo"),
                                             ],
                                 postPaciente);
 router.post(`/${encodeURIComponent('técnico')}/:UsuarioId`,[ 
-                //tieneRole("recepcionista","administrativo"),
+                tieneRole("recepcionista","administrativo"),
                
         
                 (req, res, next) => {
@@ -116,7 +116,7 @@ router.post(`/${encodeURIComponent('técnico')}/:UsuarioId`,[
 
                     
 router.post(`/${encodeURIComponent('bioquímico')}`,[ 
-                //tieneRole("recepcionista","administrativo"),
+                tieneRole("recepcionista","administrativo"),
                
                                 ],
                     postBioquimico);
@@ -124,7 +124,7 @@ router.post(`/${encodeURIComponent('bioquímico')}`,[
 
 
 router.put(`/${encodeURIComponent('bioquímico')}/:UsuarioId`,[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo"),
         check('titulo').notEmpty().withMessage('El título es obligatorio'),
         check('matricula').notEmpty().withMessage('La matrícula es obligatoria'),
        (req, res, next) => {
@@ -141,7 +141,7 @@ router.put(`/${encodeURIComponent('bioquímico')}/:UsuarioId`,[
         ],
         putBioquimico);
 router.put(`/usuario/:UsuarioId`,[ 
-        //tieneRole("recepcionista","administrativo")
+        tieneRole("recepcionista","administrativo"),
         check('UsuarioId').custom(existeUsuario),
         check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
         check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
@@ -163,8 +163,10 @@ router.put(`/usuario/:UsuarioId`,[
         validarCampos
         ],
         putUsuario);
+
+        
 router.put(`/${encodeURIComponent('técnico')}/:UsuarioId`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo"),
                 check('UsuarioId').custom(existeUsuario),
                 check('nombre').notEmpty().withMessage('El nombre es obligatorio'),
                 check('apellido').notEmpty().withMessage('El apellido es obligatorio'),
@@ -186,27 +188,27 @@ router.put(`/${encodeURIComponent('técnico')}/:UsuarioId`,[
                 ],
                 putTecnico);        
 router.put(`/paciente/:id`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 putPaciente);        
 router.put(`/orden/:id`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 putOrden);        
 router.patch(`/:id/usuario`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 patchUsuario);        
 router.patch(`/:id/paciente`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 patchPaciente);        
 router.patch(`/:id/tecnico`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 patchTecnico);        
 router.patch(`/:id/bioquimico`,[ 
-                //tieneRole("recepcionista","administrativo")
+                tieneRole("recepcionista","administrativo")
                 ],
                 patchBioquimico);        
 

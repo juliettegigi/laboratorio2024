@@ -1,7 +1,13 @@
 extends layout
-
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
+include ./inputSearch.pug
 block content
- div(id="divContentLista" )
-  include ./inputSearch.pug
-  +inputSearch("/tecBioq/ordenes","id orden/ código paciente /nombre/apellido a buscar","ccc","http://localhost:3000/tecBioq/addOrden")
-  include ./listaOrdenes.pug
+ div.container.mt-5(id="divContentLista" )
+  .row
+   .col-lg-6.d-flex.mx-auto 
+    +inputSearch("/tecBioq/ordenes","id orden/ código paciente /nombre/apellido a buscar","","http://localhost:3000/tecBioq/addOrden")
+  .row.mt-5
+   .col-lg-6.mx-auto
+    include ./listaOrdenes.pug

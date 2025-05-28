@@ -13,8 +13,6 @@ block content
      +formPaciente(usuario.Paciente,usuario.id,true)
      +formBioquimico(usuario.Bioquimico,usuario.id,true)
      +formTecnico(usuario.Tecnico,usuario.id,true)
-     - console.log("usuario")
-     - console.log(usuario)
      if rta
       div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
        strong 
@@ -32,7 +30,7 @@ block content
            li(class="list-group-item") Email:
                span= usuario.email
            li(class="list-group-item") Telefono:
-               span= telefonos[0].numero
+               span= telefonos?telefonos[0].numero:"No hay números registrados."
            li(class="list-group-item") Roles:
                span= rolesString
        .row

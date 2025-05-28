@@ -1,3 +1,4 @@
+
 let i=0
 const rojo=document.querySelectorAll('.text-danger');
      rojo.forEach((e)=>e.addEventListener('input',()=>{

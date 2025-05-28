@@ -3,7 +3,7 @@ block aside
     include ./menuLateral.pug
 block content
     if rta
-     div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
+     div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert" id="alert")
       strong 
           | #{rta.alertMessage}
       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
@@ -27,7 +27,7 @@ block content
               else 
                | noo 
          li(class="list-group-item") Fecha de nacimiento:
-             span= paciente.nacimiento
+             span= paciente.nacimiento || "fecha no registrada"
          li(class="list-group-item")= "Embarazada: "
              span= paciente.embarazada?"si":"no"
          li(class="list-group-item") Provincia: 
@@ -37,8 +37,7 @@ block content
          li(class="list-group-item") Dirección:
              span= paciente.direccion
          li(class="list-group-item") Sexo:
-             span= paciente.sexo
-    - let editarPaciente=true    
+             span= paciente.sexo   
     include ../forms/formPaciente.pug
     +formPaciente("divForm", true,true) 
     include ./formOrden.pug
@@ -54,6 +53,12 @@ block content
             cruz.addEventListener('click',funcionCruz) 
             li.appendChild(cruz);
         }
+        document.addEventListener('click', function () {
+                const alerta = document.getElementById('alert');
+                if (alerta) {
+                  alerta.style.display = 'none';
+                }
+              });
         const rtaCargarOrden=document.getElementById('rtaCargarOrden')
         const btnEditar=document.getElementById('btnEditar');
         const btnInicio=document.getElementById('btnInicio');

@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, Sequelize} = require('sequelize');
 
 const ESTADO=require('../constantes/estados')
 const {
@@ -18,18 +18,32 @@ const getInicio=async(req,res)=>{
       group=parseInt(group)
       let offset=page*limit-limit;
       let where={}
-      if(inputSearch!==""){
-          where={ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
-                            { codigo: { [Op.regexp]: inputSearch } }
-                           ]
-                 }
+      if (inputSearch !== "") {
+        where = {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('nombre'), inputSearch),
+              { [Op.lte]: 3 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('codigo'), inputSearch),
+              { [Op.lte]: 3 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('tags'), inputSearch),
+              { [Op.lte]: 3 }
+            )
+          ]
+        };
       }
+      
       const { count, rows } = await Examen.findAndCountAll({
-         where ,
-         limit, 
-         offset, 
-         order: [['nombre', 'ASC']], 
-       });
+        where,
+        limit,
+        offset,
+        order: [['nombre', 'ASC']],
+      });
+       const roles=req.session.roles;
       return res.render('tecBioq/index',{inputSearch,
                                        examenes:rows,
                                        limit,
@@ -38,7 +52,9 @@ const getInicio=async(req,res)=>{
                                        PAGES_CANTIDADxGRUPO:3,
                                        group,
                                        isTecnico:req.session.isTecnico,
-                                       isBioquimico:req.session.isBioquimico})
+                                       isBioquimico:req.session.isBioquimico,
+                                       roles
+                                      })
 }catch(error){  console.log(error)
                 return res.render('tecBioq/index',{
                   isTecnico:req.session.isTecnico,
@@ -333,47 +349,17 @@ const getFormExamen=async(req,res)=>{
 
  const postExamen=async(req,res)=>{
    
-   
+   console.log("------------------------------------------------POST EXAMEN")
+   console.log(req.body)
    const transaction = await sequelize.transaction();
    try {
+      
       const {nombre,codigo,tags,tiempoProcesamiento,laboratorioQueLoRealiza,MuestraId}=req.body
       // inserto en la tabla examenes
       const nuevoExamen = await Examen.create({MuestraId,codigo,nombre,tags,tiempoProcesamiento,laboratorioQueLoRealiza},
-         { transaction });
-         const categorias=(req.body.categorias 
-            && Array.isArray(req.body.categorias ))
-            ?req.body.categorias
-            :[req.body.categorias];
-      
-
-      // hago un arreglo de determinaciones de cada caregoria
-      const arrDetId = Object.keys(req.body)
-      .filter((key) => /^determinaciones-\d+Id$/.test(key)) 
-      .map((key) => Array.isArray(req.body[key]) ? req.body[key] : [req.body[key]]);       
-
-
-   //  inserto cada categoria del examen en la tabla ExamenCategoria
-   let index=0;
-   console.log('------------------------------------------------ARR');
-   for(let nombre of categorias){
-      const exCateg = await ExamenCategoria.create({ExamenId:nuevoExamen.id, nombre }, { transaction });
-      // cada categoria la relaciono con sus determinaciones
-      for(let DeterminacionId of arrDetId[index]){
-              await ExCategDeterminacion.create(
-               { ExamenCategoriaId: exCateg.id, DeterminacionId },
-               { transaction }
-             );
-            }   
-      index++;
-   }
-
-      
-        
-            
-      
+         { transaction }); 
       await transaction.commit();
-      return res.render('tecBioq/index',{isTecnico:req.session.isTecnico,
-        isBioquimico:req.session.isBioquimico});
+      return res.redirect(`http://localhost:3000/tecBioq/examen/${nuevoExamen.id}`);
      }catch (error) {
            await transaction.rollback()
            
@@ -725,7 +711,8 @@ const getAddCategDet=async(req,res)=>{
                                                                   }
                                                                 ]
                                                                 },);
- 
+       console.log("CATEGORIAS")
+       console.log(categorias[0])
        return res.render('tecBioq/addCategDet',{ 
          examen,
          categorias,
@@ -918,15 +905,38 @@ const deleteDeterminacion=async(req,res)=>{
 
 const putCateg=async(req,res)=>{
   try {
-    const{id,examenId}=req.params;
+    console.log('------------------------------------------------ BODY PUT');
+    console.log(req.body)
+    const{ExamenCategoriaId,ExamenId}=req.params;
+    console.log("id: ",ExamenCategoriaId)
+    const paramId=req.body.paramId ? Array.isArray(req.body.paramId)? req.body.paramId
+                                                                    : [req.body.paramId]
+                                   : [];
+    const detId=req.body.detId ? Array.isArray(req.body.detId)? req.body.detId
+                                                              : [req.body.detId]
+                               : [];                               
     await ExamenCategoria.update( {nombre:req.body.nombre},
-                                  { where: { id}})
+                                  { where: { id:ExamenCategoriaId}})
 
-    return res.redirect(`http://localhost:3000/tecBioq/examen/${examenId}/addCategDet`)
+     for(let id of paramId){
+      await ExCategParametro.findOrCreate({
+        where: { ParametroId: id,ExamenCategoriaId },
+        defaults: { ExamenCategoriaId, ParametroId: id }
+      });
+    }                              
+
+    for(let id of detId){
+      await ExCategDeterminacion.findOrCreate({
+        where: { DeterminacionId: id,ExamenCategoriaId },
+        defaults: { ExamenCategoriaId, DeterminacionId: id }
+      });
+    }     
+
+    return res.redirect(`http://localhost:3000/tecBioq/examen/${ExamenId}/addCategDet`)
 
   } catch (error) {
     console.error(error);
-    return res.redirect(`http://localhost:3000/tecBioq/examen/${id}`)
+    return res.redirect(`http://localhost:3000/tecBioq/examen/${ExamenId}`)
   };
 
 
@@ -1105,6 +1115,7 @@ const postDet=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try {
     console.log('------------------------------------------------ POST DETERMINACION');
+    console.log(req.body)
     const{nombre,codigo,tags}= req.body;
     const unidades=req.body.unidades?  
                        Array.isArray(req.body.unidades) ? req.body.unidades : [req.body.unidades]

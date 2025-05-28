@@ -1,7 +1,7 @@
 mixin formPaciente(divFormPaciente,editar, oculto) 
  - errores={}
  if errors 
-  - const arr = ["documento", "nombre", "sexo", "email", "edad", "fecha", "telefono",'apellido']
+  - const arr = ["documento", "nombre", "sexo", "email", "edad", "fecha", "telefono",'apellido',"nacimiento"]
   - for (let elem of arr)
    - let encontrado = errors.find(e => e.path === elem)
    - if (encontrado)
@@ -24,7 +24,7 @@ mixin formPaciente(divFormPaciente,editar, oculto)
          .row 
              .col           
                  .form-floating
-                     input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
+                     input(type="text" required class=`form-control ${errors && Object.hasOwn(errores, 'documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
                      label(for="dni") Dni
                      // - al final tengo como manejar los errores del backend
              .col        
@@ -45,7 +45,11 @@ mixin formPaciente(divFormPaciente,editar, oculto)
          .row                      
              .col        
                  .form-floating
-                     input(type="date" class=`form-control ${errors && Object.hasOwn(errores, 'nacimiento')?'text-danger':''}` id="nacimiento"  name="nacimiento" value=paciente?paciente.nacimiento:'' )
+                     input(type="date" 
+                           class=`form-control ${errors && Object.hasOwn(errores, 'nacimiento')?'text-danger':''}` 
+                           id="nacimiento"  
+                           name="nacimiento" 
+                           value=nacimiento || (paciente && paciente.nacimiento) || '' )
                      label(for="nacimiento") Fecha de nacimiento                
          .row 
              .col 
@@ -77,8 +81,9 @@ mixin formPaciente(divFormPaciente,editar, oculto)
                      input#provincia.form-control(list="provincias", 
                                                   name="provincia", 
                                                   placeholder="Type to search..." 
-                                                  value=paciente?paciente.provincia:'' 
-                                                  autocomplete="off")
+                                                  autocomplete="off"
+                                                  value=provincia || (paciente && paciente.provincia) || '' ) 
+                                                  
                      label(for="provincia") Provincia
                      datalist(id="provincias") 
                        if provincias
@@ -87,19 +92,25 @@ mixin formPaciente(divFormPaciente,editar, oculto)
          .row
              .col 
                  .form-floating
-                     input#departamento.form-control(list="localidades", name="localidad", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.localidad:'')
+                     input#departamento.form-control(list="localidades", 
+                                                     name="localidad", 
+                                                     placeholder="Type to search..."  
+                                                     autocomplete="off" 
+                                                     value=localidad || (paciente && paciente.localidad) || '' )
                      label(for="localidades") Localidad
                      datalist(id="localidades") 
          .row
              .col 
                  .form-floating
-                     input#direccion.form-control(list="calles", name="direccion", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.direccion:'')
+                     input#direccion.form-control(list="calles", name="direccion", 
+                     placeholder="Type to search..."  autocomplete="off" 
+                     value=direccion || (paciente && paciente.direccion) || '' )
                      label(for="calles") Dirección
                      datalist(id="calles")                                                          
          .row   
              .col         
                  button(class="btn btn-secondary w-100 py-2" type="submit") 
-                     if editarPaciente
+                     if editar
                          | Guardar cambios
                      else
                          | Registrar

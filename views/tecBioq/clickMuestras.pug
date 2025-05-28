@@ -1,19 +1,11 @@
 extends layout
-block styles  
-      link(rel='stylesheet', href='/stylesheets/tecbioq/body.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/style.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/formExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/menuLateralExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/inputSearch.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/examenDatos.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/divContent.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
-  
-
-block content
-  //
-   if rtaCargarOrden 
-        include ./rtaCargarOrden.pug
-  .container.d-flex.flex-column(id="divLista" )
-    include ./formMuestra.pug
-    +formMuestra("Guardar cambios","http://localhost:3000/tecBioq/muestra?_method=put",muestra)
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
+include ./formMuestra.pug
+block content 
+   .row.w-100.mx-0.justify-content-center 
+    .col-lg-8.col-xl-6
+     .row
+      .col
+       div.d-flex.justify-content-center
+        +formMuestra("Guardar cambios","http://localhost:3000/tecBioq/muestra?_method=put",muestra)

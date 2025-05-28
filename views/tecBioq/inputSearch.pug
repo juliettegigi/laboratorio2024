@@ -1,19 +1,31 @@
 mixin inputSearch(action,placeholder,btn,href="#")
- .container
-  form(class="d-flex " role="search" action=action)
-      div.divSpanSearch
-       span.spanSearch
-         i(class="bi bi-search")
-         input(class="me-2 inputSearchDeterminacion" type="search" 
-               placeholder=placeholder aria-label="Search" autofocus name="inputSearch" value=inputSearch?inputSearch:'' onfocus="this.select()" autocomplete="off")
-         //- para la query
-         input(type="hidden" name="group" value=1)
-         input(type="hidden" name="page" value=1)
-         if queryString
-          - for(let key in queryString)
-           - {
-            input(type="hidden", name=key, value=queryString[key])
-           - }
-      if btn
-       div 
-        a(href=href class="btn btn-secondary btn-add"  role="button" type="button" )= btn
+ .container.mx-auto
+  .row
+   .col
+    form(role="search" action=action)
+        div.container-fluid.divSpanSearch
+         .row.align-items-center
+          .col.colSearch
+            .row.p-1.align-items-center
+             .col-1
+               i(class="bi bi-search")
+             .col-10 
+               input.w-100(class="me-2 inputSearchDeterminacion" type="search" 
+                     placeholder=placeholder 
+                     aria-label="Search" 
+                     autofocus 
+                     name="inputSearch" 
+                     value=inputSearch?inputSearch:'' 
+                     onfocus="this.select()" 
+                     autocomplete="off")
+               //- para la query
+               input(type="hidden" name="group" value=1)
+               input(type="hidden" name="page" value=1)
+             if queryString
+              - for(let key in queryString)
+               - {
+                input(type="hidden", name=key, value=queryString[key])
+               - }
+          if btn
+           .col-auto.text-end 
+            a(href=href class="btn btn-add"  role="button" type="button" )= btn

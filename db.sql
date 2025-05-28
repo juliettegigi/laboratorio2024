@@ -2160,7 +2160,7 @@ CREATE TABLE usuarios(
 
 CREATE TABLE usuarioAuditorias(
 	id INT AUTO_INCREMENT PRIMARY KEY,
-    operacion ENUM('CREATE', 'UPDATE', 'DELETE') NOT NULL,  -- Tipo de operación
+    operacion ENUM('CREATE', 'UPDATE', 'DELETE','RESTORE') NOT NULL,  -- Tipo de operación
     registroId INT NOT NULL,          -- ID del registro afectado
     usuarioId INT NULL,               -- ID del usuario que hizo la acción
     datosAntiguos JSON NULL,          -- Datos anteriores (solo para UPDATE)
@@ -2254,6 +2254,18 @@ FOREIGN KEY(pacienteId) REFERENCES pacientes(id),
 FOREIGN KEY(medicoId) REFERENCES medicos(id),   
 FOREIGN KEY(diagnosticoId) REFERENCES diagnosticos(id),
 FOREIGN KEY(estadoId) REFERENCES estados(id)
+);
+
+CREATE TABLE ordenAuditorias(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    operacion ENUM('CREATE', 'UPDATE', 'DELETE','RESTORE') NOT NULL,  -- Tipo de operación
+    registroId INT NOT NULL,          -- ID del registro afectado
+    usuarioId INT NULL,               -- ID del usuario que hizo la acción
+    datosAntiguos JSON NULL,          -- Datos anteriores (solo para UPDATE)
+    datosNuevos JSON NULL,            -- Datos nuevos (solo para UPDATE y CREATE)
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha y hora de la acción
+    FOREIGN KEY(registroId) REFERENCES ordenes(id),
+    FOREIGN KEY(usuarioId) REFERENCES usuarios(id)
 );
 
 CREATE TABLE determinaciones(
@@ -2396,11 +2408,7 @@ CREATE TABLE parametroValorReferencias(
     deletedAt DATETIME DEFAULT NULL
 );
 
-CREATE TABLE laboratorioExamenes (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  examenId INT,
-  FOREIGN KEY(examenId) REFERENCES examenes(id) 
-);
+
 
 CREATE TABLE muestraRequeridas(
  id INT PRIMARY KEY AUTO_INCREMENT,
@@ -2479,7 +2487,8 @@ values
 ('user4@gmail.com','nombre4','apellido4','dni4'),
 ('user5@gmail.com','nombre5','apellido5','dni5'),
 ('user6@gmail.com','nombre6','apellido6','dni6'),
-('user7@gmail.com','nombre7','apellido7','dni7'); 
+('user7@gmail.com','nombre7','apellido7','dni7'),
+('mar9ina@gmail.com','MArinna','Gutiérrez','35767657'); 
 
 insert into telefonos(usuarioId,numero,descripcion)
 values
@@ -2510,7 +2519,8 @@ values
 (4,1),
 (5,1),
 (6,1),
-(7,1);   
+(7,1),
+(8,4);   
 
 
 insert into examenes(id,codigo,nombre,tags,muestraId, tiempoProcesamiento,laboratorioQueLoRealiza)

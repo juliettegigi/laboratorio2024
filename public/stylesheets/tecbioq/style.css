@@ -1,139 +1,112 @@
+body{
+  background-color:#d3cdcd;
+  justify-content: space-between;
+  color: #021425;
+}
 .logo{
     width: 63px;
 }
 
-/* .navbar-nav li.nav-item:hover > a {
+
+.container-fluid{
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+
+
+/* ---------------------------------------------------------------------HEADER*/
+.navBar{
   background-color: #261290;
-  color: #FFFFFF;
-} */
- 
+}
+
+
+ul{
+  align-items: center;
+}
+
+
+/* .navbar-nav li.nav-item > a {
+  transition: background-color 0.3s , 
+              color 0.3s ;
+  transition-timing-function: cubic-bezier(0.38,-0.04, 1, 1)     
+}
+ */
 
 .navbar-nav li.nav-item:hover > a {
     background-color: #261290;
     color: #FFFFFF;
   }
+
+
+  button.btn,
+  a.btn{
+    background-color: #261290;
+    color: #FFFFFF;
+  }
+
+   button.btn:hover,
+   a.btn:hover{
+    background-color: #261290;
+    color: #FFFFFF;
+  }
+
+
+  button.btn:focus, 
+button.btn:active, 
+button.btn:focus-visible {
+  background-color: #261290 !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important; /* Esto elimina el borde azul de focus */
+}
+
+.ingresarComo ul{
+  background-color: #261290 ;
+}
+.ingresarComo ul li a{
+  color: #FFFFFF;
+}
+
+
+
+
+
+
+
+/*********************************************************************************** FOOTER*/
+
+footer{
   
-
-.contenedorLista{
-  background-color: #FFFFFF;
-  border: solid #e7e0e0 2px;
-  border-radius: 5px;
-  width: 100%;
+    border: 1px solid #261290 ;
+    background-color: #333 ;
+    color:#fff;
+    padding: 40px;
 }
 
 
 
+/*********************************************************************************** FOOTER*/
 
- /* dataList Styles */
- ul {
-  list-style: none;
-  padding: 0;
+
+.main-wrapper aside{
+    min-width: 12rem;
+     border-top: #261290 solid 0.5rem;
+    box-shadow: 0 0 5px 1px rgba(0,0,0,0.65);
+    background-color: #F8F9FA;
+    padding: 0;
+}
+.main-wrapper aside p{
+  word-break: break-all;
 }
 
-.dataList-li {
-  padding: 10px;
-  margin-bottom: 5px;
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.dataList-li:not(:last-child) {
-  border-bottom: 1px solid #ddd;
-}
-
-
-
-
-a:hover {
-  background-color: #0056b3;
-}
-
-
-.hover {
-  background-color: #007BFF; /* Color de fondo al estar en hover */
-  color: white;             /* Color del texto */
- 
-}
-
-
-.liInputDataList{
-  pointer-events: auto;
-}
-.liInputDataList:hover{
-  background-color: #007BFF; /* Color de fondo al estar en hover */
-  color: white;             /* Color del texto */
-}
-
-.btnVerMas {
-  background-color: #9db0c5; /* Color de fondo predeterminado */
-  color: white; /* Color de texto */
-  border: 1px solid transparent; /* Borde transparente */
-  width: auto;
-}
-
-/* Define estilos para el estado de enfoque (focus) */
-.btnVerMas:focus {
-  outline: none; /* Elimina el borde de enfoque predeterminado */
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5); /* Añade sombra para indicar el enfoque */
-}
-
-/* Define estilos para el estado de enfoque visible (focus-visible) */
-.btnVerMas:focus-visible {
-  outline: 2px solid #0056b3; /* Añade borde azul oscuro para indicar el enfoque visible */
-}
-
-
-/* Responsive Design */
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  h1, h2 {
-    font-size: 1.5em;
-  }
-
-  ul li {
-    font-size: 0.9em;
-    padding: 8px;
-  }
+.main-wrapper {
+    flex-grow: 1;
 }
 
 
 
+/* --------------------------------------------------------------- NAVLATERAL */
 
-.hover-link {
-  color: #261290;  /* Color de texto por defecto */
-  text-decoration: none; /* Sin subrayado por defecto */
-  cursor: pointer; /* Cambiar cursor al estilo de un enlace */
-  transition: color 0.3s, text-decoration 0.3s; /* Transiciones suaves */
-  font-weight: bold;
-}
-
-/* Estilo al pasar el mouse (hover) */
-.hover-link:hover {
-  /* Cambiar color al mismo que el SVG */
-  color: #1d66ee; 
-  text-decoration: underline; /* Añadir subrayado */
-}
-
-.tablaCategorias-cruz{
-  font-weight: bolder;
-  color: rgb(165, 31, 31);
-  background-color:#eff2f7;
-  border-radius: 50%;  
-  text-align: right;
-}
-.tablaCategorias-cruz:hover{
-  background-color:#E2E5E9;
-}
-
-.hidden{
-  display: none !important;;
-  
-}
-
-.divSubmit {
-  display: flex;
-  gap: 10px; /* Espacio entre los elementos */
+.navLateral li:hover{
+background-color: #D3CDCD;
 }

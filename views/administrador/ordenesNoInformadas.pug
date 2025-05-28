@@ -20,7 +20,7 @@
                               span Editar
    
                  h5.card-title= `Orden: ${orden.id}`
-                 p.card-text= `Fecha: ${new Date(orden.fecha).toLocaleDateString('es-AR')}`
+                 p.card-text= `Fecha: ${orden.fecha.toISOString().split('T')[0].split('-').reverse().join('/')}`
                  p.card-text= `Medico: ${orden.medico.nombre}`
                  p.card-text= `Estado: ${orden.estado.nombre}`
                  p.card-text= `Diagnóstico: ${orden.diagnostico.codigo}-${orden.diagnostico.diagnostico}`

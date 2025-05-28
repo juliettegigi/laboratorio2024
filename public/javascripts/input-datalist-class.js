@@ -34,9 +34,9 @@ export default class InputDataList{
 
     agregarCruzLiListaSeleccionados=()=>{
       if(this.seleccionadosLista){
-        console.log(this.seleccionadosLista)
         for(let li of this.seleccionadosLista.querySelectorAll('li')){
             this.addCruz(li,(evento)=>{li.remove()})
+            
         }
       }
     }
@@ -65,6 +65,7 @@ export default class InputDataList{
      addCruz=(li,funcionCruz)=>{
       const cruz = document.createElement('button');
       cruz.type="button"
+      cruz.title="Quitar"
       cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
       cruz.addEventListener('click',funcionCruz) 
       li.appendChild(cruz);
@@ -76,7 +77,9 @@ export default class InputDataList{
         if(lisListaExamenesSeleccionados.find(li=>li.textContent===text))
             return
         const li=document.createElement('li')
-        li.innerHTML=text;
+        const div=document.createElement('div')
+        div.innerHTML=text;
+        li.appendChild(div);
         this.addCruz(li,(evento)=>{li.remove()})
         this.seleccionadosLista.appendChild(li)
         li.appendChild(this.crearInput(text,`${this.inputHiddenName2}`))
@@ -98,7 +101,7 @@ export default class InputDataList{
 
 
 
-    crearLi=(text="",indice,eventoClickLi=null)=>{
+    crearLi=(text="",indice,eventoClickLi=null,...estilos)=>{
       const li=document.createElement('li')  
         li.textContent=text
         li.classList.add('liInputDataList','dataList-li')
@@ -111,6 +114,13 @@ export default class InputDataList{
         else if(eventoClickLi)
                li.addEventListener('mousedown',eventoClickLi)
         
+        if(estilos){
+          estilos.forEach(e=>{
+
+            li.classList.add(e)
+          }  )
+      
+        }
         return li;
     }
 
@@ -118,12 +128,14 @@ export default class InputDataList{
     verMas=(inputValue)=>{
       this.offset+=this.limit
       this.emitirEventoSocket(inputValue,true)
+       
      // this.input.focus();
     }
     
     emitirEventoSocket=(inputValue,masResultados=false)=>{
       this.dataList.parentNode.style.display = "";
-      this.indexHover=-1
+      if(!masResultados)
+         this.indexHover=-1
       this.dataList.parentNode.style.display = "";
             if(!masResultados){
                this.arrayLis=[];
@@ -133,13 +145,16 @@ export default class InputDataList{
              const cb=(arreglo,total)=>{ 
 
                      let indice=this.arrayLis.length;
-                     if(masResultados)  for(let elem of arreglo){
+                     if(masResultados){  for(let elem of arreglo){
                                      this.arrayLis.push({li:this.crearLi(this.liTextCb(elem),indice,this.clickLi),
                                                          id:elem.id})
                                      this.dataList.insertBefore(this.arrayLis[indice].li,this.dataList.lastChild)   
                                      indice++
                                      this.dataList.parentNode.style.display = "";
-                                    }              
+                                    }  
+                                   
+                                    
+                                  }            
                      
                      else {     if(arreglo.length===0){
                                      const li=this.crearLi();
@@ -160,7 +175,7 @@ export default class InputDataList{
                    if(arreglo.length  && total>this.offset+this.limit){
                         if(masResultados)
                             this.dataList.lastChild.remove()
-                        this.arrayLis.push({li:this.crearLi("ver más resultados",indice,(event)=>this.verMas(inputValue)),id:0})
+                        this.arrayLis.push({li:this.crearLi("Ver más resultados",indice,(event)=>this.verMas(inputValue),'verMasResultados'),id:0})
                         const li=this.arrayLis[indice].li;
                         //li.addEventListener('click',(event)=>this.verMas(inputValue))
                         this.dataList.appendChild(li);
@@ -168,8 +183,20 @@ export default class InputDataList{
                     else{
                         if(masResultados)
                             this.dataList.lastChild.remove()
+
                     }
                     this.input.focus();
+                    if(masResultados && this.indexHover!=-1 ){ 
+                      const li = this.arrayLis[this.indexHover]?.li;
+                      if (li && li.parentNode) {
+                        li.parentNode.removeChild(li); // lo saca del DOM
+                      }
+                      this.arrayLis.splice(this.indexHover, 1);
+                      this.indexHover--
+                      this.arrayLis[this.indexHover].li.classList.add("hover");
+                    }
+
+ 
                   //  this.input.select();
              }
              socket.emit(this.nombreEvento,inputValue,this.limit,this.offset,cb)
@@ -189,6 +216,7 @@ export default class InputDataList{
 
     inicializarInput() {
         this.input.addEventListener('input', (e) => {
+         
             this.emitirEventoSocket(this.input.value);
            
         });
@@ -227,8 +255,10 @@ export default class InputDataList{
             // Enter
             if (e.key === "Enter") {
               e.preventDefault();
-              if(this.arrayLis[this.indexHover].li.textContent=="ver más resultados"){
-                this.verMas(this.input.value)}
+              if(this.arrayLis[this.indexHover].li.textContent=="Ver más resultados"){
+                this.verMas(this.input.value)
+                
+              }
               else{
                     if (this.indexHover >= 0 && this.indexHover < this.arrayLis.length) {
                       this.input.value = this.arrayLis[this.indexHover].li.textContent; // Asigna el texto al input

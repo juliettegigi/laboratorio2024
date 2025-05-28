@@ -1,6 +1,5 @@
 extends layout
 
 block content
-  - editarPaciente=false
   include ../forms/formPaciente.pug
-  +formPaciente("divForm",false,false,)
+  +formPaciente("divForm",editarPaciente,false,)

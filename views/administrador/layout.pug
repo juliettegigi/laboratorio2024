@@ -22,10 +22,13 @@ html
         include navTop
     
     main(class="d-flex  position-relative" )
+    
       block aside
       div(id="divContent" class="content col-12 col-md-6 col-lg-4 z-1" style="margin-top:3rem;margin-left: 200px;padding: 20px;width: calc(100% - 200px);" )
         block content
-        //- Aquí va el contenido principal
+         if rta
+          .alert(class=`alert-${rta.alertType}`) 
+           p= rta.alertMessage
         
     footer
       block footer

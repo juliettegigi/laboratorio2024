@@ -1,8 +1,20 @@
 extends layout
-block aside 
-    include ./menuLateral.pug
-block content
- div(id="divContentLista" )
-  include ../tecBioq/inputSearch.pug
-  +inputSearch(`/admins2`,"nombre/email/DNI a buscar")
-  include ./listaUsuarios.pug
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
+include ../tecBioq/inputSearch.pug
+block content 
+   .row.w-100.mx-0.justify-content-center 
+    .col-lg-9.col-xxl-8
+     .row
+      include ./menuLateral.pug
+      .col
+       .row
+        .col 
+         div.container.mt-5(id="divContentLista" )
+          .row
+           .col-lg-10.d-flex.mx-auto 
+            +inputSearch(`/admins2`,"nombre/email/DNI a buscar") 
+          .row.mt-5
+           .col-lg-10.mx-auto
+             include ./listaUsuarios.pug

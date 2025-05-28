@@ -2,7 +2,7 @@ import InputDataList from "../input-datalist-class.js";
 const LIMIT=5;
 const OFFSET=0;
 
-export default class btnEditar{
+export default class BtnEditar{
     //recibo el input, 
     //la lista, el data list, 
     //el evento del socket q hace una búsqueda paginada y  retorna un arreglo y el total de registros
@@ -79,5 +79,5 @@ btnsEdit.forEach(btn=>{
    //  quiero seleccionar el ul que está dentro del form ""
     const forms = tr.querySelectorAll('form');
     const ul = tr.querySelectorAll('ul');
-    new btnEditar(btn,forms,ul)
+    new BtnEditar(btn,forms,ul)
 })

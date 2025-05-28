@@ -1,21 +1,19 @@
 extends layout
-block styles  
-      link(rel='stylesheet', href='/stylesheets/tecbioq/body.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/style.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/formExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/menuLateralExamen.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/inputSearch.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/examenDatos.css')
-      link(rel='stylesheet', href='/stylesheets/tecbioq/divContent.css')
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
       link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
-  
-block aside 
-    include ./menuLateralDeterminacion.pug
-block content
-  //
-   if rtaCargarOrden 
-        include ./rtaCargarOrden.pug     
-  .container.d-flex.flex-column.divContent(id="divLista" )
-    include ./formDeterminacion.pug
-    +formDeterminacion("Guardar cambios","http://localhost:3000/tecBioq/det?_method=put",determinacion)
-    +formValorReferencia(false,"Guardar cambios","http://localhost:3000/tecBioq/vr?_method=put",determinacion)
+include ./formDeterminacion.pug
+block content 
+   .row.w-100.mx-0.justify-content-center 
+    .col-lg-9.col-xxl-8
+     .row
+      include ./menuLateralDeterminacion.pug
+      .col
+       .row
+        .col 
+         div.d-flex.justify-content-center
+          +formDeterminacion("Guardar cambios","http://localhost:3000/tecBioq/det?_method=put",determinacion)
+       .row 
+        .col
+         div.d-flex.justify-content-center  
+          +formValorReferencia(false,"Guardar cambios","http://localhost:3000/tecBioq/vr?_method=put",determinacion)    

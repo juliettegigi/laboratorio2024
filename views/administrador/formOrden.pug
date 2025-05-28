@@ -4,6 +4,7 @@ mixin formOrden(divFormOrden, editarOrden,orden)
       input(type="hidden" name="PacienteId" value=paciente.id)
       input(type="hidden" name="MedicoId" value=editarOrden?orden.medico.id:'')
       input(type="hidden" name="DiagnosticoId" value=editarOrden?orden.diagnostico.id:'')
+      input(type="hidden" name="UsuarioId" value=usuario.id) 
       if editarOrden
        input(type="hidden" name="ordenId" value=editarOrden?orden.id:'')
        
@@ -47,8 +48,8 @@ mixin formOrden(divFormOrden, editarOrden,orden)
           label(class="form-check-label" for="flexRadioDefault2") Confirmado
        .col-md-auto
          div.form-check
-          input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3" checked=(!editarOrden?false: 
-                                                                                                                       orden.isUrgente === 1?true:false ))
+          - console.log('que es?????????????????????????????   ',orden && orden.id===11?orden.isUrgente+ " "+orden.id:"nooo","------->")
+          input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3"  checked= editarOrden && orden && orden.isUrgente === true)
           label(class="form-check-label" for="flexRadioDefault3") Urgente
 
       

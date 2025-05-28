@@ -1,0 +1,21 @@
+.hover {
+  background-color: #261290;
+  color: #FFFFFF !important;
+}
+
+.divInputLista{
+  position:relative;
+  z-index:10;
+}
+
+.divInputLista ul{
+    position:absolute;
+    background-color:#F8F9FA;
+    box-shadow: 0 0 5px 1px rgba(0,0,0,0.65);
+    padding:0.3rem;
+}
+
+.verMasResultados {
+  font-weight: bold;
+  color: #261290; 
+}

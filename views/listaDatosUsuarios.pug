@@ -25,74 +25,94 @@ mixin listaDatosBioquimico(bioquimico)
 
 
 mixin formPaciente(paciente,usuarioId,oculto)
- .container.d-flex.justify-content-center(id="divForm2" class=(rta || oculto)?"oculto":"")
-     form(action=paciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins2/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+  .container.form-valorRef(id="divForm2" class=(rta || oculto)?"oculto":"")
+    div
+      h2.subtitulo-h2 Datos del paciente
+    .container
+     form(action=paciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins2/paciente/` , method="post" class="needs-validation  mt-5  " name="formu" novalidate )                       
          if usuarioId
           input(type="hidden" name="UsuarioId" value=usuario.id)
-         .row.text-center
-             h1(class="h3 mb-3 fw-normal")
-                     | Datos del paciente            
-         .row                      
-             .col        
-                 .form-floating
-                     input(type="number" class="form-control" id="edad"  name="edad"  value=paciente?paciente.edad:'')
-                     label(for="edad") Edad                
-                     
-         .row                      
-             .col        
-                 .form-floating
-                     input(type="date" class="form-control" id="nacimiento"  name="nacimiento" value=paciente?paciente.nacimiento:'' )
-                     label(for="nacimiento") Fecha de nacimiento                
-         .row 
-             .col 
-                 p Sexo:
-                 .form-check
+         div.form-div 
+           div
+            label(for="edad") Edad 
+           div 
+            input(type="number" 
+                  id="edad"  
+                  name="edad"  
+                  value=paciente?paciente.edad:''
+                  class=`${errors && errores.includes('edad')?'text-danger':''}`
+                  )
+
+         div.form-div 
+           div
+            label(for="nacimiento") Fecha de nacimiento
+           div 
+            input(type="date"
+                  id="nacimiento"  
+                  name="nacimiento"  
+                  value=paciente?paciente.nacimiento:''
+                  class=`${errors && errores.includes('nacimiento')?'text-danger':''}`
+                  ) 
+
+         .row
+           div 
+             label(for="sexo") Sexo 
+           div  
+             .form-check
                      label(class="form-check-label") Masculino 
                          input(type="radio" name="sexo" value="Masculino"  class="form-check-input" 
                                checked=paciente? (paciente.sexo==='Masculino'?true:false)
                                                :true
                                )
-                 .form-check
-                     label(class="form-check-label")  Femenino 
-                         input( type="radio" name="sexo" value="Femenino" class="form-check-input" checked=paciente && paciente.sexo==='Femenino'?true:false)
-                 .form-check
-                     label(class="form-check-label")  Otro   
-                     input( type="radio" name="sexo" value="Otro" class="form-check-input" checked=paciente && paciente.sexo==='Otro'?true:false)
-                 .form-check
-                     label(class="form-check-label")  Prefiero no decirlo   
-                     input( type="radio" name="sexo" value="Prefiero no decirlo" class="form-check-input" checked=paciente && paciente.sexo==='Prefiero no decirlo'?true:false)
-                 .form-check.form-switch
-                   label(class="form-check-label") Embarazada
-                     input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
-                           disabled=(paciente && paciente.sexo==='Hombre')?true:false
-                           checked=(paciente  && paciente.embarazada)?true:false
-                           )
-         .row
-             .col 
-                 .form-floating
-                     input#provincia.form-control(list="provincias", 
-                                                  name="provincia", 
-                                                  placeholder="Type to search..." 
-                                                  value=paciente?paciente.provincia:'' 
-                                                  autocomplete="off")
-                     label(for="provincia") Provincia
-                     datalist(id="provincias") 
-                       if provincias
-                         each p in provincias
-                           option(value=p.nombre)
-         .row
-             .col 
-                 .form-floating
-                     input#departamento.form-control(list="localidades", name="localidad", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.localidad:'')
-                     label(for="localidades") Localidad
-                     datalist(id="localidades") 
-         .row
-             .col 
-                 .form-floating
-                     input#direccion.form-control(list="calles", name="direccion", placeholder="Type to search..."  autocomplete="off" value=paciente?paciente.direccion:'')
-                     label(for="calles") Dirección
-                     datalist(id="calles")                                                          
-         .row   
+             .form-check
+                 label(class="form-check-label")  Femenino 
+                     input( type="radio" name="sexo" value="Femenino" class="form-check-input" checked=paciente && paciente.sexo==='Femenino'?true:false)
+             .form-check
+                 label(class="form-check-label")  Otro   
+                 input( type="radio" name="sexo" value="Otro" class="form-check-input" checked=paciente && paciente.sexo==='Otro'?true:false)
+             .form-check
+                 label(class="form-check-label")  Prefiero no decirlo   
+                 input( type="radio" name="sexo" value="Prefiero no decirlo" class="form-check-input" checked=paciente && paciente.sexo==='Prefiero no decirlo'?true:false)
+             .form-check.form-switch
+               label(class="form-check-label") Embarazada
+                 input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
+                       disabled=(paciente && paciente.sexo==='Hombre')?true:false
+                       checked=(paciente  && paciente.embarazada)?true:false
+                       )
+
+         div.form-div 
+           div
+            label(for="direccion") Dirección 
+           div 
+            input(type="text" 
+                  id="direccion"  
+                  name="direccion"  
+                  value=paciente?paciente.direccion:''
+                  class=`${errors && errores.includes('direccion')?'text-danger':''}`
+                  )  
+
+         div.form-div 
+           div
+            label(for="localidad") Localidad 
+           div 
+            input(type="text" 
+                  id="localidad"  
+                  name="localidad"  
+                  value=paciente?paciente.localidad:''
+                  class=`${errors && errores.includes('localidad')?'text-danger':''}`
+                  )         
+         div.form-div            
+           label(for="provincia") Provincia
+           input#provincia(list="provincias", 
+                                                 name="provincia", 
+                                                 placeholder="Type to search..." 
+                                                 value=paciente?paciente.provincia:'' 
+                                                 )
+           datalist(id="provincias") 
+             if provincias
+               each p in provincias
+                 option(value=p.nombre)                                                                 
+         .row.mt-3   
              .col         
                  button(class="btn btn-secondary w-100 py-2" type="submit") 
                      if paciente
@@ -106,7 +126,7 @@ mixin formPaciente(paciente,usuarioId,oculto)
          (async()=>{
              const inputProvincia=document.getElementById('provincia')
              // cambia el value del input de provincia ==>
-             inputProvincia.addEventListener('change', async(e)=> {
+             inputProvincia.addEventListener('input', async(e)=> {
                const provinciaSeleccionada = inputProvincia.value;
                const opciones = document.getElementById('provincias').options;
                const esOpcionValida = Array.from(opciones).some(function(opcion) {
@@ -154,39 +174,35 @@ mixin formPaciente(paciente,usuarioId,oculto)
          })()      
 
 mixin formUsuario(usuario,oculto)
- div(id="divForm1" class=`${oculto?"oculto":""} container d-flex flex-column align-items-center justify-content-center`)
-  - errores={}
-  if errors 
+ div(id="divForm1" class=`${oculto?"oculto":""} container form-valorRef d-flex flex-column align-items-center justify-content-center`)
+  if errors
    - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
-   - for (let elem of arr)
-    - let encontrado = errors.find(e => e.path === elem)
-    - if (encontrado)
-     - errores[elem] = encontrado.value    
-  form(action=usuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/usuario` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+   - errores= arr.filter(elem=>errors.find(e=>e.path===elem))  
+  form(action=usuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/usuario` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
    .row.text-center
        h1(class="h3 mb-3 fw-normal")
           | Datos de usuario
        .col
            .form-floating
-               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
+               input(type="text" class=`form-control ${errors && errores.includes('nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
                label(for="nombre") Nombre
        .col        
            .form-floating
-               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${apellido || (usuario && usuario.apellido) || ''}`)
+               input(type="text" class=`form-control ${errors && errores.includes('apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${apellido || (usuario && usuario.apellido) || ''}`)
                label(for="apellido") Apellido
    .row 
        .col           
            .form-floating
-               input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
+               input(type="text" class=`form-control ${errors && errores.includes('documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
                label(for="dni") Dni
        .col        
            .form-floating
-               input(type="email" class=`form-control ${errors && Object.hasOwn(errores, 'email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${email || (usuario && usuario.email) || ''}` )
+               input(type="email" class=`form-control ${errors && errores.includes('email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${email || (usuario && usuario.email) || ''}` )
                label(for="floatingInput") Email               
    .row                      
        .col        
            .form-floating
-               input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
+               input(type="tel" class=`form-control ${errors && errores.includes('telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
                input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
                label(for="telefono") Teléfono                      
    .row                      
@@ -217,21 +233,34 @@ mixin formUsuario(usuario,oculto)
       a(href=href) Ver usuario ya registrado
        
 mixin formBioquimico(bioquimico,usuarioId,oculto)
- div(id="divForm3" class=`${oculto?"oculto":""} container d-flex justify-content-center`)
-   form(action=bioquimico?`/admins2/bioquímico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+ div(id="divForm3" class=`${oculto?"oculto":""} container  form-valorRef`)
+  div
+    h2.subtitulo-h2 Datos del bioquímico 
+  .container
+   form(action=bioquimico?`/admins2/bioquímico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  " name="formu" novalidate )
     if usuarioId
-          input(type="hidden" name="UsuarioId" value=usuario.id)
-    .row                      
-      .col        
-          .form-floating
-              input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'titulo')?'text-danger':''}` id="titulo"  name="titulo"  value=`${titulo || (bioquimico && bioquimico.titulo) || ''}`)
-              label(for="titulo") Título               
-    .row                      
-         .col        
-             .form-floating
-                 input(type="text" class=`form-control ${errors && Object.hasOwn(errores, 'matricula')?'text-danger':''}` id="matricula"  name="matricula"  value=`${matricula || (bioquimico && bioquimico.matricula) || ''}`)
-                 label(for="matricula") Matrícula
-    .row   
+     input(type="hidden" name="UsuarioId" value=usuario.id)
+    div.form-div 
+       div
+        label(for="titulo") Título 
+       div 
+        input(type="text" 
+              class=`${errors && Object.hasOwn(errores, 'titulo')?'text-danger':''}` 
+              id="titulo"  
+              name="titulo"  
+              autofocus
+              autocomplete="off"
+              value=`${titulo || (bioquimico && bioquimico.titulo) || ''}`)   
+    div.form-div 
+       div
+        label(for="matricula") Matrícula 
+       div 
+        input(type="text" 
+              class=` ${errors && Object.hasOwn(errores, 'matricula')?'text-danger':''}` 
+              id="matricula"  
+              name="matricula"  
+              value=`${matricula || (bioquimico && bioquimico.matricula) || ''}`)
+    .row.form-btn  
        .col         
            button(class="btn btn-secondary w-100 py-2" type="submit") 
                if editarUsuario
@@ -242,8 +271,8 @@ mixin formBioquimico(bioquimico,usuarioId,oculto)
         button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar 
 
 mixin formTecnico(tecnico,usuarioId,oculto)
- div(id="divForm4" class=`${oculto?"oculto":""} container d-flex justify-content-center`)
-   form(action=tecnico?`/admins2/técnico/${usuarioId}?_method=put`:`/admins2/técnico/${usuarioId}` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )
+ div(id="divForm4" class=`${oculto?"oculto":""} container form-valorRef d-flex justify-content-center`)
+   form(action=tecnico?`/admins2/técnico/${usuarioId}?_method=put`:`/admins2/técnico/${usuarioId}` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
     if usuarioId
           input(type="hidden" name="UsuarioId" value=usuario.id)
     

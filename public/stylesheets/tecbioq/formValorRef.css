@@ -7,14 +7,7 @@
     font-weight: bold;
 }
 
-.form-valorRef{
-    margin-top: 2rem;
-    border-top: 5px solid #261290;
-    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.288);
-    padding-bottom: 1.5rem;
-    width: 50%;
-    min-width: 300px;
-}
+
 
 .form-div-vr{
     border-bottom: 1px solid #ddd;
@@ -64,7 +57,9 @@
    margin-bottom: 6px;
   }
 
-
+form{
+  box-sizing: content-box !important;
+}
 
   #form-div-unidad{
     flex-direction: column;

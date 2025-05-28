@@ -64,7 +64,9 @@ const getBusqueda=async(req,res)=>{
                                          page,
                                          PAGES_CANTIDADxGRUPO:3,
                                          queryString,
-                                         group})
+                                         group,
+                                        roles:req.session.roles
+                                      })
   }catch(error){  console.log(error)
                   return res.render('administrador2/layout',{error:error.message})
     } 
@@ -284,14 +286,23 @@ const getUsuario=async(req,res)=>{
       
       const rolesString = usuario.Rols.map(r => r.nombre).join(', ');
       const rolesArray = usuario.Rols.map(r => r.nombre);//[ 'Paciente' ]
+      const telefonos=await usuario.getTelefonos({ paranoid: false })
+      let provincias;
+      try{const url = 'https://apis.datos.gob.ar/georef/api/provincias'; 
+      const rtaApi = await axios.get(url);
+             provincias = rtaApi.data.provincias;}
+            catch(error){
+              provincias=null
+            }
       return res.render('administrador2/clickUsuario',{usuario,
-                                                       telefonos:await usuario.getTelefonos({ paranoid: false }),
+                                                       telefonos:telefonos.length===0?null:telefonos,
                                                        rta,
                                                        editarUsuario:true,
                                                        oculto:true,
                                                        roles,
                                                        rolesArray,
-                                                       rolesString
+                                                       rolesString,
+                                                       provincias
                                                        })
     
   } catch (error) {
@@ -498,13 +509,6 @@ const putUsuario=async(req,res)=>{
   } catch (error) {
     console.error(error);
     await transaction.rollback();
-    if(error.parent.code==='ER_DUP_ENTRY'){
-      req.flash('rta',{ 
-        origen:'putTecnico',
-        alertType: 'danger',
-        alertMessage: 'Error: el email pertenece a otro usuario' })
-        return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
-    }
 
     return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
   };  

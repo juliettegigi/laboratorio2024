@@ -2,7 +2,7 @@ const {OAuth2Client} = require('google-auth-library');
 
 const client = new OAuth2Client("961283639807-dbu75hn2c1eckvf47ho7lltkhi7an950.apps.googleusercontent.com");
 
-const {Usuario} = require('../models');
+const {Usuario,Examen} = require('../models');
 const req = require('express/lib/request');
 
 async function googleVerify(token='') {
@@ -58,6 +58,11 @@ const existeUsuario=async (id) => {
 
 
 const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false,href="") => {
+  console.log("CAMPO ",campo)
+  console.log("VALOR NUEVO ",valorNuevo)
+  console.log("EDITAR ",editar)
+  console.log("REQ  ",req.body)
+  if (valorNuevo.trim() === '') return true; 
   if(editar ){
     const {email,nombre,apellido,documento,
       telefono}=req.body
@@ -76,11 +81,31 @@ const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false,href="") => {
       console.log("entroooooooooooooogggggggggggggggggggddddddddd")
       const error=new Error(`${campo} ya está registrado`)
       req.href=`${href}${existeCampo.id}` //http://localhost:3000/admins2/
+      req.UsuarioId=existeCampo.id
          throw error;
      }
 }
 
 }
+
+
+const isCampoUnicoExamen=async (campo,valorNuevo,req,href="") => {
+  if (valorNuevo.trim() === '') return true; 
+  try{
+     const existeCampo = await Examen.findOne({ where: { [campo]:valorNuevo } });
+     if (existeCampo) {
+        const error=new Error(`${campo} ya está registrado`)
+        req.href=`${href}${existeCampo.id}` //http://localhost:3000/admins2/
+        req.ExamenId=existeCampo.id
+        throw error;
+    }
+}
+  catch(error){
+    console.log("ERROR ",error)
+    throw error;
+  }
+}
+
 
 module.exports={
     googleVerify,
@@ -88,6 +113,7 @@ module.exports={
     isAuth,
     isCampoUnicoUsuario,
     tieneRole,
+    isCampoUnicoExamen
 }
 
 

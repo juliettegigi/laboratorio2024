@@ -1,1 +1,12 @@
 extends layout
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
+include ./inputSearch.pug
+block content
+  .row.justify-content-center(id="divContentLista" )
+   .col-lg-6
+    +inputSearch("/tecBioq","nombre/codigo a buscar","Crear Examen","http://localhost:3000/tecBioq/addExamen")
+  .row.justify-content-center.mt-3
+   .col-lg-6
+    include ./listaExamenes.pug

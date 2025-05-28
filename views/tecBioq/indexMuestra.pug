@@ -1,7 +1,14 @@
 extends layout
-
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
+include ./inputSearch.pug
 block content
- div(id="divContentLista" )
-  include ./inputSearch.pug
-  +inputSearch("/tecBioq/muestras","nombre/id a buscar","Crear Muestra","http://localhost:3000/tecBioq/addMuestra")
-  include ./listaMuestras.pug
+ div.container.mt-5(id="divContentLista" )
+  .row
+   .col-lg-6.d-flex.mx-auto 
+    +inputSearch("/tecBioq/muestras","nombre/id a buscar","Crear Muestra","http://localhost:3000/tecBioq/addMuestra")
+  .row.mt-5
+   .col-lg-6.mx-auto
+    include ./listaMuestras.pug
+

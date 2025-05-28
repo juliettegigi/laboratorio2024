@@ -1,14 +1,23 @@
 .navbar-nav
-  .btn-group
-    button(class="btn btn-secondary dropdown-toggle " type="button" data-bs-toggle="dropdown" aria-expanded="false") 
+  .btn-group.ingresarComo
+    button( title="Ingresar como"  
+            class="btn dropdown-toggle " 
+            type="button" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false"
+            ) 
       i(class="bi bi-list")
-    ul(class="dropdown-menu dropdown-menu-end")
+    ul(class=" dropdown-menu dropdown-menu-end")
+     each rol in roles
       li
-       a(class="dropdown-item" href="#") Menu item
-      li
-       a(class="dropdown-item" href="#") Menu item
-      li
-       a(class="dropdown-item" id="salir" href="salir") Cerrar sesión   
+       a(class="dropdown-item" href=(rol==="Administrativo"?"http://localhost:3000/admins2"
+                                                           :rol==="Recepcionista"?"http://localhost:3000/admins"
+                                                                                 :rol==="Bioquímico" || rol==="Técnico"?"http://localhost:3000/tecBioq"
+                                                                                                                       :rol==="paciente"?"http://localhost:3000/pacientes"
+                                                                                                                                        :"" 
+                                                           ))= `${rol} `
+     li
+      a(class="dropdown-item" id="salir" href="salir") Cerrar sesión   
 script(src="https://accounts.google.com/gsi/client")
 script.
    document.addEventListener('DOMContentLoaded', function() {

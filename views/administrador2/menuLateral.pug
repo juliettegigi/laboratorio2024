@@ -1,5 +1,5 @@
-aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height));")
-  nav(class="nav flex-column bg-light p-3" style="width: 240px;")
+aside(class="col flex-grow-0")
+  nav(class="nav flex-column bg-light navLateral")
     h6 Aplicar filtros
     - console.log("QUERY STRING")
     - console.log(queryString)
@@ -9,19 +9,24 @@ aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height)
        li(class="nav-item")
          p Por roles
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="admin" name="roles" value="Paciente")
+             input(type="checkbox" class="form-check-input" id="admin" name="roles" value="Paciente"
+             checked=(queryString.roles && queryString.roles.includes("Paciente")))
              label(for="admin" class="form-check-label") Paciente
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="bioquimico" name="roles" value="Bioquímico")
+             input(type="checkbox" class="form-check-input" id="bioquimico" name="roles" value="Bioquímico"
+             checked=(queryString.roles && queryString.roles.includes("Bioquímico")))
              label(for="bioquimico" class="form-check-label") Bioquímico
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Técnico")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Técnico"
+             checked=(queryString.roles && queryString.roles.includes("Técnico")))
              label(for="usuario" class="form-check-label") Técnico
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Administrativo")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Administrativo"  
+             checked=(queryString.roles && queryString.roles.includes("Administrativo")))
              label(for="usuario" class="form-check-label") Administrativo
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Recepcionista")
+             input(type="checkbox" class="form-check-input" id="usuario" name="roles" value="Recepcionista"
+             checked=(queryString.roles && queryString.roles.includes("Recepcionista")))
              label(for="usuario" class="form-check-label") Recepcionista 
        li(class="nav-item")
          p Por tabla
@@ -32,13 +37,15 @@ aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height)
                    id="admin" 
                    name="tablas" 
                    value="paciente"
-                   checked=((Object.keys(queryString).length > 0) && queryString.tablas.length>0 && queryString.tablas.includes('paciente')))
+                   checked=(queryString.tablas && queryString.tablas.includes("paciente")))
              label(for="admin" class="form-check-label") Pacientes
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="bioquimico" name="tablas" value="bioquimico")
+             input(type="checkbox" class="form-check-input" id="bioquimico" name="tablas" value="bioquimico"
+             checked=(queryString.tablas && queryString.tablas.includes("bioquimico")))
              label(for="bioquimico" class="form-check-label") Bioquímicos
            div(class="form-check")
-             input(type="checkbox" class="form-check-input" id="usuario" name="tablas" value="tecnico")
+             input(type="checkbox" class="form-check-input" id="usuario" name="tablas" value="tecnico"
+             checked=(queryString.tablas && queryString.tablas.includes("tecnico")))
              label(for="usuario" class="form-check-label") Técnicos
        li(class="nav-item")
          button Aplicar      

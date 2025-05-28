@@ -1,5 +1,5 @@
 mixin formDeterminacion(btnContent,action,determinacion)
- .container.form-valorRef
+ .container.divFormulario
   div#ancla1
     h2.subtitulo-h2 Determinación
   .container
@@ -39,29 +39,30 @@ mixin formDeterminacion(btnContent,action,determinacion)
               autocomplete="off"
               value=determinacion?determinacion.tags:""
               disabled=determinacion?true:false) 
-      div#form-div-unidad 
-       div.d-flex      
-        div
-         label(for="unidad") unidades
-        div 
-         select( 
-               id="unidad" 
-               name=`unidad` 
-               disabled=determinacion?true:false)  
-          option(value=`no unidad`) no unidad           
-          option(value=`agregarUnidad`) Agregar una unidad            
-          each unidad in unidades        
-           option(value=`${unidad.unidad}`)= unidad.unidad 
-        if(vrUnidades)
-         each unidad in vrUnidades
-          div.option-unidad
-           span= unidad.unidad        
-           input(type="hidden"  name="unidades" value= `${unidad.unidad}`)
-           input(type="hidden"  name="unidadesId" value= `${unidad.id}`)
-           div(role="button" class="btnsEditarDet hidden")
-               svg(tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-x-circle" viewBox="0 0 16 16")
-                 path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
-                 path(d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708")
+      div.form-div     
+       div
+        label(for="selectId") unidades
+       div 
+        select.form-select( 
+              id="selectId" 
+              name=`unidad` 
+              disabled=determinacion?true:false)  
+         option(value=1) no unidad           
+         option(value=0) Agregar una unidad            
+         each unidad in unidades        
+          option(value=`${unidad.id}`)= unidad.unidad 
+       if(vrUnidades)
+        each unidad in vrUnidades
+         div.option-unidad
+          span= unidad.unidad        
+          input(type="hidden"  name="unidades" value= `${unidad.unidad}`)
+          input(type="hidden"  name="unidadesId" value= `${unidad.id}`)
+          div(role="button" class="btnsEditarDet hidden")
+              svg(tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-x-circle" viewBox="0 0 16 16")
+                path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
+                path(d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708")
+      div#containerUnidadesSeleccionadas.containerOpsSeleccionadas 
+      div.form-div 
        div.hidden#divAddUnidad 
         input(type="text")
         button(type='button' id="btnAddUnidad") agregar unidad a la lista
@@ -103,139 +104,141 @@ mixin formDeterminacion(btnContent,action,determinacion)
        a(href=``) 
          button.btn.btn-secondary#btnCancelarValorRef(type="button") Cancelar 
        button.btn.btn-primary#btnSubmitDet(type="submit")= btnContent
+ script( type="module" src='/javascripts/tecbioq/formDet.js')       
 
 
 
 mixin formValorReferencia(post,btnContent,action,determinacion)
- .div
+ div.w-100
   if errors
    if !post
     div(class="alert alert-danger alert-dismissible fade show" role="alert") Valores de referencia no actualizados, hay errores en los datos ingresados.
       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-  .container.form-valorRef
-   div
-    h2.subtitulo-h2 Valores de referencia
-   .container
-    form(action=action method="POST" name="formValorRef" )
-       input(type="hidden" name="id" value=determinacion.id)
-       - const arrSex=['Femenino','Masculino','Ambos']
-       each sex in arrSex 
-        div.vrXsexo
-         div#tituloSexo
-          div
-           h2.subtitulo-h2= sex
-         - let i=0
-         if valoresRef
-          each valorRef in valoresRef[sex] 
-           div.valorRef
-            input(type="hidden" name=`idsVrForm`  value=`${valorRef.id}` )
-            input(type="hidden" name=`isNew`  value=`${valorRef.deletedAt?'3':'0'}`)
-            input(type="hidden" name=`sex` value=`${sex}`)
-            div
-             div.form-div-vr 
-              div.d-flex
-               div.me-3
-                label(for="nota") Nota
-               div 
-                input(type="text" 
-                      id="nota" 
-                      name=`nota`
-                      autocomplete="off"
-                      value=valorRef.nota
-                      readonly=!post) 
-             div.form-div-vr
-              div.d-flex 
-               div.me-3
-                label(for="edadMin") Edad mínima
-               div 
-                input(type="text" 
-                      id="edadMin" 
-                      name=`edadMin`
-                      autocomplete="off"
-                      value=valorRef.edadMin
-                       readonly=!post)
-              div.d-flex 
-               div.me-3
-                label(for="unidadMin") unidad
-               div 
-                select( 
-                      id="unidadMin" 
-                      name=`unidadMin`
-                     readonly=!post)  
-                 option(value="Días", selected=valorRef.unidadMin === 'Días') Días
-                 option(value="Meses", selected=valorRef.unidadMin === 'Meses') Meses
-                 option(value="Años", selected=valorRef.unidadMin === 'Años') Años   
-                 option(value="-", selected=valorRef.unidadMin === '-') -   
-             div.form-div-vr       
-              div.d-flex        
-               div.me-3
-                label(for="edadMax") Edad máxima 
-               div 
-                input(type="text" 
-                      id="edadMax" 
-                      name=`edadMax`
-                      autocomplete="off"
-                      value=valorRef.edadMax
+  .container.divFormulario
+   .row 
+    .col 
+     h2.subtitulo-h2 Valores de referencia
+   .row
+    .col
+     form(action=action method="POST" name="formValorRef" )
+        input(type="hidden" name="id" value=determinacion.id)
+        - const arrSex=['Femenino','Masculino','Ambos']
+        each sex in arrSex 
+         .row.vrXsexo
+          .col#tituloSexo
+            h2.subtitulo-h2= sex
+          - let i=0
+          if valoresRef
+           each valorRef in valoresRef[sex] 
+            div.valorRef
+             input(type="hidden" name=`idsVrForm`  value=`${valorRef.id}` )
+             input(type="hidden" name=`isNew`  value=`${valorRef.deletedAt?'3':'0'}`)
+             input(type="hidden" name=`sex` value=`${sex}`)
+             div
+              div.form-div-vr 
+               div.d-flex
+                div.me-3
+                 label(for="nota") Nota
+                div 
+                 input(type="text" 
+                       id="nota" 
+                       name=`nota`
+                       autocomplete="off"
+                       value=valorRef.nota
                        readonly=!post) 
-              div.d-flex 
-               div.me-3
-                label(for="unidadMax") unidad
-               div 
-                select( 
-                      id="unidadMax" 
-                      name=`unidadMax`
+              div.form-div-vr
+               div.d-flex 
+                div.me-3
+                 label(for="edadMin") Edad mínima
+                div 
+                 input(type="text" 
+                       id="edadMin" 
+                       name=`edadMin`
+                       autocomplete="off"
+                       value=valorRef.edadMin
+                        readonly=!post)
+               div.d-flex 
+                div.me-3
+                 label(for="selectId") unidad
+                div 
+                 select( 
+                       id="selectId" 
+                       name=`unidadMin`
                       readonly=!post)  
-                 option(value="Días", selected=valorRef.unidadMax === 'Días') Días
-                 option(value="Meses", selected=valorRef.unidadMax === 'Meses') Meses
-                 option(value="Años", selected=valorRef.unidadMax === 'Años') Años   
-                 option(value="-", selected=valorRef.unidadMax === '-') -        
-             div.form-div-vr 
-              div.d-flex
-               div.me-3
-                label(for="valorMin") Valor mín.
-               div 
-                input(type="text" 
-                      id="valorMin" 
-                      name=`valorMin`
-                      autocomplete="off"
-                      value=valorRef.valorMin
-                       readonly=!post)
-              div.d-flex
-               div.me-3
-                label(for="valorMax") Valor máx.
-               div 
-                input(type="text" 
-                      id="valorMax" 
-                      name=`valorMax`
-                      autocomplete="off"
-                      value=valorRef.valorMax
-                       readonly=!post)        
-        
-            div.acciones.btnsEditarVR.hidden   
-              div
-              div
-               if valorRef.deletedAt 
-                button.activar(type="button") Activar 
-               else 
-                button.desactivar(type="button") Desactivar 
-              
-         div.btnAddVR.btnsEditarVR(class=`${post?"":"hidden"}` title="Agregar valor de referncia" sexo=sex tabindex="0")
-             svg(xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-plus-circle" viewBox="0 0 16 16")
-               path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
-               path(d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4")
-         if errors
-           - e=errors.find(e=>e.path===`edadMin${sex}`) 
-           - e2=errors.find(e=>e.path===`valorMin${sex}`) 
-           if e
-            div 
-             p(class="text-danger")= e.msg  
-           if e2
-            div 
-             p(class="text-danger")= e2.msg  
- 
-       div.form-btn.divSubmit.btnsEditarVR(class=btnContent=="Enviar"?"":"hidden")   
-        a(href=`http://localhost:3000/tecBioq/determinacion/${determinacion.id}`) 
-         button.btn.btn-secondary#btnCancelarValorRef(type="button") Cancelar
-        button.btn.btn-primary#btnSubmitValorRef(type="submit")= btnContent
+                  option(value="Días", selected=valorRef.unidadMin === 'Días') Días
+                  option(value="Meses", selected=valorRef.unidadMin === 'Meses') Meses
+                  option(value="Años", selected=valorRef.unidadMin === 'Años') Años   
+                  option(value="-", selected=valorRef.unidadMin === '-') -   
+              div.form-div-vr       
+               div.d-flex        
+                div.me-3
+                 label(for="edadMax") Edad máxima 
+                div 
+                 input(type="text" 
+                       id="edadMax" 
+                       name=`edadMax`
+                       autocomplete="off"
+                       value=valorRef.edadMax
+                        readonly=!post) 
+               div.d-flex 
+                div.me-3
+                 label(for="unidadMax") unidad
+                div 
+                 select( 
+                       id="unidadMax" 
+                       name=`unidadMax`
+                       readonly=!post)  
+                  option(value="Días", selected=valorRef.unidadMax === 'Días') Días
+                  option(value="Meses", selected=valorRef.unidadMax === 'Meses') Meses
+                  option(value="Años", selected=valorRef.unidadMax === 'Años') Años   
+                  option(value="-", selected=valorRef.unidadMax === '-') -        
+              div.form-div-vr 
+               div.d-flex
+                div.me-3
+                 label(for="valorMin") Valor mín.
+                div 
+                 input(type="text" 
+                       id="valorMin" 
+                       name=`valorMin`
+                       autocomplete="off"
+                       value=valorRef.valorMin
+                        readonly=!post)
+               div.d-flex
+                div.me-3
+                 label(for="valorMax") Valor máx.
+                div 
+                 input(type="text" 
+                       id="valorMax" 
+                       name=`valorMax`
+                       autocomplete="off"
+                       value=valorRef.valorMax
+                        readonly=!post)        
+         
+             div.acciones.btnsEditarVR.hidden   
+               div
+               div
+                if valorRef.deletedAt 
+                 button.activar(type="button") Activar 
+                else 
+                 button.desactivar(type="button") Desactivar 
+               
+          div.btnAddVR.btnsEditarVR(class=`${post?"":"hidden"}` title="Agregar valor de referncia" sexo=sex tabindex="0")
+              svg(xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-plus-circle" viewBox="0 0 16 16")
+                path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
+                path(d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4")
+          if errors
+            - e=errors.find(e=>e.path===`edadMin${sex}`) 
+            - e2=errors.find(e=>e.path===`valorMin${sex}`) 
+            if e
+             div 
+              p(class="text-danger")= e.msg  
+            if e2
+             div 
+              p(class="text-danger")= e2.msg  
+  
+        div.form-btn.divSubmit.btnsEditarVR(class=btnContent=="Enviar"?"":"hidden")   
+         a(href=`http://localhost:3000/tecBioq/determinacion/${determinacion.id}`) 
+          button.btn.btn-secondary#btnCancelarValorRef(type="button") Cancelar
+         button.btn.btn-primary#btnSubmitValorRef(type="submit")= btnContent
        
   script( type="module" src='/javascripts/tecBioq/formVr.js')

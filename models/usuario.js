@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model,Op
+  Model,Op,Sequelize
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
@@ -20,14 +20,22 @@ module.exports = (sequelize, DataTypes) => {
       try {
         let where = {};
     
-        // Filtros para el término de búsqueda
+        
+        
         if (termino !== "") {
           where = {
-            [Op.or]: [
-              { documento: { [Op.regexp]: termino } },
-              { email: { [Op.regexp]: termino } },
-              { apellido: { [Op.regexp]: termino } },
-              { nombre: { [Op.regexp]: termino } },
+            [Op.or]: [  Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('Usuario.nombre'), termino),
+                                          { [Op.lte]: 3 }
+                                        ),
+                        Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('apellido'), termino),
+                                          { [Op.lte]: 3 }
+                                       ),               
+                        Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('documento'), termino),
+                                          { [Op.lte]: 3 }
+                                       ),               
+                        Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('email'), termino),
+                                          { [Op.lte]: 3 }
+                                       ),               
             ],
           };
         }

@@ -1,11 +1,13 @@
 mixin formMuestra(btnContent,action,muestra)
- .container.form-valorRef
+ .container.divFormulario
   div#ancla1
     h2.subtitulo-h2 Muestra
   .container
    form(action=action method="POST" name="formMuestra" )
       if muestra
-       input(type="hidden" name="id" value=muestra.id)
+       input(type="hidden" 
+             name="id" 
+             value=muestra.id)
       div.form-div 
        div
         label(for="nombre") Nombre 
@@ -14,9 +16,10 @@ mixin formMuestra(btnContent,action,muestra)
               placeholder="Nombre"
               id="nombre" 
               name="nombre"
-              autocomplete="off"
               value=muestra?muestra.nombre:""
-              disabled=muestra?true:false) 
+              disabled=muestra?true:false
+              autofocus
+              autocomplete="off") 
       
  
  

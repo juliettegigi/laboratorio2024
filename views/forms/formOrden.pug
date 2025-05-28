@@ -4,7 +4,7 @@ mixin formOrden(divFormOrden,editar, oculto,orden)
       // input(type="hidden" name="PacienteId" value=paciente.id)
       input(type="hidden" name="MedicoId" value=editar?orden.Medico.id:'')
       input(type="hidden" name="DiagnosticoId" value=editar?orden.Diagnostico.id:'')
-       
+      
       .row.mt-4.justify-content-center
        .col-md-auto.d-flex.align-items-center
         if editar

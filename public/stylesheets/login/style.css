@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+    color: #333;
+    background-color: #fff;
+    font-family: "Lato",sans-serif;
+    padding: 0;
+    font-size: 14px;
+    line-height: 22px;
+    /*background-color: #EFEFEF;*/
+    /*background-color: #bad1f8;*/
+   /* background-color: #7087da;#1c2853*/
+   background-color:#d3cdcd;
+  }
+
+
+ 
+  
+  
+  
+  .btn {
+      background: #00229E;
+      color: #fff;
+      border: 0;
+      width:100%;
+      padding:15px
+  }
+
+  .btn:hover{
+    background: #07207a;
+    color: #fff;
+  }
+
+  .card{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }

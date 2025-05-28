@@ -1,8 +1,8 @@
 var express = require('express');
-const { check } = require('express-validator');
+const { check,param } = require('express-validator');
 const {deleteOrden,getInicio, getForm,crearPaciente, getBusqueda,getPaciente,putPaciente,putMuestrasRequeridas,getFormOrden,postOrden,putOrden, getPDF} = require('../controllers/admin');
 const {tieneRole, isCampoUnicoUsuario, existeUsuario} = require('../controllers/validaciones');
-const { validarCampos } = require('../middlewares');
+const { validarCampos, userExisteCheckTablasHijas } = require('../middlewares');
 
 var router = express.Router();
 
@@ -25,7 +25,21 @@ router.get('/formOrden',[
             getFormOrden);
 router.get('/paciente/:UsuarioId',[ 
         //tieneRole("recepcionista","administrativo")
-                                   ], 
+        param('UsuarioId').custom(existeUsuario),
+        (req, res, next) => {
+                req.renderizar = async (errors) => {
+                console.log(" ERRORES------------------------------------------------------------------------")
+                console.log(errors)    
+                req.flash('rta', {
+                        origen: 'getPaciente',
+                        alertType: 'error',
+                        alertMessage: `El usuario con ID ${req.params.UsuarioId} no existe.`
+                      });    
+                return res.redirect('http://localhost:3000/admins') }
+                next();
+              },
+        validarCampos                           
+        ], 
             getPaciente);
 router.get('/pdf/',[ 
         //tieneRole("recepcionista","administrativo")
@@ -41,25 +55,29 @@ router.post('/orden', [
             postOrden);
 router.post('/paciente',[ 
         tieneRole("recepcionista","administrativo"),
-        check('edad').isNumeric().withMessage('La edad debe ser un número'),
+        check('edad').optional({ checkFalsy: true })
+                     .isNumeric().withMessage('La edad debe ser un número'),
         check('documento').notEmpty().withMessage('El documento es obligatorio')
                                   .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req)),
-         check('email').notEmpty().withMessage('El email es obligatorio')
-                              .isEmail().withMessage('El email no es válido')
-                              .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,false,"http://localhost:3000/admins/paciente/")),
-        check('nacimiento').isDate().withMessage('La fecha de nacimiento no es válida'),
+         check('email').optional({ checkFalsy: true })
+                       .isEmail().withMessage('El email no es válido')
+                       .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,false,"http://localhost:3000/admins/paciente/")),
+        check('nacimiento').optional({ checkFalsy: true })
+                           .isDate().withMessage('La fecha de nacimiento no es válida'),
         (req, res, next) => {
           req.renderizar = async (errors) => {
            console.log(" ERRORES------------------------------------------------------------------------")
+           console.log(req.body)
            console.log(errors)
-           const {email,nombre,apellido,documento,
-                  telefono}=req.body
-          // const roles=await Rol.findAll();     
-           const obj={errors,email,nombre,apellido,documento,telefono};
+           const {email,nombre,apellido,documento,edad,nacimiento,
+                  telefono,sexo,
+                localidad,direccion,provincia,}=req.body   
+           const obj={editarPaciente:false,UsuarioId,errors,email,nombre,apellido,documento,telefono,edad,nacimiento,localidad,direccion,provincia,sexo};
            if(req.href){obj.href=req.href}
            return res.render(`administrador/form`,obj) }
           next();
         },
+        userExisteCheckTablasHijas,
         validarCampos                      
                         ],
             crearPaciente);
@@ -73,9 +91,24 @@ router.put('/orden',[
             putOrden);
 router.put('/paciente/:UsuarioId',[ 
         tieneRole("recepcionista","administrativo"),
+        param('UsuarioId').custom(existeUsuario),
         check('email').notEmpty().withMessage('El email es obligatorio')
                       .isEmail().withMessage('El email no es válido')
                       .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,'true')).withMessage(`email ya está registrado`),
+        (req, res, next) => {
+          req.renderizar = async (errors) => {
+           console.log(" ERRORES------------------------------------------------------------------------")
+           console.log(req.body)
+           console.log(errors)
+           const {email,nombre,apellido,documento,edad,nacimiento,
+                  telefono,sexo,UsuarioId,
+                localidad,direccion,provincia,}=req.body   
+           const obj={usuario:{id:UsuarioId},editarPaciente:true,errors,email,nombre,apellido,documento,telefono,edad,nacimiento,localidad,direccion,provincia,sexo};
+           if(req.href){obj.href=req.href}
+           return res.render(`administrador/form`,obj) }
+          next();
+        },              
+        validarCampos              
                       ],
             putPaciente);
 

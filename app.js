@@ -35,6 +35,12 @@ app.use(
   })
 );
 app.use(flash());
+//para pasar los roles al front siempre
+app.use((req, res, next) => {
+  res.locals.roles = req.session.roles || [];
+  next();
+});
+
 
 // -------------------------------------------RUTAS
 app.use('/', indexRouter);

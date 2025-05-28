@@ -1,26 +1,21 @@
 
-.spanSearch{
-    display: flex;
-    padding: 5px;
-    align-items: center;
-    background-color: var(--bs-body-bg);
+  /* ------------------------------------------------------------------ search bar*/
+
+  form .spanSearch{
+    display: inline-block;
+  }
+
+  
+form .colSearch{
+    background-color: #EFEFEF;
     border-radius:50px;
     background-clip: padding-box;
     box-shadow: 0 0 5px 1px rgba(0,0,0,0.65); /* También puedes establecer un borde transparente */
     transition: box-shadow .3s ease-in-out, box-shadow .3s ease-in-out;
-    width: 100%;
-  }
-  form{
-    flex-wrap:wrap;
-  }
-  .divSpanSearch{
-    width: 50%;
-    min-width: 250px;
-    
   }
   
   
-  .inputSearchDeterminacion{
+ form .colSearch input{
   border:0;
   display: block;
       width: 100%;
@@ -29,23 +24,14 @@
       font-size: 1rem;
       font-weight: 400;
       line-height: 1.5;
-      color: var(--bs-body-color);
-      -webkit-appearance: none;
-      -moz-appearance: none;
       appearance: none;
-      background-color: var(--bs-body-bg);
+       outline: none;
+       background-color: #EFEFEF;
       
-     
-  
-  }
-  
-  .inputSearchDeterminacion:focus {
-    outline: none; /* Elimina el contorno del input al enfocarse */
-  }
-  .spanSearch:focus-within {
+ }
+ form .colSearch:focus-within {
     box-shadow:0 0 5px 1px #ffba8f; /* Cambia el borde del span al tener el foco en el input */
   }
 
-  .btn-add{
-    margin-left: 1rem;
-  }
+
+   /* ------------------------------------------------------------------ fORMULARIOS*/

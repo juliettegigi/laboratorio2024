@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+  Model,Op
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Paciente extends Model {
@@ -8,6 +8,24 @@ module.exports = (sequelize, DataTypes) => {
       Paciente.hasMany(models.Orden)
       Paciente.belongsTo(models.Usuario, { foreignKey: 'UsuarioId', as: 'Usuario' })
     }
+    
+   static findPacienteByEmailODocumento = async (email,documento) => {
+      const paciente = await Paciente.findOne({
+        include: {
+          model:sequelize.models.Usuario,
+          as: 'Usuario',
+          where: {
+            [Op.or]: [
+              { email },
+              { documento }
+            ]
+          }
+        }
+      });
+    
+      return paciente;
+    };
+
   }
   Paciente.init({
     nacimiento: DataTypes.DATEONLY,

@@ -12,7 +12,10 @@ const ESTADO=require('../constantes/estados')
 
 
 const getInicio=async(req,res)=>{
-   return res.render('administrador/index')  //le respondo con la página de inicio,  
+   const rta = req.flash('rta')[0];
+   const roles=req.session.roles;
+   console.log("roles:  ----------------> ",roles) 
+   return res.render('administrador/index' ,{ rta,roles })  //le respondo con la página de inicio,  
 
 }
 
@@ -79,12 +82,15 @@ const getPaciente=async(req,res)=>{
                },
                required: false
              },
-       order: [[{ model: Orden }, 'fecha', 'DESC']] 
+       order: [[{ model: Orden }, 'fecha', 'DESC'],
+               [{ model: Orden }, 'id', 'DESC']
+              ] 
    });
 
 
    if(paciente){
-     console.log("id:  " ,paciente)
+    console.log('------------------------------------------------ORDENES');
+     console.log("id:  " ,paciente.Ordens)
      console.log("id:  " ,paciente.UsuarioId)
      const usuario = await Usuario.findByPk(paciente.UsuarioId,{ attributes: { exclude: ['password'] }, 
                                                                  include: [{ model: Telefono }]});
@@ -102,13 +108,19 @@ const getPaciente=async(req,res)=>{
          arr2.push({id:muestra.id,muestraId:m.id,muestra:m.nombre,isPresentada:muestra.isPresentada})
       } 
 
-      
+      if(orden.id===11){
+        console.log("ORDENNNNNNNNNNNNNN          1111111111111111111111")
+        console.log(orden)
+        console.log("ssssssssssssssssssssssssssssssssssssssssssss")
+        
+      }
       arr.push({
           id:orden.id,
           diagnostico: diagnostico?.get(),
           medico: medico?.get(), 
           estado: estado?.get(),
           isPresuntivo:orden.isPresuntivo,
+          isUrgente:orden.isUrgente,
           fecha:orden.fecha,
           muestrasRequeridas:arr2,
           examenes
@@ -118,9 +130,7 @@ const getPaciente=async(req,res)=>{
      console.log('------------------------------------------------');
      console.log('------------------------------------------------ TELEGONOSSSSSS');
      
-     console.log(usuario.id);
-     console.log(await usuario.getTelefonos());
-     console.log(rta)
+     console.log(arr);
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
                                                        telefonos:await usuario.getTelefonos(),
@@ -148,10 +158,13 @@ const putPaciente=async(req,res)=>{
     const {
            sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,
            telefono}=req.body
-    const [updatedRows1]=await Usuario.update(req.datosActualizar, 
-                                              {where:{id:UsuarioId},
-                                               transaction,
-                                               userId:req.session.usuario.id});
+    const usuario = await Usuario.findByPk(UsuarioId, { transaction });
+    await usuario.set(req.datosActualizar);
+    await usuario.save({
+      transaction,
+      userId: req.session.usuario.id // ✅ Esto sí llega al hook
+    });
+
     const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad}, 
                                                {where:{UsuarioId}, 
                                                 transaction });
@@ -167,15 +180,9 @@ const putPaciente=async(req,res)=>{
   } catch (error) {
     console.error(error);
     await transaction.rollback();
-    if(error.parent.code==='ER_DUP_ENTRY'){
-      req.flash('rta',{ 
-        origen:'putPaciente',
-        alertType: 'danger',
-        alertMessage: 'Error: el email pertenece a otro usuario' })
-        return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
-    }
+   
 
-    return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
+    return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
   };
 
 
@@ -185,18 +192,19 @@ const putPaciente=async(req,res)=>{
 
 
 const crearPaciente=async(req,res)=>{
-  
   const transaction = await sequelize.transaction();
     try {
         const {email,nombre,apellido,documento,
-               sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,
+               sexo,nacimiento, embarazada, provincia, localidad, direccion,edad=0,
                telefono}=req.body
-        
-      const nuevoUsuario = await Usuario.create({email,nombre,apellido,documento},
+      let nuevoUsuario=(!req.UsuarioId)
+                       ? (await Usuario.create({email:email===''?null:email,nombre,apellido,documento},
                                                 { transaction , 
-                                                  userId: req.session.usuario.id});
-      const usuarioId=nuevoUsuario.id;
-      const paciente=await Paciente.create({UsuarioId:usuarioId,nacimiento, embarazada:embarazada?1:0, provincia, localidad,edad, direccion,sexo},
+                                                  userId: req.session.usuario.id}))
+                       :null;
+
+      const usuarioId=nuevoUsuario? nuevoUsuario.id:req.UsuarioId;
+      const paciente=await Paciente.create({UsuarioId:usuarioId,nacimiento:nacimiento===''?null:nacimiento, embarazada:embarazada?1:0, provincia, localidad,edad:edad===''?null:edad, direccion,sexo},
                             { transaction }) 
       
       await Telefono.create({UsuarioId:usuarioId,numero:telefono,descripcion:"propio"},
@@ -232,7 +240,7 @@ const crearPaciente=async(req,res)=>{
 }
 
 
-const calcularFechaDeEntrega=async(ordenNueva)=>{  
+const calcularFechaDeEntrega=async(ordenNueva,transaction,userId)=>{  
   
   // Sumar los tiemposDeProcesamiento de las órdenes previas, primero urgentes
   const ordenesPrevias = await Orden.findAll({
@@ -256,7 +264,8 @@ const calcularFechaDeEntrega=async(ordenNueva)=>{
   const fechaEntrega = new Date();
   fechaEntrega.setMinutes(fechaEntrega.getMinutes() + tiempoTotal); // O sumar lo que necesites (horas, días, etc.)
 
-  await ordenNueva.update({ fechaEntrega });
+  ordenNueva.fechaEntrega=fechaEntrega;
+  await ordenNueva.save({ transaction, userId , skipAudit: true });
 }
 
 
@@ -266,12 +275,13 @@ const postOrden=async(req,res)=>{
   const transaction = await sequelize.transaction();
     try {
       // la fecha puede ser distinta a la fecha de creación del registro, porq pude haber anotado en un papel y haber cargado después
-      const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,isUrgente,fecha}=req.body
+      const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,isUrgente,fecha,UsuarioId}=req.body
+      console.log("usuario id: ",UsuarioId)
       const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
       
-
+      const userId= req.session.usuario.id;
       const orden=await Orden.create({PacienteId,MedicoId,DiagnosticoId,isPresuntivo:isPresuntivo==='true'?true:false,isUrgente:isUrgente?1:0,fecha},
-                                     { transaction }
+                                     { transaction,userId}
                                     )
       let tiempoDeProcesamientoTotal=0;      
       let examenesNoRealizados=[]                              
@@ -289,9 +299,9 @@ const postOrden=async(req,res)=>{
                                                 });
       let muestrasRequeridas = await Promise.all(promises);
       orden.tiempoDeProcesamiento= tiempoDeProcesamientoTotal; 
-      await orden.save({ transaction });
+      await orden.save({ transaction, userId, skipAudit: true  });
       // calculo la fecha de entrega
-      calcularFechaDeEntrega(orden);
+      calcularFechaDeEntrega(orden,transaction,userId);
 
 
       muestrasRequeridas=muestrasRequeridas.filter((muestra, index, self) => index === self.findIndex((m) => m.id === muestra.id));
@@ -306,7 +316,7 @@ const postOrden=async(req,res)=>{
        orden.EstadoId=ESTADO.esperandoTomaDeMuestra.id; 
     }
     else orden.EstadoId=ESTADO.analitica.id;
-    await orden.save({ transaction });
+    await orden.save({ transaction, userId: req.session.usuario.id , skipAudit: true });
 
      //TODO: mostrar las muestras requeridas,
      //TODO: devolver los examenes q el laboratorio no realiza,
@@ -320,7 +330,7 @@ const postOrden=async(req,res)=>{
          muestrasRequeridas,
          fechaResultados:orden.fechaEntrega,
          examenesNoRealizados })
-      return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+      return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
 
     } catch (error) {
       console.log(error)
@@ -345,9 +355,11 @@ const putOrden=async(req,res)=>{
     const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,fecha,ordenId,isUrgente}=req.body
     const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
 
-    await Orden.update({MedicoId,DiagnosticoId, isPresuntivo,fecha,isUrgente:isUrgente?1:0},
-      { where: { id:ordenId } }, { transaction }
-    )
+  /*   await Orden.update({MedicoId,DiagnosticoId, isPresuntivo,fecha,isUrgente:isUrgente?1:0},
+      { where: { id:ordenId } }, { transaction,userId: req.session.usuario.id }
+    ) */
+
+      
 
     const muestrasRequeridasActuales = await MuestraRequerida.findAll({
       where: { OrdenId: ordenId },
@@ -386,6 +398,15 @@ const putOrden=async(req,res)=>{
     // agrego las nuevas relaciones    
     await MuestraRequerida.bulkCreate(muestrasRequeridasNuevasRelaciones, { transaction });
 
+    const orden = await Orden.findByPk(ordenId, { transaction });
+    orden.MedicoId = MedicoId;
+    orden.DiagnosticoId = DiagnosticoId;
+    orden.isPresuntivo = isPresuntivo;
+    orden.fecha = fecha;
+    orden.isUrgente = isUrgente ? 1 : 0;
+    await orden.save({ transaction, userId: req.session.usuario.id });
+
+
     await transaction.commit();  
     req.flash('rta',{ 
       origen:'putOrden',
@@ -409,7 +430,7 @@ const putMuestrasRequeridas=async(req,res)=>{
   try{
     console.log('------------------------------------------------ PUT MUESTRAS REQUERIDAS' );
     console.log(req.body)
-    const{PacienteId,OrdenId}=req.body
+    const{OrdenId,UsuarioId}=req.body
     const muestrasRequeridasIdPresentadas=(req.body.muestrasRequeridas && Array.isArray(req.body.muestrasRequeridas ))?req.body.muestrasRequeridas:[req.body.muestrasRequeridas];
     const muestrasRequeridas = await MuestraRequerida.findAll({ where: { OrdenId } });
     let  i=0;
@@ -433,7 +454,8 @@ const putMuestrasRequeridas=async(req,res)=>{
        origen:'putOrden',
         alertType: 'success',
         alertMessage: `Orden ${OrdenId} muestras actualizadas.` })
-     return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+     console.log("USUARIO ID    :----------->> ",UsuarioId)   
+     return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
      }catch(error) {
       console.log(error)
       await transaction.rollback();

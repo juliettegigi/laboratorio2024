@@ -1,0 +1,79 @@
+mixin tablaCategDet(form,tablaId)
+ if !form 
+    .container.tablaCategDet2.text-center
+     .row.cabecera 
+      .col 
+       h2= examen.nombre 
+     //1ra row
+     .row.cabecera.gy-4
+      .col.col-3 
+       h2 Categoría
+      .col.col-4 
+       h2 Parámetros
+      .col.col-4 
+       h2 Determinaciones
+      .col.col-1.flex-grow-0
+       h2 #
+
+     
+     
+     each categoria in categorias
+      form(action=`http://localhost:3000/tecBioq/categ/${categoria.id}/${examen.id}?_method=put` method="POST"  )
+       //2da row
+      
+       .row.gy-4
+        .col.col-3(title=categoria.nombre)
+         input.formCategDet-input-1ro(disabled type="text" name="nombre" value=categoria.nombre autocomplete="off")
+          
+          
+        //2da columna
+        .col.col-4
+         ul
+          each param in categoria.ExCategParametros
+            li= param.Parametro.nombre
+              a(title="eliminar parámetro" role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?param.Parametro.id:param.Determinacion.id}/${categoria.id}/${examen.id}` 
+               class="btn btn-close  btn-sm formCategDet-cruz")     
+        //3ra columna
+        .col.col-4
+         ul
+          each det in categoria.ExCategDeterminacions
+            li= det.Determinacion.nombre
+              a(title="eliminar determinación" role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${det.Determinacion.id}/${categoria.id}/${examen.id}` 
+               class="btn btn-close formCategDet-cruz btn-sm")  
+                    
+        //cuarta columna   
+        .col.col-1
+         .row-flex-column
+          .col
+           a(title="eliminar categoría" href=`http://localhost:3000/tecBioq/categ/${examen.id}/${categoria.id}`)
+             svg(tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-x-circle" viewBox="0 0 16 16")
+              path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
+              path(d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708")
+          .col(class="formCategDet-btn-editarCategoria" title="editar categoría")
+            svg( tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-pencil" viewBox="0 0 16 16")
+             path( d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
+             g(transform="translate(2,2) scale(0.8)")
+              path(d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325")
+     
+
+                     
+
+    script( type="module" src='/javascripts/tecBioq/tabla1.js')  
+ else 
+  form(action=`http://localhost:3000/tecBioq/examen/${examen.id}/addCategDet` method="POST" name="formExamen" )
+      #divTabla
+         table(class="table" id=tablaId) 
+          tbody(class="table-group-divider")
+           
+          tfoot 
+             th.btnAddRow(scope="row")
+              div(role="button" tabindex="0") 
+               svg(xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-plus-circle" viewBox="0 0 16 16")
+                path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
+                path(d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4")
+                span.hover-link Agregar categoría 
+             td          
+      div.form-btn   
+       button.btn.btn-primary#btnEnviar(type="button") Enviar
+  script( type="module" src='/javascripts/tecBioq/categDet.js')  
+   

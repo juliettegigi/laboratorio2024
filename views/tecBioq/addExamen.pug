@@ -1,3 +1,8 @@
 extends layout
+include ./formExamen.pug
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
 block content
- include ./formExamen.pug
+   .row.justify-content-center
+    .col-lg-6 
+     +formExamen("Agregar")

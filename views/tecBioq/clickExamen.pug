@@ -1,10 +1,12 @@
 extends layout
-block aside 
-    include ./menuLateralExamen.pug
-block content
-  //
-   if rtaCargarOrden 
-        include ./rtaCargarOrden.pug
-  .container.d-flex.flex-column.divContent(id="divLista" )  
-    include ./formExamen.pug
-    +formExamen("Editar",examen)
+append styles 
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
+include ./formExamen.pug
+block content 
+   .row.justify-content-center 
+    .col-lg-6
+     .row
+      include ./menuLateralExamen.pug
+      .col
+       div.d-flex.justify-content-center
+        +formExamen("Guardar cambios",examen)
