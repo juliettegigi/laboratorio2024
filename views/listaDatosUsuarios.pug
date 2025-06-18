@@ -1,33 +1,43 @@
 mixin listaDatosPaciente(paciente)
- ul(class=`list-group list-group-flush lista-datos-usuario ${paciente.deletedAt?"lista-datos-usuarioEliminado":""}`)
-  li(class="list-group-item") Edad: 
-      span= paciente.edad 
-  li(class="list-group-item") Fecha de nacimiento:
-      span= paciente.nacimiento
-  li(class="list-group-item")= "Embarazada: "
-      span= paciente.embarazada
-  li(class="list-group-item") Provincia: 
-      span= paciente.provincia
-  li(class="list-group-item") Localidad: 
-      span= paciente.localidad
-  li(class="list-group-item") Dirección:
-      span= paciente.direccion
-  li(class="list-group-item") Sexo:
-      span= paciente.sexo
+ .lista
+  div(class="titulo-lista")
+   h3 Paciente
+   if !usuario.deletedAt
+    +3puntos('btnEditarPaciente', `/admins2/${usuario.id}/paciente?_method=patch`,usuario.Paciente.deletedAt)
+  ul(class=`list-group list-group-flush ${paciente.deletedAt?"lista-datos-usuarioEliminado":""}`)
+   li(class="list-group-item") Edad: 
+       span= paciente.edad 
+   li(class="list-group-item") Fecha de nacimiento:
+       span= paciente.nacimiento
+   li(class="list-group-item")= "Embarazada: "
+       span= paciente.embarazada
+   li(class="list-group-item") Provincia: 
+       span= paciente.provincia
+   li(class="list-group-item") Localidad: 
+       span= paciente.localidad
+   li(class="list-group-item") Dirección:
+       span= paciente.direccion
+   li(class="list-group-item") Sexo:
+       span= paciente.sexo
 
 mixin listaDatosBioquimico(bioquimico)
- ul(class=`list-group list-group-flush lista-datos-usuario ${bioquimico.deletedAt?"lista-datos-usuarioEliminado":""}`)
-  li(class="list-group-item") Matrícula: 
-      span= bioquimico?bioquimico.matricula:"" 
-  li(class="list-group-item") Título:
-      span= bioquimico?bioquimico.titulo:""
+ .lista
+  div(class="titulo-lista")
+   h3 Bioquímico
+   if !usuario.deletedAt
+    +3puntos('btnEditarBioquimico', `/admins2/${usuario.id}/bioquimico?_method=patch`,usuario.Bioquimico.deletedAt)
+  ul(class=`list-group list-group-flush ${bioquimico.deletedAt?"lista-datos-usuarioEliminado":""}`)
+   li(class="list-group-item") Matrícula: 
+       span= bioquimico?bioquimico.matricula:"" 
+   li(class="list-group-item") Título:
+       span= bioquimico?bioquimico.titulo:""
 
 
 
-mixin formPaciente(paciente,usuarioId,oculto)
-  .container.form-valorRef(id="divForm2" class=(rta || oculto)?"oculto":"")
-    div
-      h2.subtitulo-h2 Datos del paciente
+mixin formPaciente(divId,paciente,usuarioId,oculto)
+  .container.form-valorRef(id=divId class=(rta || oculto)?"oculto":"")
+    div.titulo-lista
+      h3 Datos del paciente
     .container
      form(action=paciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins2/paciente/` , method="post" class="needs-validation  mt-5  " name="formu" novalidate )                       
          if usuarioId
@@ -120,7 +130,7 @@ mixin formPaciente(paciente,usuarioId,oculto)
                      else
                          | Registrar
              .col(id="divRegresarForm2")
-              button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar           
+              a(class="btn btn-secondary w-100 py-2 btnRegresar" type="button" href=`http://localhost:3000/admins2/${usuario.id}`) Cancelar          
      script(src="/javascripts/administrador/form.js")              
      script. 
          (async()=>{
@@ -173,69 +183,72 @@ mixin formPaciente(paciente,usuarioId,oculto)
            })
          })()      
 
-mixin formUsuario(usuario,oculto)
- div(id="divForm1" class=`${oculto?"oculto":""} container form-valorRef d-flex flex-column align-items-center justify-content-center`)
+mixin formUsuario(divId,usuario=null,oculto=false)
+ - const errors=formDataUsuario?.errors
+ div(id=divId class=` container form-valorRef  divFormulario ${oculto?"oculto":""}`)
   if errors
-   - const arr = ["documento", "nombre", "apellido", "email", "titulo", "matricula", "telefono"]
+   - const arr = ["documento", "nombre", "apellido", "email", "telefono"]
    - errores= arr.filter(elem=>errors.find(e=>e.path===elem))  
-  form(action=usuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/usuario` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
-   .row.text-center
-       h1(class="h3 mb-3 fw-normal")
-          | Datos de usuario
-       .col
-           .form-floating
-               input(type="text" class=`form-control ${errors && errores.includes('nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${nombre || (usuario && usuario.nombre) || ''}`)
-               label(for="nombre") Nombre
-       .col        
-           .form-floating
-               input(type="text" class=`form-control ${errors && errores.includes('apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${apellido || (usuario && usuario.apellido) || ''}`)
-               label(for="apellido") Apellido
-   .row 
-       .col           
-           .form-floating
-               input(type="text" class=`form-control ${errors && errores.includes('documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${documento || (usuario && usuario.documento) || ''}`)
-               label(for="dni") Dni
-       .col        
-           .form-floating
-               input(type="email" class=`form-control ${errors && errores.includes('email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${email || (usuario && usuario.email) || ''}` )
-               label(for="floatingInput") Email               
-   .row                      
-       .col        
-           .form-floating
-               input(type="tel" class=`form-control ${errors && errores.includes('telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
-               input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
-               label(for="telefono") Teléfono                      
-   .row                      
-       .col        
-           .form-group
-            label(for="roles") Asignar Roles:
-             each role in roles
-              .form-check
-                input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
-                                      checked=rolesArray.some(r => r.toLowerCase() === role.nombre.toLowerCase()))
-                label(for=`role-${role.id}`)= role.nombre                                                                
-   .row   
-       .col         
-           button(class="btn btn-secondary w-100 py-2" type="submit") 
-               if editarUsuario
-                   | Guardar cambios
-               else
-                   | Registrar
-       if usuario           
-        .col(id="divRegresarForm1")
-         button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar            
+  form.row(action=usuario?`/admins2/usuario/${usuario.id}?_method=put`:`/admins2/usuario` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
+   .col 
+    .row.text-center
+        .titulo-lista
+         h3
+            | Datos de usuario
+        .col
+            .form-floating
+                input(type="text" class=`form-control ${errors && errores.includes('nombre')?'text-danger':''}` id="nombre" name="nombre" placeholder="Nombre" value=`${(formDataUsuario && formDataUsuario.nombre) || (usuario && usuario.nombre) || ''}`)
+                label(for="nombre") Nombre
+        .col        
+            .form-floating
+                input(type="text" class=`form-control ${errors && errores.includes('apellido')?'text-danger':''}` id="apellido" placeholder="Apellido" name="apellido" value=`${(formDataUsuario && formDataUsuario.apellido) || (usuario && usuario.apellido) || ''}`)
+                label(for="apellido") Apellido
+    .row 
+        .col           
+            .form-floating
+                input(type="text" class=`form-control ${errors && errores.includes('documento')?'text-danger':''}` id="dni" placeholder="11111111" name="documento"  value=`${(formDataUsuario && formDataUsuario.documento) || (usuario && usuario.documento) || ''}`)
+                label(for="dni") Dni
+        .col        
+            .form-floating
+                input(type="email" class=`form-control ${errors && errores.includes('email')?'text-danger':''}` id="floatingInput" placeholder="name@example.com" name="email" value=`${(formDataUsuario && formDataUsuario.email) || (usuario && usuario.email) || ''}` )
+                label(for="floatingInput") Email               
+    .row                      
+        .col        
+            .form-floating
+                input(type="tel" class=`form-control ${errors && errores.includes('telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${(formDataUsuario && formDataUsuario.telefono) || (telefonos && telefonos[0].numero) || ''}`)
+                input(type="hidden"   name="telefonoId"  value=`${telefono || (telefonos && telefonos[0].id) || ''}`)
+                label(for="telefono") Teléfono                                  
+    .row                      
+        .col        
+            .form-group
+             label(for="roles") Asignar Roles:
+              each role in roles
+               .form-check
+                 input.form-check-input(type="checkbox", name="roles", value=role.id, id=`role-${role.id}` 
+                                       checked= rolesDelUsuario && rolesDelUsuario.some(r => role.nombre == r))
+                 label(for=`role-${role.id}`)= role.nombre                                                                
+    .row   
+        .col         
+            button(class="btn btn-secondary w-100 py-2" type="submit") 
+                if editarUsuario
+                    | Guardar cambios
+                else
+                    | Registrar
+        if usuario           
+         .col(id="divRegresarForm1")
+          a(class="btn btn-secondary w-100 py-2 btnRegresar" type="button" href=`http://localhost:3000/admins2/${usuario.id}`) Cancelar            
   if errors                
    .row(class="alert alert-danger" role="alert")
     .col 
      each e in errors
       p= e.msg 
-     if href 
-      a(href=href) Ver usuario ya registrado
+     if formDataUsuario && formDataUsuario.href 
+      a(href=formDataUsuario.href) Ver usuario ya registrado
        
-mixin formBioquimico(bioquimico,usuarioId,oculto)
- div(id="divForm3" class=`${oculto?"oculto":""} container  form-valorRef`)
+mixin formBioquimico(divId,bioquimico,usuarioId,oculto)
+ div(id=divId class=`${oculto?"oculto":""} container  form-valorRef`)
   div
-    h2.subtitulo-h2 Datos del bioquímico 
+    h3.titulo-lista Datos del bioquímico 
   .container
    form(action=bioquimico?`/admins2/bioquímico/${bioquimico.id}?_method=put`:`/admins2/bioquímico` , method="post" class="needs-validation  mt-5  " name="formu" novalidate )
     if usuarioId
@@ -268,20 +281,18 @@ mixin formBioquimico(bioquimico,usuarioId,oculto)
                else
                    | Registrar
        .col(id="divRegresarForm3")
-        button(class="btn btn-secondary w-100 py-2 btnRegresar" type="button") Regresar 
+        a(class="btn btn-secondary w-100 py-2 btnRegresar" type="button" href=`http://localhost:3000/admins2/${usuario.id}`) Cancelar 
 
-mixin formTecnico(tecnico,usuarioId,oculto)
- div(id="divForm4" class=`${oculto?"oculto":""} container form-valorRef d-flex justify-content-center`)
-   form(action=tecnico?`/admins2/técnico/${usuarioId}?_method=put`:`/admins2/técnico/${usuarioId}` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
+mixin formTecnico(divId,tecnico,usuarioId,oculto)
+ div(id=divId class=`${oculto?"oculto":""}`)
+   form.row(action=tecnico?`/admins2/técnico/${usuarioId}?_method=put`:`/admins2/técnico/${usuarioId}` , method="post" class="needs-validation  mt-5   " name="formu" novalidate )
     if usuarioId
-          input(type="hidden" name="UsuarioId" value=usuario.id)
-    
-    .row   
-       .col         
-           button(class="btn btn-secondary w-100 py-2" type="submit") 
-               if tecnico
-                   | Guardar cambios
-               else
-                   | Registrar
-       .col(id="divRegresarForm3")                        
+          input(type="hidden" name="UsuarioId" value=usuario.id)  
+    .col         
+        button(class="btn btn-secondary w-100 py-2" type="submit") 
+            if tecnico
+                | Guardar cambios
+            else
+                | Registrar
+    .col(id="divRegresarForm3")                        
        

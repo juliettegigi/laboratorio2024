@@ -4,16 +4,16 @@ append styles
       link(rel='stylesheet', href='/stylesheets/tecbioq/formValorRef.css')
 include ./formDeterminacion.pug
 block content 
-   .row.w-100.mx-0.justify-content-center 
+   .row.justify-content-center 
     .col-lg-9.col-xxl-8
      .row
       include ./menuLateralDeterminacion.pug
-      .col
+      .col.bordeAzul
        .row
         .col 
          div.d-flex.justify-content-center
           +formDeterminacion("Guardar cambios","http://localhost:3000/tecBioq/det?_method=put",determinacion)
        .row 
-        .col
+        .col.bordeAzul
          div.d-flex.justify-content-center  
           +formValorReferencia(false,"Guardar cambios","http://localhost:3000/tecBioq/vr?_method=put",determinacion)    

@@ -21,25 +21,61 @@ module.exports = (sequelize, DataTypes) => {
         let where = {};
     
         
-        
+        console.log("TERMINO")
+        console.log(termino)
         if (termino !== "") {
           where = {
-            [Op.or]: [  Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('Usuario.nombre'), termino),
-                                          { [Op.lte]: 3 }
+            [Op.or]: [  
+              
+                        { nombre: { [Op.like]: `%${termino}%` }},
+                        { apellido: { [Op.like]: `%${termino}%` }},
+                        { documento: { [Op.like]: `%${termino}%` }},               
+                        { email: { [Op.like]: `%${termino}%` }},
+                        Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('Usuario.nombre'), termino),
+                                          { [Op.lte]: 6 }
                                         ),
                         Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('apellido'), termino),
-                                          { [Op.lte]: 3 }
+                                          { [Op.lte]: 6 }
                                        ),               
                         Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('documento'), termino),
-                                          { [Op.lte]: 3 }
+                                          { [Op.lte]: 6 }
                                        ),               
                         Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('email'), termino),
-                                          { [Op.lte]: 3 }
-                                       ),               
+                                          { [Op.lte]: 6 }
+                                       ),
+                           
             ],
           };
         }
     
+         const exactMatchFirst = Sequelize.literal(`
+                      CASE
+                        WHEN LOWER(\`Usuario\`.\`nombre\`) = LOWER('${termino}') THEN 0
+                        WHEN LOWER(\`Usuario\`.\`apellido\`) = LOWER('${termino}') THEN 0
+                        WHEN LOWER(\`Usuario\`.\`email\`) = LOWER('${termino}') THEN 0
+                        WHEN LOWER(\`Usuario\`.\`documento\`) = LOWER('${termino}') THEN 0
+                        ELSE 1
+                      END
+                    `);
+        const orderByLikeMatch = Sequelize.literal(`
+                      CASE
+                        WHEN \`Usuario\`.\`nombre\` LIKE '%${termino}%' THEN 0
+                        WHEN \`Usuario\`.\`apellido\` LIKE '%${termino}%' THEN 0
+                        WHEN \`Usuario\`.\`email\` LIKE '%${termino}%' THEN 0
+                        WHEN \`Usuario\`.\`documento\` LIKE '%${termino}%' THEN 0
+                        ELSE 1
+                      END
+                    `);            
+      const orderByDistance = Sequelize.literal(`
+                LEAST(
+                  levenshtein(LOWER(\`Usuario\`.\`nombre\`), LOWER('${termino}')),
+                  levenshtein(LOWER(\`Usuario\`.\`apellido\`), LOWER('${termino}')),
+                  levenshtein(LOWER(\`Usuario\`.\`email\`), LOWER('${termino}')),
+                  levenshtein(LOWER(\`Usuario\`.\`documento\`), LOWER('${termino}'))
+                )
+              `);
+
+
         let includes = [{ model: sequelize.models.Telefono }];
         // Incluir tablas adicionales en la consulta
        if(tablas){ 
@@ -72,21 +108,27 @@ module.exports = (sequelize, DataTypes) => {
         }
     
         // Realizar la consulta con las condiciones de búsqueda
+        console.log("WHERE")
+        console.log(where)
         const usuarios = await Usuario.findAndCountAll({
           include: includes,
           where,
           attributes: { exclude: ['pass'] },
           order: [
+            [exactMatchFirst, 'ASC'],
+            [orderByLikeMatch, 'ASC'],
+            [orderByDistance, 'ASC'],
             ['apellido', 'ASC'],
             ['nombre', 'ASC'],
           ],
           limit,
           offset,
-          paranoid
+          paranoid,
+          distinct: true
         });
     
       
-    
+        console.log(usuarios)
         return usuarios; // Retorna los usuarios con los roles filtrados
       } catch (error) {
         console.log('models==>usuario');

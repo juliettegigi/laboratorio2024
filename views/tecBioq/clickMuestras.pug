@@ -3,9 +3,11 @@ append styles
       link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
 include ./formMuestra.pug
 block content 
-   .row.w-100.mx-0.justify-content-center 
-    .col-lg-8.col-xl-6
+   .row.justify-content-center 
+    .col-lg-9.col-xxl-8
      .row
       .col
        div.d-flex.justify-content-center
         +formMuestra("Guardar cambios","http://localhost:3000/tecBioq/muestra?_method=put",muestra)
+
+     

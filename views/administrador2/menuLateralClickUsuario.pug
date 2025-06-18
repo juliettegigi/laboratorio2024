@@ -1,15 +1,22 @@
-aside(class="d-flex position-fixed vh-100" style="top: calc(var(--header-height));")
- nav(class="nav flex-column bg-light p-3" style="width: 240px;")
-  ul(class="bd-links-nav list-unstyled mb-0 pb-3 pb-md-2 pe-lg-2")
+aside(class="col-auto  me-3" )
+ nav(class="nav flex-column bg-light navLateral")
+  ul(class="bd-links-nav list-unstyled")
    if !usuario.Paciente
     li(class="nav-item")
-     button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegPaciente' ) Registrar como paciente
+     //button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegPaciente' ) Registrar como paciente
+     a(class="nav-link btnEditar" id="btnRegPaciente" ) Registrar como paciente   
    if !usuario.Bioquimico
     li(class="nav-item")
-     button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegBioquimico' ) Registrar como bioquímico
-   
+     //button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegBioquimico' ) Registrar como bioquímico
+     a(class="nav-link btnEditar" id="btnRegBioquimico" ) Registrar como bioquímico
    if !usuario.Tecnico
     li(class="nav-item")
-     button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegTecnico' ) Registrar como técnico
+     //button(type="button" class="btn  w-100 py-2 btnEditar" id='btnRegTecnico' ) Registrar como técnico
+     a(class="nav-link btnEditar" id='btnRegTecnico' ) Registrar como técnico
+  .border-bottom  
+  ul(class="bd-links-nav list-unstyled")
+   li(class="nav-item")
+    a(class="nav-link btnEditar" id="btnMovimientos") Movimientos
+
    
      

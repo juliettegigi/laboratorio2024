@@ -1,35 +1,37 @@
-nav(class="navbar navbar-expand-lg bg-body-tertiary ")
-  .container-fluid.d-flex.justify-content-between
-   div.position-absolute.top-0.start-0
+header.container-fluid.sticky-top.px-0 
+ nav(class="navbar navbar-expand-md bg-body-tertiary")
+   div.container-fluid
     a.navbar-brand(href="/admins2") 
      img(src="/images/logo.jpg", alt="logo laboratorio ULP" class="logo ")
-   div.logo  
-   div.d-flex-flex-column  
-    button.navbar-toggler(type="button" 
-                           data-bs-toggle="collapse" 
-                           data-bs-target="#navbarSupportedContent" 
-                           aria-controls="navbarSupportedContent" 
-                           aria-expanded="false" 
-                           aria-label="Toggle navigation")
-      span.navbar-toggler-icon 
-    div.collapse.navbar-collapse#navbarSupportedContent.d-flex.justify-content-end
-     include ../menu.pug                                
 
-    div.collapse.navbar-collapse#navbarSupportedContent
-     ul.navbar-nav.me-auto.mb-2.mb-lg-0
-      li.nav-item.dropdown
-       a.nav-link.active(aria-current="page" 
-                                         href=`http://localhost:3000/admins2/registrarUsuario`
-                                         role="button" 
-                                         aria-expanded="false"
-                                         ) Registrar usuario
-      // 
-       ul.dropdown-menu(aria-labelledby="navbarDropdown")
-        li
-          a.dropdown-item(href=`http://localhost:3000/admins2/form?rol=${encodeURIComponent("Bioquímico")}`) Bioquímicos
-        li
-          a.dropdown-item(href=`http://localhost:3000/admins2/form?rol=${encodeURIComponent("Técnico")}`) Técnicos
-      li.nav-item
-       a.nav-link(href="http://localhost:3000/admins2/ordenes"
-                                  aria-expanded="false"
-                                  role="button") Ordenes                           
+
+    div.d-flex.justify-content-end.order-md-1
+     div
+      include ../menu.pug
+     button.navbar-toggler(type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#navbarSupportedContent" 
+                            aria-controls="navbarSupportedContent" 
+                            aria-expanded="false" 
+                            aria-label="Toggle navigation")
+       span.navbar-toggler-icon 
+    
+    div.collapse.navbar-collapse#navbarSupportedContent.d-flex.justify-content-end
+     .d-flex.justify-content-center.container
+        ul.navbar-nav.mb-2.mb-lg-0.w-100.d-flex.justify-content-center
+         li.nav-item.dropdown
+          a.nav-link.active(aria-current="page" 
+                                            href=`http://localhost:3000/admins2/registrarUsuario`
+                                            role="button" 
+                                            aria-expanded="false"
+                                            ) Registrar usuario
+         // 
+          ul.dropdown-menu(aria-labelledby="navbarDropdown")
+           li
+             a.dropdown-item(href=`http://localhost:3000/admins2/form?rol=${encodeURIComponent("Bioquímico")}`) Bioquímicos
+           li
+             a.dropdown-item(href=`http://localhost:3000/admins2/form?rol=${encodeURIComponent("Técnico")}`) Técnicos
+         li.nav-item
+          a.nav-link(href="http://localhost:3000/admins2/ordenes"
+                                     aria-expanded="false"
+                                     role="button") Órdenes                           

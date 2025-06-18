@@ -1,0 +1,14 @@
+table.table.table-hover
+ thead 
+  tr
+   th ID
+   th Usuario
+   th Fecha
+   th Operación
+ tbody
+  each auditoria in auditorias
+   tr
+    td= auditoria.id
+    td= auditoria.usuarioId
+    td= new Date(auditoria.fecha).toLocaleString()
+    td= auditoria.operacion       

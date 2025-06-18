@@ -2,8 +2,8 @@ doctype html
 html
   head
     title= title 
-    //- title lo envía el server o no {title:"mi title"}
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    block styles  
+      link(rel='stylesheet', href='/stylesheets/tecbioq/style.css')
     block head
       //- Bloque por defecto para el head. Si no es sobrescrito, este contenido permanecerá.
       meta(charset='UTF-8')

@@ -18,30 +18,45 @@ const getInicio=async(req,res)=>{
       group=parseInt(group)
       let offset=page*limit-limit;
       let where={}
+      
       if (inputSearch !== "") {
         where = {
           [Op.or]: [
             Sequelize.where(
               Sequelize.fn('levenshtein', Sequelize.col('nombre'), inputSearch),
-              { [Op.lte]: 3 }
+              { [Op.lte]: 6 }
             ),
             Sequelize.where(
               Sequelize.fn('levenshtein', Sequelize.col('codigo'), inputSearch),
-              { [Op.lte]: 3 }
+              { [Op.lte]: 6 }
             ),
             Sequelize.where(
               Sequelize.fn('levenshtein', Sequelize.col('tags'), inputSearch),
-              { [Op.lte]: 3 }
-            )
+              { [Op.lte]: 6 }
+            ),
+            { nombre: { [Op.like]: `%${inputSearch}%` }},
+            { codigo: { [Op.like]: `%${inputSearch}%` }},
+            { tags: { [Op.like]: `%${inputSearch}%` }}
           ]
         };
       }
       
+      const exactMatchFirst = Sequelize.literal(`
+            CASE
+              WHEN LOWER(nombre) = LOWER('${inputSearch}') THEN 0
+              ELSE 1
+            END
+          `);
+      const orderByDistance = Sequelize.literal(`levenshtein(nombre, '${inputSearch}')`);
+
       const { count, rows } = await Examen.findAndCountAll({
         where,
         limit,
         offset,
-        order: [['nombre', 'ASC']],
+        order: [   [exactMatchFirst, 'ASC'],
+                   [orderByDistance, 'ASC'],
+                   ['nombre', 'ASC']
+                ],
       });
        const roles=req.session.roles;
       return res.render('tecBioq/index',{inputSearch,
@@ -304,18 +319,49 @@ const  getInicioValidar=async(req,res)=>{
      console.log("input search")
      console.log(inputSearch)
      if(inputSearch!==""){
-      where={ [Op.or]: [{ nombre: { [Op.regexp]: inputSearch } },
-                        { codigo: { [Op.regexp]: inputSearch } },
-                        { tags: { [Op.regexp]: inputSearch } }
-                        ]
-            } 
+        where = {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('nombre'), inputSearch),
+              { [Op.lte]: 3 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('codigo'), inputSearch),
+              { [Op.lte]: 3 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('tags'), inputSearch),
+              { [Op.lte]: 3 }
+            ),
+            { nombre: { [Op.like]: `%${inputSearch}%` }},
+            { codigo: { [Op.like]: `%${inputSearch}%` }},
+            { tags: { [Op.like]: `%${inputSearch}%` }}
+          ],
+        };
      }
-     const { count, rows } = await Determinacion.findAndCountAll({
+     const exactMatchFirst = Sequelize.literal(`
+            CASE
+              WHEN LOWER(nombre) = LOWER('${inputSearch}') THEN 0
+              ELSE 1
+            END
+          `);
+      const orderByDistance = Sequelize.literal(`levenshtein(nombre, '${inputSearch}')`);
+     
+       
+        
+      
+
+      const { count, rows } = await Determinacion.findAndCountAll({
         where,
-        limit, 
-        offset, 
-        order: [['nombre', 'ASC']], 
+        limit,
+        offset,
+        order: [   [exactMatchFirst, 'ASC'],
+                   [orderByDistance, 'ASC'],
+                   ['nombre', 'ASC']
+                ],
       });
+        console.log('------------------------------------------------');
+        console.log(rows)
      return res.render('tecBioq/indexDeterminacion',{inputSearch,
                                       determinaciones:rows,
                                       limit,
@@ -326,7 +372,7 @@ const  getInicioValidar=async(req,res)=>{
                                       isTecnico:req.session.isTecnico,
                                       isBioquimico:req.session.isBioquimico})
 }catch(error){  console.log(error)
-               return res.render('tecBioq/index')
+               return res.redirect('http://localhost:3000/tecBioq')
  } 
   
 }
@@ -795,7 +841,7 @@ const putOrdenExamenIsValidado=async(req,res)=>{
  const postCategDet=async(req,res)=>{
   const transaction = await sequelize.transaction();
   console.log(req.body)
-  const {id}=req.params;
+  const {ExamenId}=req.params;
    try {
 
      const categorias=Array.isArray(req.body.categorias)?  req.body.categorias
@@ -806,16 +852,16 @@ const putOrdenExamenIsValidado=async(req,res)=>{
       
       
       const [exCateg, created] = await ExamenCategoria.findOrCreate({
-        where: { ExamenId: id, nombre },
-        defaults: { ExamenId: id, nombre },
+        where: { ExamenId, nombre },
+        defaults: { ExamenId, nombre },
         transaction
       });
       
-      const detId=req.body[`${i}`]?Array.isArray(req.body[`${i}`]) ? req.body[`${i}`]
-                                                 : [req.body[`${i}`]]
+      const detId=req.body[`det-${i}Id`]?Array.isArray(req.body[`det-${i}Id`]) ? req.body[`det-${i}Id`]
+                                                 : [req.body[`det-${i}Id`]]
                                   : []          
-      const paramId= req.body[`param-${i}`]? Array.isArray(req.body[`param-${i}`]) ? req.body[`param-${i}`]
-                                                                                  : [req.body[`param-${i}`]]
+      const paramId= req.body[`param-${i}Id`]? Array.isArray(req.body[`param-${i}Id`]) ? req.body[`param-${i}Id`]
+                                                                                  : [req.body[`param-${i}Id`]]
                                            : []
       
       for (let id2 of detId){
@@ -834,7 +880,7 @@ const putOrdenExamenIsValidado=async(req,res)=>{
     
 
     await transaction.commit();
-     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}/addCategDet`)
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${ExamenId}/addCategDet`)
 
    } catch (error) {
      console.error(error);
@@ -1117,18 +1163,18 @@ const postDet=async(req,res)=>{
     console.log('------------------------------------------------ POST DETERMINACION');
     console.log(req.body)
     const{nombre,codigo,tags}= req.body;
-    const unidades=req.body.unidades?  
-                       Array.isArray(req.body.unidades) ? req.body.unidades : [req.body.unidades]
+    const unidadesId=req.body.unidadesId?  
+                       Array.isArray(req.body.unidadesId) ? req.body.unidadesId : [req.body.unidadesId]
                    : [];    
-    const detId=req.body.detId?  
-                   Array.isArray(req.body.detId) ? req.body.detId : [req.body.detId]
+    const detId=req.body.determinacionIdId?  
+                   Array.isArray(req.body.deteId) ? req.body.detId : [req.body.determinacionIdId]
                : [];    
 
     //const unidades= await Unidad.findAll({ order: [['unidad', 'ASC']]});
     
     const determinacion=await Determinacion.create({nombre,codigo,tags},{transaction})
     
-    for(let unidad of unidades){
+    for(let unidad of unidadesId){
         const u=await Unidad.findOne( { where: { unidad},transaction })
         if(u) await DeterminacionUnidad.create({DeterminacionId:determinacion.id,UnidadId:u.id},{transaction})
     }
@@ -1142,8 +1188,7 @@ const postDet=async(req,res)=>{
 
 
     await transaction.commit();
-    return res.render(`tecBioq/addVr`,{determinacion,isTecnico:req.session.isTecnico,
-      isBioquimico:req.session.isBioquimico} )
+    return res.redirect(`http://localhost:3000/tecBioq/determinacion/${determinacion.id}` )
 
   } catch (error) {
     console.error(error);

@@ -2,7 +2,7 @@ const {OAuth2Client} = require('google-auth-library');
 
 const client = new OAuth2Client("961283639807-dbu75hn2c1eckvf47ho7lltkhi7an950.apps.googleusercontent.com");
 
-const {Usuario,Examen} = require('../models');
+const {Usuario,Examen,Paciente} = require('../models');
 const req = require('express/lib/request');
 
 async function googleVerify(token='') {
@@ -48,14 +48,15 @@ const isAuth = (req, res, next) => {
 };
 
 
-const existeUsuario=async (id) => {
-  const usuario = await Usuario.findByPk(id);
-  if (!usuario) {
-      throw new Error('Usuario no encontrado');
-  }
-  req.usuarioActual=usuario;
-}
-
+const existeId = (modelo) => {
+  return async (id, { req }) => {
+    const reg = await modelo.findByPk(id);
+    if (!reg) {
+      throw new Error('No existe registro');
+    }
+    req.registro = reg;
+  };
+};
 
 const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false,href="") => {
   console.log("CAMPO ",campo)
@@ -109,7 +110,7 @@ const isCampoUnicoExamen=async (campo,valorNuevo,req,href="") => {
 
 module.exports={
     googleVerify,
-    existeUsuario,
+    existeId,
     isAuth,
     isCampoUnicoUsuario,
     tieneRole,

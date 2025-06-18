@@ -1,103 +1,90 @@
 extends layout
 append styles 
       link(rel='stylesheet', href='/stylesheets/admins2/clickUsuario.css')
-      link(rel='stylesheet', href='/stylesheets/tecBioq/listaUsuario.css')
-include ./modalEliminar       
-block aside 
-    include ./menuLateralClickUsuario.pug
+      link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
+include ./modalEliminar 
+include ../listaDatosUsuarios 
+include ./tresPuntos 
 block content
-  #divContentLista
-     include ../listaDatosUsuarios
-     - oculto=true
-     +formUsuario(usuario,true)
-     +formPaciente(usuario.Paciente,usuario.id,true)
-     +formBioquimico(usuario.Bioquimico,usuario.id,true)
-     +formTecnico(usuario.Tecnico,usuario.id,true)
-     if rta
-      div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
-       strong 
-           | #{rta.alertMessage}
-       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-     #divLista
-      div(class='div-usuario')
-       h3(class="titulo-lista") Usuario 
-       ul(class=`list-group list-group-flush lista-datos-usuario ${usuario.deletedAt?"lista-datos-usuarioEliminado":""}`)
-           li(class="list-group-item")= `Nombre: `+usuario.nombre  
-           li(class="list-group-item") Apellido: 
-               span= usuario.apellido 
-           li(class="list-group-item") Documento:
-               span= usuario.documento
-           li(class="list-group-item") Email:
-               span= usuario.email
-           li(class="list-group-item") Telefono:
-               span= telefonos?telefonos[0].numero:"No hay números registrados."
-           li(class="list-group-item") Roles:
-               span= rolesString
-       .row
-          if !usuario.deletedAt
-           .col-5(id="colBtnInicioUsuario")         
-               button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarUsuario') Editar
-          .col-1()        
-           form(action=`/admins2/${usuario.id}/usuario?_method=patch` method="post")
-            button(type="submit" class="btn btn-secondary w-10 py-2 btnEliminar")
-             if usuario.deletedAt 
-              | Activar
-             else 
-              | Desactivar 
-
-
-
-      if usuario.Paciente
-       div(class='div-usuario')
-        h3(class="titulo-lista") Paciente
-        +listaDatosPaciente(usuario.Paciente)
+  .row.justify-content-center.w-100
+    .col-lg-9.col-xxl-8
+     .row
+      include ./menuLateralClickUsuario.pug
+      .col.bordeAzul
+       if rta
         .row
-         if !usuario.Paciente.deletedAt
-          .col-5(id="colBtnInicioPaciente")        
-           button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarPaciente') Editar 
-         .col-1()        
-          form(action=`/admins2/${usuario.id}/paciente?_method=patch` method="post")
-           button(type="submit" class="btn btn-secondary w-10 py-2 btnEliminar")
-            if usuario.Paciente.deletedAt 
-             | Activar
-            else 
-             | Desactivar 
-          
+         .col    
+           
+            div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert")
+             strong 
+                 | #{rta.alertMessage}
+             button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
 
-
-      if usuario.Bioquimico
-       div(class='div-usuario')
-        h3(class="titulo-lista") Bioquímico
-        +listaDatosBioquimico(usuario.Bioquimico)  
-        .row
-         if !usuario.Bioquimico.deletedAt
-          .col-5(id="colBtnInicioBioquimico")        
-           button(type="button" class="btn btn-secondary w-100 py-2 btnEditar" id='btnEditarBioquimico') Editar
-         .col-1() 
-          form(action=`/admins2/${usuario.id}/bioquimico?_method=patch` method="post")
-           button(type="submit" class="btn btn-secondary w-10 py-2 btnEliminar")
-            if usuario.Bioquimico.deletedAt 
-             | Activar
-            else 
-             | Desactivar
-      
-      
-      
-      if usuario.Tecnico
-       div(class='div-usuario')
-        h3(class="titulo-lista") Técnico 
-        .row
-         if !usuario.Tecnico.deletedAt
-         .col-1() 
-          form(action=`/admins2/${usuario.id}/tecnico?_method=patch` method="post")
-           button(type="submit" class="btn btn-secondary w-10 py-2 btnEliminar")
-            if usuario.Tecnico.deletedAt 
-             | Activar
-            else 
-             | Desactivar
-
-
-     script(src="/javascripts/errores.js")  
-     script(src="/javascripts/admins2/clickUsuario.js")  
+       
+       .row#rowAuditoria(class=auditoria?"":"oculto")
+        .col
+         .row.align-items-center.divTituloAuditoria 
+          .col-auto
+           a(class="icon-link icon-link-hover" href=`http://localhost:3000/admins2/${usuario.id}`)
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#261290" class="bi bi-arrow-left-circle" viewBox="0 0 16 16")
+             path(fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z")
+           .col-auto
+            h3(class="titulo-lista2") Auditorías 
+         include ./tablaAuditoria.pug
+       .row#rowFormularios(class=formDataUsuario?"":"oculto") 
+        .col.my-5
+          +formBioquimico("id1",formDataBioquimico || usuario.Bioquimico || null,usuario.id,true)
+          +formTecnico("id2",usuario.Tecnico,usuario.id,true)
+          +formPaciente("id3",formDataPaciente || usuario.Paciente || null,usuario.id,true)
+          +formUsuario("id4",formDataUsuario || usuario || null,!formDataUsuario) 
+       
+       .row.flex-column#rowListas(class=formDataUsuario?"oculto":"") 
+        .col
+           div.lista
+             div(class="titulo-lista")
+              h3  Usuario 
+              +3puntos('btnEditarUsuario',`/admins2/${usuario.id}/usuario?_method=patch`,usuario.deletedAt)
+             ul(class=`list-group list-group-flush ${usuario.deletedAt?"lista-datos-usuarioEliminado":""}`)
+                 li(class="list-group-item")= `Nombre: `+usuario.nombre  
+                 li(class="list-group-item") Apellido: 
+                     span= usuario.apellido 
+                 li(class="list-group-item") Documento:
+                     span= usuario.documento
+                 li(class="list-group-item") Email:
+                     span= usuario.email
+                 li(class="list-group-item") Telefono:
+                     span= telefonos?telefonos[0].numero:"No hay números registrados."
+                 li(class="list-group-item") Roles:
+                     span= rolesString
+     
+        if usuario.Paciente
+         .col.my-5
+          +listaDatosPaciente(usuario.Paciente)
+            
+     
+     
+        if usuario.Bioquimico
+         .col.my-5
+          +listaDatosBioquimico(usuario.Bioquimico) 
+        
+        
+        
+        if usuario.Tecnico
+         .col.my-5
+          h3(class="titulo-lista") Técnico 
+          .row
+           if !usuario.Tecnico.deletedAt
+           .col-1() 
+            form(action=`/admins2/${usuario.id}/tecnico?_method=patch` method="post")
+             button(type="submit" class="btn btn-secondary w-10 py-2 btnEliminar")
+              if usuario.Tecnico.deletedAt 
+               | Activar
+              else 
+               | Desactivar
+     
+     
+       script(src="/javascripts/errores.js")  
+       script(src="/javascripts/admins2/clickUsuario.js")  
      
         

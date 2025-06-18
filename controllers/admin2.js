@@ -17,6 +17,7 @@ const {
     Tecnico,
     Telefono,
     Usuario,
+    UsuarioAuditoria,
     UsuarioRol,
     sequelize,
    } = require('../models');
@@ -27,8 +28,16 @@ const ESTADO=require('../constantes/estados')
 
 
 const getRegistrarUsuario=async(req,res)=>{
+  const formDataUsuario = req.flash('formDataUsuario')[0] || null;
   const roles=await Rol.findAll();
-   return res.render('administrador2/clickRegistrarUsuario',{rolesArray:[],roles})  //le respondo con la página de inicio,  
+  let rolesDelUsuario=null;
+  if(formDataUsuario){
+        rolesDelUsuario = roles.filter(rol => formDataUsuario.roles.includes(String(rol.id)))
+                                 .map(rol => rol.nombre);
+  }
+  console.log("FORM DATA USUARIO: ",formDataUsuario)
+  console.log("roles del usuario  ----->   ",rolesDelUsuario)
+   return res.render('administrador2/clickRegistrarUsuario',{roles,formDataUsuario,rolesDelUsuario})  //le respondo con la página de inicio,  
 
 }
 
@@ -56,7 +65,7 @@ const getBusqueda=async(req,res)=>{
         let offset=page*limit-limit;
    
         const {rows,count}=await Usuario.getUsuariosByEmailOdniOnombre(inputSearch,limit,offset,queryString,false);
-       
+       console.log("CAUNT: ",count)
         return res.render('administrador2/indexUsuario',{inputSearch,
                                          usuarios:rows,
                                          limit,
@@ -113,6 +122,24 @@ const getForm=async(req,res)=>{
     } catch (error) {
       console.log(error)
       return res.render('administrador2/form',{editarUsuario:false, rol})
+    };    
+}
+
+const getMovements=async(req,res)=>{
+  const{ UsuarioId}=req.params
+    try {
+          const auditorias=await UsuarioAuditoria.findAll({
+                                    where: { registroId:UsuarioId },
+                                    order: [['fecha', 'DESC']], 
+                                     include: [ { model: Usuario, as: 'Usuario' },
+                                                { model: Usuario, as: 'Registro' }
+                                              ]
+                                  });
+      req.session.auditorias = auditorias; 
+      return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
+    } catch (error) {
+      console.log(error)
+      return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
     };    
 }
 
@@ -251,8 +278,12 @@ const getOrden=async(req,res)=>{
 }
 const getUsuario=async(req,res)=>{
   try {
-      const {UsuarioId}=req.params;
+
+    const formDataUsuario = req.flash('formDataUsuario')[0] || null;
+    const {UsuarioId}=req.params;
     const rta=req.flash('rta')[0];
+    console.log("formDataUsuario -----------> ",formDataUsuario)
+
     const usuario=  await Usuario.findByPk(UsuarioId,{
       attributes: { exclude: ['password'] },
       paranoid: false, 
@@ -285,7 +316,7 @@ const getUsuario=async(req,res)=>{
        const roles=await Rol.findAll();
       
       const rolesString = usuario.Rols.map(r => r.nombre).join(', ');
-      const rolesArray = usuario.Rols.map(r => r.nombre);//[ 'Paciente' ]
+      const rolesDelUsuario = usuario.Rols.map(r => r.nombre);//[ 'Paciente' ]
       const telefonos=await usuario.getTelefonos({ paranoid: false })
       let provincias;
       try{const url = 'https://apis.datos.gob.ar/georef/api/provincias'; 
@@ -293,17 +324,25 @@ const getUsuario=async(req,res)=>{
              provincias = rtaApi.data.provincias;}
             catch(error){
               provincias=null
-            }
+            }    
+        const auditorias=await UsuarioAuditoria.findAll({
+                                    where: { registroId:UsuarioId },
+                                    order: [['fecha', 'DESC']], 
+                                     include: [ { model: Usuario, as: 'Usuario' },
+                                                { model: Usuario, as: 'Registro' }
+                                              ]
+                                  });          
       return res.render('administrador2/clickUsuario',{usuario,
-                                                       telefonos:telefonos.length===0?null:telefonos,
-                                                       rta,
-                                                       editarUsuario:true,
-                                                       oculto:true,
-                                                       roles,
-                                                       rolesArray,
-                                                       rolesString,
-                                                       provincias
-                                                       })
+                    telefonos:telefonos.length===0?null:telefonos,
+                    rta,
+                    editarUsuario:true,
+                    roles,
+                    rolesDelUsuario,
+                    rolesString,
+                    provincias,
+                    formDataUsuario,
+                    auditorias
+                    })
     
   } catch (error) {
     console.error(error);
@@ -319,13 +358,21 @@ const getUsuario=async(req,res)=>{
 const putBioquimico=async(req,res)=>{
   console.log(req.body)
   const transaction = await sequelize.transaction();
-  const {UsuarioId}=req.params;
+  const {BioquimicoId}=req.params;
+  const {UsuarioId}=req.body;
+
   try {
     
  
     const {matricula,titulo}=req.body
+
     const [updatedRows2]=await Bioquimico.update({matricula,titulo}, 
-                                                 {where:{UsuarioId}, transaction });
+                                               {where:{id:BioquimicoId},
+                                                transaction,
+                                                individualHooks: true, 
+                                                userId: req.session.usuario.id 
+                                               }
+                                              );
     await transaction.commit();
       req.flash('rta',{ 
         origen:'putBioquimico',
@@ -341,19 +388,25 @@ const putBioquimico=async(req,res)=>{
 
 
 const putPaciente=async(req,res)=>{
-  console.log('------------------------------------------------ PUT PACIENTE');
   console.log(req.body)
+  const {PacienteId}=req.params;
   const {UsuarioId}=req.body;
+  console.log(PacienteId)
+  console.log("usuarioID: ",UsuarioId)
   const transaction = await sequelize.transaction();
-  const {id}=req.params;  
   try {
 
     const {sexo,nacimiento, embarazada, provincia, localidad, direccion,edad}=req.body
-    console.log("PARSERO ------------")
         console.log(parseInt(edad))
-    const [updatedRows2]=await Paciente.update({sexo,nacimiento, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad:parseInt(edad) || 0}, {where:{id}},{ transaction });
-       
-   
+    const [updatedRows2]=await Paciente.update({sexo,nacimiento: nacimiento || null, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad:parseInt(edad) || 0}, 
+                                               {where:{id:PacienteId},
+                                                transaction,
+                                                individualHooks: true, 
+                                                userId: req.session.usuario.id 
+                                               }
+                                              );
+        console.log("llego a este punto ------------------------")
+        await transaction.commit();
     return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
   } catch (error) {
     console.error(error);
@@ -365,7 +418,7 @@ const putPaciente=async(req,res)=>{
         alertMessage: 'Error: el email pertenece a otro usuario' })
         return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
     }
-
+    console.log(error)
     return res.render('administrador/rtaRegistrar', { alertType: 'danger', alertMessage: 'Error: error al editar.' })
   };  
 }
@@ -421,36 +474,24 @@ const putOrden=async(req,res)=>{
 }
 
 
-const putTecnico=async(req,res)=>{
+/* const putTecnico=async(req,res)=>{
 
   const transaction = await sequelize.transaction();
-  const {UsuarioId}=req.params;
+  const {TecnicoId}=req.params;
   try {
     
-   
-    const {
-           telefono}=req.body
-    const roles=req.body.roles?
-                     Array.isArray(req.body.roles)?req.body.roles:[req.body.roles]
-                :[];
-    const usuario = await Usuario.findByPk(UsuarioId);
-    await usuario.setRols([]);
-    if (roles.length > 0) {
-      const rolesSeleccionados = await Rol.findAll({ where: {id: roles }});
-      await usuario.setRols(rolesSeleccionados);
-    }
-
-    await Usuario.update(req.datosActualizar, {
-      where: { id: UsuarioId },
-      transaction,
-      individualHooks: true, // ⚠️ Esto es clave para ejecutar beforeUpdate en cada instancia
-      userId: req.session.usuario.id // ⚠️ Pasamos el usuario manualmente
-    });
+   const [updatedRows2]=await Tecnico.update({}, 
+                                               {where:{id:TecnicoId},
+                                                transaction,
+                                                individualHooks: true, 
+                                                userId: req.session.usuario.id 
+                                               }
+                                              );
+ 
                                            
 
 
-    const [updatedRows3]=await Telefono.update({numero:telefono}, 
-                                               {where:{UsuarioId}, transaction });
+  
     await transaction.commit();
       req.flash('rta',{ 
         origen:'putTecnico',
@@ -474,7 +515,7 @@ const putTecnico=async(req,res)=>{
 
 
   
-}
+} */
 const putUsuario=async(req,res)=>{
   console.log('------------------------------------------------ PUT USUARIO');
   const transaction = await sequelize.transaction();
@@ -577,7 +618,7 @@ const postBioquimico=async(req,res)=>{
     try {
         const {matricula,titulo}=req.body
       await Bioquimico.create({UsuarioId,matricula,titulo},
-                            { transaction }) 
+                              { transaction, userId: req.session.usuario.id  }) 
       
         
       await transaction.commit();
@@ -610,7 +651,15 @@ const postPaciente=async(req,res)=>{
     try {
         const {edad,nacimiento,sexo,provincia,localidad,direccion,embarazada}=req.body
         
-        await Paciente.create({UsuarioId,edad:parseInt(edad) || 0,nacimiento,sexo,provincia,localidad,direccion,embarazada:embarazada?true:false}, { transaction }) 
+        await Paciente.create({UsuarioId,
+                               edad:parseInt(edad) || 0,
+                               nacimiento:nacimiento || null,
+                               sexo,
+                               provincia,
+                               localidad,
+                               direccion,
+                               embarazada:embarazada?true:false}, 
+                               { transaction, userId: req.session.usuario.id  }) 
       
         
       await transaction.commit();
@@ -642,10 +691,9 @@ const postTecnico=async(req,res)=>{
   const {UsuarioId}=req.params
   console.log("UsuarioId :  ",UsuarioId)
     try {
-      await Tecnico.create({UsuarioId},
-                            { transaction }) 
-      await UsuarioRol.create({UsuarioId,RolId:3},
-                            { transaction })
+      await Tecnico.create({UsuarioId}, 
+                           { transaction, userId: req.session.usuario.id  })
+
       await transaction.commit();
       req.flash('rta',{ 
         origen:'postTecnico',
@@ -672,8 +720,6 @@ const postTecnico=async(req,res)=>{
 }
 
 const postUsuario=async(req,res)=>{
-  console.log("Wntrooooooooooooooooooo dddddddddddd")
-  console.log(req.body)
   const transaction = await sequelize.transaction();
     try {
         const {email,nombre,apellido,documento,
@@ -727,14 +773,14 @@ module.exports={
     patchTecnico,
     patchPaciente,
     patchUsuario,
+    getBioquimico,
     getBusqueda,
     getForm,
-    getBioquimico,
     getOrdenes,
     getOrden,
+    getRegistrarUsuario,
     getTecnico,
     getUsuario,
-    getRegistrarUsuario,
     postBioquimico,
     postPaciente,
     postTecnico,
@@ -742,6 +788,6 @@ module.exports={
     putBioquimico,
     putOrden,
     putPaciente,
-    putTecnico,
+    //putTecnico,
     putUsuario,
 }

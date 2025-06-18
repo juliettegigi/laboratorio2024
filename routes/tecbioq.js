@@ -179,7 +179,7 @@ router.post('/addVr', [
       },
     validarCampos
 ], postVr);
-router.post('/examen/:id/addCategDet', postCategDet)
+router.post('/examen/:ExamenId/addCategDet', postCategDet)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addDetCateg', postDetCateg)
 router.post('/examen/:ExamenCategoriaId/:ExamenId/addParamCateg', postParamCateg)
 router.post('/addMuestra', postMuestra)

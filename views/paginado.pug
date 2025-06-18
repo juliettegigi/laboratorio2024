@@ -1,8 +1,11 @@
 mixin paginado(href)
  //page viene del servidor
+ - console.log("grup: ",group)
+ - console.log("cantidad de pag por grupo: ",PAGES_CANTIDADxGRUPO)
  - page=parseInt(page)
  - const paginas = Math.ceil(totalRegistros / limit); 
  - let ultimaPag= group*PAGES_CANTIDADxGRUPO
+ - console.log("ULTIMA PAG:  ",ultimaPag)
  - let primeraPag=ultimaPag-PAGES_CANTIDADxGRUPO+1
  - const grupos=Math.ceil(paginas/PAGES_CANTIDADxGRUPO)
  - ultimaPag=ultimaPag>paginas?paginas:ultimaPag;

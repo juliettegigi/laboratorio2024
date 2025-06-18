@@ -6,14 +6,14 @@ append styles
 include ./tablaCategDet2.pug
 block content  
    .row.w-100.mx-0.justify-content-center
-    .col-lg-6
-     .row.gx-5
+    .col-12.col-lg-10.col-xl-8
+     .row
       include ./menuLateralExamen.pug
-      .col.main.mt-md-3
-       .row.tablaConValoresExistentes
-        if categorias.length > 0
-         +tablaCategDet(false,"tabla1")
-       .row
+      .col.bordeAzul
+       if categorias.length > 0
+        .row.tablaConValoresExistentes
+          +tablaCategDet(false,"tabla1")
+       .row.mt-5
         +tablaCategDet(true,"tabla2")   
     
           

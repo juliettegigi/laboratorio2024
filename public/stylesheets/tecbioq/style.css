@@ -21,9 +21,6 @@ body{
 }
 
 
-ul{
-  align-items: center;
-}
 
 
 /* .navbar-nav li.nav-item > a {
@@ -109,4 +106,16 @@ footer{
 
 .navLateral li:hover{
 background-color: #D3CDCD;
+}
+
+
+.oculto{display:none;}
+
+
+/* para el aside y el div con contenido */
+
+.bordeAzul{
+   border-top: #261290 solid 0.5rem;
+   background-color: #F8F9FA;
+   box-shadow: 0 0 5px 1px rgba(0,0,0,0.65);
 }

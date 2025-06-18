@@ -1,8 +1,11 @@
 extends layout
 append styles 
       link(rel='stylesheet', href='/stylesheets/admins2/clickUsuario.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
 block content
  include ../listaDatosUsuarios.pug 
- +formUsuario()
+ .row.justify-content-center
+    .col-lg-6
+     +formUsuario("divform")
  script(src="/javascripts/errores.js")
   
