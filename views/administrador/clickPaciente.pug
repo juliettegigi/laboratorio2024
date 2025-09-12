@@ -1,6 +1,9 @@
 extends layout
-block aside 
-    include ./menuLateral.pug
+append styles 
+      link(rel='stylesheet', href='/stylesheets/admins2/clickUsuario.css')
+      link(rel='stylesheet', href='/stylesheets/tecBioq/formularios.css')
+      link(rel='stylesheet', href='/stylesheets/inputDataList.css')
+      link(rel='stylesheet', href='/stylesheets/card.css')
 block content
     if rta
      div(class=`alert alert-${rta.alertType} alert-dismissible fade show` role="alert" id="alert")
@@ -9,158 +12,50 @@ block content
       button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
       if rta.origen==="postOrden"
           include ./rtaCargarOrden.pug
-    .container.d-flex.justify-content-center(id="divLista" class=`${rta && rta.origen==="postOrden"?'oculto':''}`)
-     ul(class=`list-group list-group-flush lista-datos-usuario`)
-         li(class="list-group-item")= `Nombre: `+usuario.nombre  
-         li(class="list-group-item") Apellido: 
-             span= usuario.apellido 
-         li(class="list-group-item") Edad: 
-             span= paciente.edad 
-         li(class="list-group-item") Documento:
-             span= usuario.documento
-         li(class="list-group-item") Email:
-             span= usuario.email
-         li(class="list-group-item") Telefono:
-             span 
-              if telefonos[0]
-               | #{telefonos[0].numero}
-              else 
-               | noo 
-         li(class="list-group-item") Fecha de nacimiento:
-             span= paciente.nacimiento || "fecha no registrada"
-         li(class="list-group-item")= "Embarazada: "
-             span= paciente.embarazada?"si":"no"
-         li(class="list-group-item") Provincia: 
-             span= paciente.provincia
-         li(class="list-group-item") Localidad: 
-             span= paciente.localidad
-         li(class="list-group-item") Dirección:
-             span= paciente.direccion
-         li(class="list-group-item") Sexo:
-             span= paciente.sexo   
-    include ../forms/formPaciente.pug
-    +formPaciente("divForm", true,true) 
-    include ./formOrden.pug
-    +formOrden("divFormOrden1", false)
-    include ./ordenesNoInformadas.pug      
-
-    
-    script.
-        const addCruz=(li,funcionCruz)=>{
-            const cruz = document.createElement('button');
-            cruz.type="button"
-            cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
-            cruz.addEventListener('click',funcionCruz) 
-            li.appendChild(cruz);
-        }
-        document.addEventListener('click', function () {
-                const alerta = document.getElementById('alert');
-                if (alerta) {
-                  alerta.style.display = 'none';
-                }
-              });
-        const rtaCargarOrden=document.getElementById('rtaCargarOrden')
-        const btnEditar=document.getElementById('btnEditar');
-        const btnInicio=document.getElementById('btnInicio');
-        const btnCargarOrden=document.getElementById('btnCargarOrden');
-        const btnOrdenesNoInformadas=document.getElementById('btnOrdenesNoInformadas');
-        const divLista=document.getElementById('divLista');
-        const divFormOrden=document.getElementById('divFormOrden1');
-        const divFormOrden2=document.getElementById('divFormOrden2');
-        const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
-        const divEliminarOrden=document.getElementById('divEliminarOrden');
-        var rta =!{JSON.stringify(rta || {})};
-        let active=divLista;
-        const activar=(div)=>{
-            if(rtaCargarOrden)
-              rtaCargarOrden.remove();
-            active.classList.add("oculto")
-            active=div
-            active.classList.remove('oculto');
-        }
-        if(rta){  
-             switch(rta.origen){
-                 case'postOrden':
-                     activar(divOrdenesNoInformadas)
-                     break;
-                 case'putOrden':
-                    activar(divOrdenesNoInformadas)
-                      break;
-                 case'deleteOrden':
-                   activar(divOrdenesNoInformadas)
-                   break;
-                 case'putPaciente':
-                   activar(divForm)
-                   break;
-                 default: 
-                     active=divLista 
-             }
-            }
-        
-        
-
-        //const form=document.getElementById('form')
-        btnEditar.addEventListener('click',(event)=>{
-           const divForm=document.getElementById('divForm');
-            activar(divForm)
-        })
-        btnInicio.addEventListener('click',(event)=>{
-            const divForm=document.getElementById('divForm');
-            activar(divLista)
-        })
-         btnCargarOrden.addEventListener('click',(event)=>{
-            
-            activar(divFormOrden)
-        })    
-         btnOrdenesNoInformadas.addEventListener('click',(event)=>{
-            
-            activar(divOrdenesNoInformadas)
-        })
-        let currentCard;    
-        function flipCard(button) {
-          const currentCard = button.closest('.card-flip');
-           currentCard.classList.toggle('flipped');
-
-             
-         }
-
-        function showModal(ordenId) {
-            const modal = document.getElementById("divEliminarOrden");
-            modal.style.display = "block";
-            formEliminarOrden['OrdenId'].value=ordenId
-          }
-          
-          // Cerrar el modal
-          function closeModal() {
-            const modal = document.getElementById("divEliminarOrden");
-            modal.style.display = "none";
-          }
-          
-          // Manejar la confirmación
-          function submitReason() {
-            const reason = document.getElementById("reason").value;
-            if (reason.trim() === "") {
-              alert("Por favor, ingresa un motivo.");
-              return;
-            }
-          
-            alert("El motivo de eliminación ha sido enviado: " + reason);
-            closeModal(); // Cierra el modal después de enviar el formulario
-          }
-          
-          // Cerrar el modal si se hace clic fuera de él
-          window.onclick = function (event) {
-            const modal = document.getElementById("divEliminarOrden");
-            if (event.target === modal) {
-              closeModal();
-            }
-          };
-         const initialContent = document.querySelector('#divOrdenesNoInformadas').innerHTML;
-         function resetToInitialState() {
-            document.querySelector('#divOrdenesNoInformadas').innerHTML = initialContent;
-            const lis=Array.from(document.querySelectorAll('.liExamenes'))
-            for(let li of lis)addCruz(li,(evento)=>{li.remove()})
-
-          }
-
-    
+    .row.w-100.justify-content-center 
+     .col-lg-9.col-xxl-8
+      .row
+       include ./menuLateral.pug
+       .col.bordeAzul
+        .row#rowFormularios
+           .col.my-5
+            .col-lg-10.mx-auto(id="divLista" class=`${rta && rta.origen==="postOrden"?'oculto':''}`)
+             ul(class=`list-group list-group-flush lista-datos-usuario`)
+                 li(class="list-group-item")= `Nombre: `+usuario.nombre  
+                 li(class="list-group-item") Apellido: 
+                     span= usuario.apellido 
+                 li(class="list-group-item") Edad: 
+                     span= paciente.edad 
+                 li(class="list-group-item") Documento:
+                     span= usuario.documento
+                 li(class="list-group-item") Email:
+                     span= usuario.email
+                 li(class="list-group-item") Telefono:
+                     span 
+                      if telefonos[0]
+                       | #{telefonos[0].numero}
+                      else 
+                       | noo 
+                 li(class="list-group-item") Fecha de nacimiento:
+                     span=  paciente.nacimiento? new Date(paciente.nacimiento + 'T12:00:00').toLocaleDateString('es-AR'): "fecha no registrada"
+                 li(class="list-group-item")= "Embarazada: "
+                     span= paciente.embarazada?"si":"no"
+                 li(class="list-group-item") Provincia: 
+                     span= paciente.provincia
+                 li(class="list-group-item") Localidad: 
+                     span= paciente.localidad
+                 li(class="list-group-item") Dirección:
+                     span= paciente.direccion
+                 li(class="list-group-item") Sexo:
+                     span= paciente.sexo   
+            include ../listaDatosUsuarios.pug
+            include ../forms/formPaciente.pug
+            +formPaciente("divForm",true,true)
+            include ./formOrden.pug
+            +formOrden("divFormOrden1", false)
+            - const estadosEditables=[1,2]
+            include ./ordenesNoInformadas.pug      
+                    
+            script. 
+              window.rta = !{JSON.stringify(rta)};    
+            script( type="module" src='/javascripts/administrador/formOrden.js')        

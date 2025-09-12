@@ -1,60 +1,117 @@
-import InputDataList from "../input-datalist-class.js";
-
-const LIMIT=5;
-const OFFSET=0;
+import {flipCard,closeModal,resetToInitialState,formOrden, showModal }from './funciones.js';
 
 
 
-
-
-const forms=document.querySelectorAll('.formOrden');
-
-
-
-for(let form of forms){
-    const eventoBuscarMedico='buscarMedico'
-    const listaMedicos=form.querySelector('#listaMedicos');
-    const liTextCbMedicos=elem=>`${elem.id}-${elem.nombre}`
-    
-    const eventoBuscarDiagnostico='buscarDiagnostico'
-    const listaDiagnosticos=form.querySelector('#listaDiagnosticos');
-    const liTextCbDiagnosticos=elem=>`${elem.codigo}-${elem.diagnostico}`
-
-
-
-const eventoBuscarExamen='buscarExamen'
-const liTextCbExamenes=elem=>`${elem.codigo}-${elem.nombre}`
-const listaExamenes=form.querySelector('#listaExamenes');
-const listaExamenesSeleccionados=form.querySelector('#listaExamenesSeleccionados');
-
-
-
-const input1=new InputDataList(form['medico'],listaMedicos,eventoBuscarMedico,liTextCbMedicos,LIMIT,OFFSET,'MedicoId');
-    const input2=new InputDataList(form['diagnostico'],listaDiagnosticos,eventoBuscarDiagnostico,liTextCbDiagnosticos,LIMIT,OFFSET,"DiagnosticoId");
-    const input3=new InputDataList(form['examen'],listaExamenes,eventoBuscarExamen,liTextCbExamenes,LIMIT,OFFSET,"","examenes",listaExamenesSeleccionados);
-    input1.inicializarInput()
-    input2.inicializarInput()
-    input3.inicializarInput()
-
-}
-
-
-
-
-
-
-const lis=Array.from(document.querySelectorAll('.liExamenes'))
+formOrden();
 
 const addCruz=(li,funcionCruz)=>{
-    const cruz = document.createElement('button');
-    cruz.type="button"
-    cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
-    cruz.addEventListener('click',funcionCruz) 
-    li.appendChild(cruz);
-}
+                    const cruz = document.createElement('button');
+                    cruz.type="button"
+                    cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
+                    cruz.addEventListener('click',funcionCruz) 
+                    li.appendChild(cruz);
+                }
+                document.addEventListener('click', function () {
+                        const alerta = document.getElementById('alert');
+                        if (alerta) {
+                          alerta.style.display = 'none';
+                        }
+                      });
+                const rtaCargarOrden=document.getElementById('rtaCargarOrden')
+                const btnEditar=document.getElementById('btnEditar');
+                const btnInicio=document.getElementById('btnInicio');
+                const btnCargarOrden=document.getElementById('btnCargarOrden');
+                const btnOrdenesNoInformadas=document.getElementById('btnOrdenesNoInformadas');
+                const divLista=document.getElementById('divLista');
+                const divFormOrden=document.getElementById('divFormOrden1');
+                const divFormOrden2=document.getElementById('divFormOrden2');
+                const divOrdenesNoInformadas=document.getElementById('divOrdenesNoInformadas');
+                const divEliminarOrden=document.getElementById('divEliminarOrden');
+                
+                let active=divLista;
+                const activar=(div)=>{
+                    if(rtaCargarOrden)
+                      rtaCargarOrden.remove();
+                    active.classList.add("oculto")
+                    if(active.id==='divOrdenesNoInformadas'){                      
+                        active.style.display='none';
+                    }
+                    active=div
+                    active.classList.remove('oculto');
+                    if(active.id==='divOrdenesNoInformadas'){                      
+                        active.style.display='flex';
+                    }
+                }
+                const rta = window.rta || {};
+                console.log("RESPUESTA ORIGEN")
+                console.log(rta.origen)
+                if(rta){  
+                     switch(rta.origen){
+                         case'postOrden':
+                             activar(divOrdenesNoInformadas)
+                             break;
+                         case'putOrden':
+                            activar(divOrdenesNoInformadas)
+                              break;
+                         case'deleteOrden':
+                           activar(divOrdenesNoInformadas)
+                           break;
+                         case'putPaciente':
+                           activar(divForm)
+                           break;
+                         default: 
+                             active=divLista 
+                     }
+                    }
+                
+                
+                        //const form=document.getElementById('form')
+                if(btnEditar)
+                btnEditar.addEventListener('click',(event)=>{
+                   const divForm=document.getElementById('divForm');
+                    activar(divForm)
+                })
+                if(btnInicio)
+                btnInicio.addEventListener('click',(event)=>{
+                    const divForm=document.getElementById('divForm');
+                    activar(divLista)
+                })
+                if(btnCargarOrden)
+                 btnCargarOrden.addEventListener('click',(event)=>{
+                    
+                    activar(divFormOrden)
+                }) 
+                if(btnOrdenesNoInformadas)   
+                 btnOrdenesNoInformadas.addEventListener('click',(event)=>{
+                    
+                    activar(divOrdenesNoInformadas)
+                })
+                let currentCard;    
+                
+                  // Cerrar el modal si se hace clic fuera de él
+                  window.onclick = function (event) {
+                    const modal = document.getElementById("divEliminarOrden");
+                    if (event.target === modal) {
+                      closeModal();
+                    }
+                  };
+const initialContent = document.querySelector('#divOrdenesNoInformadas').innerHTML;
+                 
 
-for(let li of lis)
-    addCruz(li,(evento)=>{li.remove()})
-    
+window.flipCard = flipCard;                          
+window. resetToInitialState =  resetToInitialState;                          
 
- 
+export{initialContent}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.close-button').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+  })
+  document.getElementById('divOrdenesNoInformadas').addEventListener('click', function(e) {
+    if (e.target.closest('#btnEliminar')) {
+      const btn = e.target.closest('#btnEliminar');
+      const ordenId = btn.getAttribute('data-orden-id');
+      formEliminarOrden['OrdenId'].value=ordenId
+    }
+  });
+});

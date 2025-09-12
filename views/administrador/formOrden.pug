@@ -1,91 +1,103 @@
-mixin formOrden(divFormOrden, editarOrden,orden)
- .container.d-flex.justify-content-center(id=divFormOrden class=((editarOrden) || (editarOrden===false && origen==='postOrden')) ?"":"oculto")
-  form(action=editarOrden?`/admins/orden?_method=put`:`/admins/orden/` method="post" class="formOrden")
-      input(type="hidden" name="PacienteId" value=paciente.id)
-      input(type="hidden" name="MedicoId" value=editarOrden?orden.medico.id:'')
-      input(type="hidden" name="DiagnosticoId" value=editarOrden?orden.diagnostico.id:'')
-      input(type="hidden" name="UsuarioId" value=usuario.id) 
-      if editarOrden
-       input(type="hidden" name="ordenId" value=editarOrden?orden.id:'')
+mixin formOrden(divFormOrden, editarOrden,oculto=true,orden)
+ .container.form-valorRef(id=divFormOrden  class=oculto ? "oculto" : "")
+   form(action=editarOrden?`/admins/orden?_method=put`:`/admins/orden/` method="post"  class=`formOrden` id=`form${divFormOrden}`)
+       input(type="hidden" name="PacienteId" value=paciente.id)
+       input(type="hidden" name="MedicoId" value=editarOrden?orden.medico.id:'')
+       input(type="hidden" name="DiagnosticoId" value=editarOrden?orden.diagnostico.id:'')
+       input(type="hidden" name="UsuarioId" value=usuario.id) 
+       if editarOrden
+        input(type="hidden" name="ordenId" value=editarOrden?orden.id:'')
+        
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         if editarOrden
+          h1.mb-5 Edición de orden
+         else
+          h1.mb-5 Registro de orden
+  
+        .row.mt-4.justify-content-center
+         .col-md-auto.d-flex.align-items-center
+          label(for="fecha") Fecha:
+         .col-md-auto
+          input#fecha.form-control(type="date" name="fecha" value=`${new Date().toISOString().split('T')[0]}` required)
        
-      .row.mt-4.justify-content-center
-       .col-md-auto.d-flex.align-items-center
-        if editarOrden
-         h1.mb-5 Edición de orden
-        else
-         h1.mb-5 Registro de orden
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         label(for="medico") Médico:
+        .col-md-auto.position-relative
+          input#medico.form-control( name="medico",autocomplete="off", placeholder="Type to search...",required,value=editarOrden?orden.medico.nombre:'')
+          div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+           ul(id="listaMedicos")
+  
+  
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center
+         label(for="diagnostico") Diagnóstico:
+        .col-md-auto.position-relative
+          input#diagnostico.form-control(name="diagnostico" autocomplete="off", placeholder="Type to search...",required,value=editarOrden?orden.diagnostico.codigo+'-'+orden.diagnostico.diagnostico:'')
+          div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+           ul(id="listaDiagnosticos")
+        .col-md-auto
+          div.form-check
+           input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault1" value="true" checked=(!editarOrden?true: 
+                                                                                                                        orden.isPresuntivo === true?true:false ))
+           label(class="form-check-label" for="flexRadioDefault1") Presuntivo 
+          div.form-check
+           input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault2" value="false" checked=(!editarOrden?false: 
+                                                                                                                          orden.isPresuntivo === false?true:false))
+           label(class="form-check-label" for="flexRadioDefault2") Confirmado
+        .col-md-auto
+          div.form-check
+           input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3"  checked= editarOrden && orden && orden.isUrgente === true)
+           label(class="form-check-label" for="flexRadioDefault3") Urgente
+ 
+       
  
        .row.mt-4.justify-content-center
         .col-md-auto.d-flex.align-items-center
-         label(for="fecha") Fecha:
-        .col-md-auto
-         input#fecha.form-control(type="date" name="fecha" value=`${new Date().toISOString().split('T')[0]}` required)
-      
-      .row.mt-4.justify-content-center
-       .col-md-auto.d-flex.align-items-center
-        label(for="medico") Médico:
-       .col-md-auto.position-relative
-         input#medico.form-control( name="medico",autocomplete="off", placeholder="Type to search...",required,value=editarOrden?orden.medico.nombre:'')
-         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
-          ul(id="listaMedicos")
- 
- 
-      .row.mt-4.justify-content-center
-       .col-md-auto.d-flex.align-items-center
-        label(for="diagnostico") Diagnóstico:
-       .col-md-auto.position-relative
-         input#diagnostico.form-control(name="diagnostico" autocomplete="off", placeholder="Type to search...",required,value=editarOrden?orden.diagnostico.codigo+'-'+orden.diagnostico.diagnostico:'')
-         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
-          ul(id="listaDiagnosticos")
-       .col-md-auto
-         div.form-check
-          input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault1" value="true" checked=(!editarOrden?true: 
-                                                                                                                       orden.isPresuntivo === true?true:false ))
-          label(class="form-check-label" for="flexRadioDefault1") Presuntivo 
-         div.form-check
-          input(class="form-check-input" type="radio" name="isPresuntivo" id="flexRadioDefault2" value="false" checked=(!editarOrden?false: 
-                                                                                                                         orden.isPresuntivo === false?true:false))
-          label(class="form-check-label" for="flexRadioDefault2") Confirmado
-       .col-md-auto
-         div.form-check
-          - console.log('que es?????????????????????????????   ',orden && orden.id===11?orden.isUrgente+ " "+orden.id:"nooo","------->")
-          input(class="form-check-input" type="checkbox" name="isUrgente" id="flexRadioDefault3"  checked= editarOrden && orden && orden.isUrgente === true)
-          label(class="form-check-label" for="flexRadioDefault3") Urgente
-
-      
-
-      .row.mt-4.justify-content-center
-       .col-md-auto.d-flex.align-items-center
-        label(for="examen") Exámenes:
-       .col-md-auto.position-relative
-         input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required=!editarOrden)
-         div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
-          ul(id="listaExamenes") 
+         label(for="examen") Exámenes:
+        .col-md-auto.position-relative
+          input#examen.form-control(name="examen",autocomplete="off", placeholder="Type to search...",required=!editarOrden)
+          div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
+           ul(id="listaExamenes") 
+         
         
-       
-      .row.mt-4.justify-content-center
-       .col-md-auto.d-flex.align-items-center 
-        div 
-           ul(id="listaExamenesSeleccionados")
-            if editarOrden           
-             each examen in orden.examenes 
-              li(class="liExamenes")= `${examen.codigo}-${examen.nombre}`
-               input(type="hidden" name="examenes" value= `${examen.codigo}-${examen.nombre}`)
-               input(type="hidden" name="examenesId" value= `${examen.id}`)
-      .row.mt-5.justify-content-center 
-       if editarOrden  
-        .col-md-auto.d-flex.justify-content-center 
-         button.btn.btn-secondary Guardar cambios
-        .col-md-auto.d-flex.justify-content-center 
-         button.btn.btn-secondary(type="button" onclick="flipCard(this);resetToInitialState()") Regresar  
-       else    
-        .col-md-auto.d-flex.justify-content-center 
-         button.btn.btn-secondary Enviar
+       .row.mt-4.justify-content-center
+        .col-md-auto.d-flex.align-items-center 
+         div 
+            ul(id="listaExamenesSeleccionados")
+             if editarOrden           
+              each examen in orden.examenes 
+               li(class=`liExamenes ${LABORATORIOnombre!=examen.laboratorioQueLoRealiza}?"text-danger":""`)= `${examen.codigo}-${examen.nombre}`
+                input(type="hidden" name="examenes" value= `${examen.codigo}-${examen.nombre}`)
+                input(type="hidden" name="examenesId" value= `${examen.id}`)
+       .row.mt-5.justify-content-center 
+        if editarOrden  
+         .col-md-auto.d-flex.justify-content-center 
+          button.btn.btn-secondary Guardar cambios
+         .col-md-auto.d-flex.justify-content-center 
+          button.btn.btn-secondary(type="button" onclick="flipCard(this); resetToInitialState()") Regresar  
+        else    
+         .col-md-auto.d-flex.justify-content-center 
+          button.btn.btn-secondary(type="button" data-bs-toggle="modal" data-bs-target="#confirmarOrdenModal") Enviar
 
-    
+ div.modal.fade#confirmarOrdenModal(tabindex="-1" aria-labelledby="confirmarOrdenModalLabel" aria-hidden="true")
+  .modal-dialog.modal-lg
+      .modal-content
+        .modal-header
+         h1.modal-title.fs-5#confirmarOrdenModalLabel Confirmar registro de orden
+         button(type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          | ¿Está seguro que desea registrar esta orden?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-primary(type="submit" form=`form${divFormOrden}`) Confirmar     
+
  
- 
- script( type="module" src='/javascripts/administrador/formOrden.js')
+     
+  
+  
+   
 
 
 

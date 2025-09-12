@@ -1,15 +1,17 @@
 extends layout
 
 block content
-    if(usuarios.length==0)
+    if usuarios.length==0
         div(class=`alert alert-warning alert-dismissible fade show` role="alert")
             strong resultado de la búsqueda : 0 registros.
             button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
     else
-        ul.list-group.list-group-flush
+      .row.justify-content-center.mt-3
+       .col-lg-6
+        .container.divLista
+         h1.form-div Usuarios
+         ul.list-group.list-group-flush
             each u in usuarios
-              - console.log("--------------------------------------------------")
-              - console.log(u)
               li.list-group-item.list-group-item-action
                 a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/admins/paciente/${u.id}`)
                     | #{u.nombre || ''} #{u.apellido || ''} - #{u.email || ''} - #{u.documento || ''}

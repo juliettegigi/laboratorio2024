@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class Bioquimico extends Model {
     static associate(models) {
       Bioquimico.belongsTo(models.Usuario, { foreignKey: 'UsuarioId', as: 'Usuario' })
-          
+      
     }
   }
   Bioquimico.init({
@@ -61,12 +61,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
 
-  Bioquimico.afterRestore(async (bioquimico, options) => {
+  Bioquimico.beforeRestore(async (bioquimico, options) => {
+    console.log("Restaurando bioquímico:", bioquimico.UsuarioId);
     await sequelize.models.UsuarioAuditoria.create({
       operacion: "RESTORE bioquimico",
       registroId: bioquimico.UsuarioId,
       usuarioId: options.userId || null, // Quién hizo la restauración
-      fecha: new Date()
     });
 
 

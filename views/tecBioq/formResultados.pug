@@ -47,9 +47,9 @@ mixin formResultados(formName,unExamen,ordenExamen)
        else 
         button.btn.btn-primary#btnEditar(type="submit") Guardar cambios
  script.
-  function cambiarAction(formName, ordenId) {
+  function cambiarAction(formName, ordenExamenId) {
       var form = document.forms[formName];
       if (form) {
-        form.action = `http://localhost:3000/tecBioq/ordenExamenIsValidado/${ordenId}?_method=put`;
+        form.action = `http://localhost:3000/tecBioq/ordenExamenIsValidado/${ordenExamenId}?_method=put`;
       }
     }

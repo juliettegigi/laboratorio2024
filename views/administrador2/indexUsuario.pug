@@ -14,7 +14,8 @@ block content
          div.container.mt-5(id="divContentLista" )
           .row
            .col-lg-10.d-flex.mx-auto 
-            +inputSearch(`/admins2`,"nombre/email/DNI a buscar") 
+            .container.mx-auto
+             +inputSearch(`/admins2`,"nombre/email/DNI a buscar") 
           .row.mt-5
            .col-lg-10.mx-auto
              include ./listaUsuarios.pug

@@ -1,13 +1,18 @@
 extends layout
 append styles
   link(rel='stylesheet', href='/stylesheets/tecbioq/resultados.css')
-block aside 
+  link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+  link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
 block content
 
-  .container.d-flex.flex-column.divContent(id="divLista" )  
-   if rta
-    div(class=`alert alert-${rta.tipo} alert-dismissible fade show` role="alert")= rta.msg
-     button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
-    - console.log("tiene resultado????  ",ordenExamen.tieneResultado)
-   include ./formResultados.pug
-   +formResultados(`formResultados`,examen,ordenExamen)
+  div.container.mt-5#divContentLista
+    .row
+      .col-lg-6.d-flex.mx-auto
+        if rta
+          div(class=`alert alert-${rta.tipo} alert-dismissible fade show` role="alert")= rta.msg
+            button(type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close")
+        - console.log("tiene resultado????  ",ordenExamen.tieneResultado)
+    .row.mt-5
+      .col-lg-6.mx-auto.divLista
+        include ./formResultados.pug
+        +formResultados(`formResultados`,examen,ordenExamen)

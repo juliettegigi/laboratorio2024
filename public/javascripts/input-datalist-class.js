@@ -35,6 +35,7 @@ export default class InputDataList{
     agregarCruzLiListaSeleccionados=()=>{
       if(this.seleccionadosLista){
         for(let li of this.seleccionadosLista.querySelectorAll('li')){
+          
             this.addCruz(li,(evento)=>{li.remove()})
             
         }
@@ -68,6 +69,7 @@ export default class InputDataList{
       cruz.title="Quitar"
       cruz.classList.add('btn', 'btn-close', 'danger', 'btn-sm');
       cruz.addEventListener('click',funcionCruz) 
+      li.classList.add('liSeleccionados')
       li.appendChild(cruz);
   }
 

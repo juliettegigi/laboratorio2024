@@ -51,6 +51,11 @@
                         currentRow=rowAuditoria;
                         currentRow.classList.remove("oculto")
                       break;
+                   case 'btnOrdenes':  
+                        currentRow.classList.add("oculto")
+                        currentRow=rowOrdenes;
+                        currentRow.classList.remove("oculto")
+                      break;
                    case 'btnEditarUsuario':
                    case 'btnEditarPaciente': 
                    case 'btnEditarBioquimico':   
@@ -63,3 +68,6 @@
                })
 
         }
+
+
+   

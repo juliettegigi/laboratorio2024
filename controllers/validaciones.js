@@ -41,7 +41,6 @@ const tieneRole=(...roles)=>{
 
 const isAuth = (req, res, next) => {
   if (!req.session.usuario) {
-    console.log("entor")
     return res.status(401).render('error', { msg: 'No autorizado', codigo: 401 });
   }
   next();
@@ -70,13 +69,13 @@ const isCampoUnicoUsuario=async (campo,valorNuevo,req,editar=false,href="") => {
     const datosActualizar = {nombre,apellido,documento,email,
                              telefono};
     delete datosActualizar[campo];                                  
-    if (valorNuevo !== req.usuarioActual[campo]) {
+    if (valorNuevo !== req.registro[campo]) {
       
       datosActualizar[campo] = req.body[campo];
     }  
     req.datosActualizar=datosActualizar;                       
   }
- if(((editar && valorNuevo !== req.usuarioActual[campo]) || !editar)){
+ if(((editar && valorNuevo !== req.registro[campo]) || !editar)){
      const existeCampo = await Usuario.findOne({ where: { [campo]:valorNuevo } });
      if (existeCampo) {
       console.log("entroooooooooooooogggggggggggggggggggddddddddd")

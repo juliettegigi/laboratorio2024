@@ -4,7 +4,21 @@ const PdfMake=require('pdfmake')
 
 const { Op } = require('sequelize');
 
-const {OrdenEliminada, MuestraRequerida,Usuario,Paciente,sequelize,UsuarioRol,Telefono,Medico,Orden,OrdenExamen,Examen,Sequelize} = require('../models');
+const {
+  MuestraRequerida,
+  Usuario,
+  Paciente,
+  sequelize,
+  UsuarioRol,
+  Telefono,
+  Medico,
+  Orden,
+  OrdenAuditoria,
+  OrdenEliminada, 
+       OrdenExamen,
+       Examen,
+       Sequelize
+      } = require('../models');
 
 const ESTADO=require('../constantes/estados')
 
@@ -14,7 +28,6 @@ const ESTADO=require('../constantes/estados')
 const getInicio=async(req,res)=>{
    const rta = req.flash('rta')[0];
    const roles=req.session.roles;
-   console.log("roles:  ----------------> ",roles) 
    return res.render('administrador/index' ,{ rta,roles })  //le respondo con la página de inicio,  
 
 }
@@ -44,7 +57,7 @@ const getBusqueda=async(req,res)=>{
 
 const getForm=async(req,res)=>{
     const url = 'https://apis.datos.gob.ar/georef/api/provincias';
-  console.log("hello")
+
     try {
       const rta = await axios.get(url);
       const provincias = rta.data.provincias;
@@ -89,13 +102,8 @@ const getPaciente=async(req,res)=>{
 
 
    if(paciente){
-    console.log('------------------------------------------------ORDENES');
-     console.log("id:  " ,paciente.Ordens)
-     console.log("id:  " ,paciente.UsuarioId)
      const usuario = await Usuario.findByPk(paciente.UsuarioId,{ attributes: { exclude: ['password'] }, 
                                                                  include: [{ model: Telefono }]});
-      console.log('------------------------------------------------');
-    console.log(usuario)
     const arr=[]; 
     for(let orden of paciente.Ordens){ //todas las ordenes del paciente
       const [diagnostico,medico,estado,examenes]=await Promise.all([orden.getDiagnostico(),
@@ -108,12 +116,7 @@ const getPaciente=async(req,res)=>{
          arr2.push({id:muestra.id,muestraId:m.id,muestra:m.nombre,isPresentada:muestra.isPresentada})
       } 
 
-      if(orden.id===11){
-        console.log("ORDENNNNNNNNNNNNNN          1111111111111111111111")
-        console.log(orden)
-        console.log("ssssssssssssssssssssssssssssssssssssssssssss")
-        
-      }
+     
       arr.push({
           id:orden.id,
           diagnostico: diagnostico?.get(),
@@ -127,16 +130,13 @@ const getPaciente=async(req,res)=>{
         })
      }
 
-     console.log('------------------------------------------------');
-     console.log('------------------------------------------------ TELEGONOSSSSSS');
-     
-     console.log(arr);
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
                                                        telefonos:await usuario.getTelefonos(),
                                                        ordenes:arr,
                                                        medicos:await Medico.findAll(),
-                                                       rta
+                                                       rta,
+                                                       LABORATORIOnombre:require('../constantes/laboratorio').LABORATORIOnombre
                                                        })
     }
   } catch (error) {
@@ -176,6 +176,7 @@ const putPaciente=async(req,res)=>{
         origen:'putPaciente',
         alertType: 'success',
         alertMessage: 'Registro editado' })
+        console.log("USUARIO ID --->  ",UsuarioId)
     return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
   } catch (error) {
     console.error(error);
@@ -270,19 +271,26 @@ const calcularFechaDeEntrega=async(ordenNueva,transaction,userId)=>{
 
 
 const postOrden=async(req,res)=>{
-  console.log('------------------------------------------------ POST ORDEN');
-  console.log(req.body)
+  console.log("EB POST ORDENN")
   const transaction = await sequelize.transaction();
     try {
       // la fecha puede ser distinta a la fecha de creación del registro, porq pude haber anotado en un papel y haber cargado después
       const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,isUrgente,fecha,UsuarioId}=req.body
-      console.log("usuario id: ",UsuarioId)
       const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
-      
+      console.log(req.body)
       const userId= req.session.usuario.id;
       const orden=await Orden.create({PacienteId,MedicoId,DiagnosticoId,isPresuntivo:isPresuntivo==='true'?true:false,isUrgente:isUrgente?1:0,fecha},
-                                     { transaction,userId}
+                                     { transaction}
                                     )
+
+
+       await OrdenAuditoria.create({
+                  operacion: 'CREATE',
+                  registroId: orden.id,
+                  usuarioId: userId || null,
+                  fecha: new Date()
+                }, { transaction });
+
       let tiempoDeProcesamientoTotal=0;      
       let examenesNoRealizados=[]                              
       let promises = examenesId.map(async (ExamenId) => { 
@@ -299,9 +307,9 @@ const postOrden=async(req,res)=>{
                                                 });
       let muestrasRequeridas = await Promise.all(promises);
       orden.tiempoDeProcesamiento= tiempoDeProcesamientoTotal; 
-      await orden.save({ transaction, userId, skipAudit: true  });
+      await orden.save({ transaction });
       // calculo la fecha de entrega
-      calcularFechaDeEntrega(orden,transaction,userId);
+     // await calcularFechaDeEntrega(orden,transaction,userId);
 
 
       muestrasRequeridas=muestrasRequeridas.filter((muestra, index, self) => index === self.findIndex((m) => m.id === muestra.id));
@@ -316,19 +324,20 @@ const postOrden=async(req,res)=>{
        orden.EstadoId=ESTADO.esperandoTomaDeMuestra.id; 
     }
     else orden.EstadoId=ESTADO.analitica.id;
-    await orden.save({ transaction, userId: req.session.usuario.id , skipAudit: true });
+    await orden.save({ transaction});
 
      //TODO: mostrar las muestras requeridas,
      //TODO: devolver los examenes q el laboratorio no realiza,
      //TODO: decir en que fecha van a estar todos los resultados ,
 
       await transaction.commit();  
+
       req.flash('rta',{ 
         origen:'postOrden',
          alertType: 'success',
          alertMessage: 'Orden cargada.', 
          muestrasRequeridas,
-         fechaResultados:orden.fechaEntrega,
+       //  fechaResultados:orden.fechaEntrega,
          examenesNoRealizados })
       return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
 
@@ -346,57 +355,112 @@ const postOrden=async(req,res)=>{
 
 
 const putOrden=async(req,res)=>{
-  console.log('------------------------------------------------ PUTORDEN');
-  console.log(req.body)
   const transaction = await sequelize.transaction();
+  console.log("en el p ut orden")
+  console.log(req.body)
   try {
 
     // validar el estado de la orden una orden con estado "Ingresada, Esperando toma de muestra, Analítica"
     const{PacienteId,MedicoId,DiagnosticoId,isPresuntivo,fecha,ordenId,isUrgente}=req.body
-    const examenesId=(req.body.examenesId && Array.isArray(req.body.examenesId ))?req.body.examenesId:[req.body.examenesId];
+      const examenesId=req.body.examenesId 
+                       ?   Array.isArray(req.body.examenesId )
+                           ?req.body.examenesId
+                           :[req.body.examenesId]
+                        :[];   
 
-  /*   await Orden.update({MedicoId,DiagnosticoId, isPresuntivo,fecha,isUrgente:isUrgente?1:0},
-      { where: { id:ordenId } }, { transaction,userId: req.session.usuario.id }
-    ) */
 
-      
+ const examenesIdNum = examenesId.map(id => Number(id));
+    // ****************************************************************************************************  
+    // ****************************************************************************************************  
+   // si a la orden le cambio los exámenes ==> la relación orden-examen también cambia
+   const ordenExamenesExistentes = await OrdenExamen.findAll({where: { ordenId }});
+   
+   // agrego todos los exámenes que están en el formulario
+   await Promise.all(
+    examenesIdNum.map(examenId => 
+      OrdenExamen.findOrCreate({
+        where: {
+          OrdenId:ordenId,
+          ExamenId:examenId
+        },
+        defaults: {
+          OrdenId:ordenId,
+          ExamenId:examenId
+        },
+        transaction,
+      })
+    )
+  );
 
+  const ordenExamenesAEliminar = ordenExamenesExistentes.filter(oe => 
+  !examenesIdNum.includes(oe.ExamenId)
+
+);
+
+// Paso 3: elimino los que sobran
+await Promise.all(
+  ordenExamenesAEliminar.map(oe => oe.destroy({
+    transaction
+  }))
+);
+
+
+ // ****************************************************************************************************  
+    // ****************************************************************************************************  
+   // si a la orden le cambio los exámenes ==> las muestras requeridas de la orden también cambian
     const muestrasRequeridasActuales = await MuestraRequerida.findAll({
-      where: { OrdenId: ordenId },
-      attributes: ['id', 'MuestraId', 'isPresentada'],
-      raw: true,
-    });
+          where: { OrdenId: ordenId },
+          attributes: ['id', 'MuestraId', 'isPresentada'],
+          raw: true,
+        });
     const muestrasRequeridasActualesIds = muestrasRequeridasActuales.map((m) => m.MuestraId);
-
-    await OrdenExamen.destroy({
-      where: { OrdenId: ordenId },
-      transaction,
-    });
-
-    // **PASO 2: Agregar las nuevas relaciones**
-    const nuevasRelaciones =[] ;  
-    const muestrasRequeridasNuevasIds=[]
     
-    for(let examenId of examenesId){
-          nuevasRelaciones.push({ OrdenId: ordenId, ExamenId: examenId});
-          const examen=await Examen.findByPk(examenId);     
-          if (!muestrasRequeridasNuevasIds.includes(examen.MuestraId)) {
-            muestrasRequeridasNuevasIds.push(examen.MuestraId);  // requiero la muestra 1 y 2
-          }
-      }  
+    // tengo que relacionar a las muestras requeridas con los exámenes que quedaron con la orden
+    const muestrasRequeridasNuevasIds = [];
+    for (const examenId of examenesId) {
+      const examen = await Examen.findByPk(examenId);
+      if (examen) {
+        const muestra = await examen.getMuestra();
+        if (muestra && !muestrasRequeridasNuevasIds.includes(muestra.id)) {
+          muestrasRequeridasNuevasIds.push(muestra.id);
+        }
+      }
+    }
+  
+    // tengo que crear las nuevas relaciones en MuestraRequerida
+     await Promise.all(
+     muestrasRequeridasNuevasIds.map(muestraId => 
+      MuestraRequerida.findOrCreate({
+        where: {
+          OrdenId:ordenId,
+          MuestraId:muestraId
+        },
+        defaults: {
+          OrdenId:ordenId,
+          MuestraId:muestraId
+        }
+      })
+    )
+  );
 
-    await OrdenExamen.bulkCreate(nuevasRelaciones, { transaction });
- 
-    
-    const muestrasRequeridasNuevasRelaciones = muestrasRequeridasNuevasIds
-  .filter((MuestraId) => !muestrasRequeridasActualesIds.includes(MuestraId)) 
-  .map((MuestraId) => ({
-    OrdenId: ordenId,
-    MuestraId,
-    isPresentada: false, // Inicialmente no presentada
-  }));
-    // agrego las nuevas relaciones    
-    await MuestraRequerida.bulkCreate(muestrasRequeridasNuevasRelaciones, { transaction });
+
+
+// 4) Eliminar las relaciones que ya no deben estar
+const muestrasAEliminarIds = muestrasRequeridasActualesIds.filter(
+  id => !muestrasRequeridasNuevasIds.includes(id)
+);
+
+await Promise.all(
+  muestrasAEliminarIds.map(muestraId =>
+    MuestraRequerida.destroy({
+      where: {
+        OrdenId: ordenId,
+        MuestraId: muestraId
+      }
+    })
+  )
+);
+
 
     const orden = await Orden.findByPk(ordenId, { transaction });
     orden.MedicoId = MedicoId;
@@ -404,15 +468,23 @@ const putOrden=async(req,res)=>{
     orden.isPresuntivo = isPresuntivo;
     orden.fecha = fecha;
     orden.isUrgente = isUrgente ? 1 : 0;
-    await orden.save({ transaction, userId: req.session.usuario.id });
+    await orden.save({ transaction});
 
+    await OrdenAuditoria.create({
+      operacion: 'UPDATE',
+      registroId: ordenId,
+      UsuarioId: req.session.usuario.id,
+      fecha: new Date()
+    }, { transaction });
 
-    await transaction.commit();  
+    const paciente=await Paciente.findByPk(PacienteId, { transaction });
+    await transaction.commit(); 
+    console.log("EXAMENES A ELIMINAR  44444444444")
     req.flash('rta',{ 
       origen:'putOrden',
        alertType: 'success',
        alertMessage: `Orden ${ordenId} actualizada.` })
-    return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+    return res.redirect(`http://localhost:3000/admins/paciente/${paciente.UsuarioId}`)
     
   }catch(error) {
     console.log(error)
@@ -428,8 +500,7 @@ const putOrden=async(req,res)=>{
 const putMuestrasRequeridas=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try{
-    console.log('------------------------------------------------ PUT MUESTRAS REQUERIDAS' );
-    console.log(req.body)
+    
     const{OrdenId,UsuarioId}=req.body
     const muestrasRequeridasIdPresentadas=(req.body.muestrasRequeridas && Array.isArray(req.body.muestrasRequeridas ))?req.body.muestrasRequeridas:[req.body.muestrasRequeridas];
     const muestrasRequeridas = await MuestraRequerida.findAll({ where: { OrdenId } });
@@ -454,7 +525,7 @@ const putMuestrasRequeridas=async(req,res)=>{
        origen:'putOrden',
         alertType: 'success',
         alertMessage: `Orden ${OrdenId} muestras actualizadas.` })
-     console.log("USUARIO ID    :----------->> ",UsuarioId)   
+
      return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
      }catch(error) {
       console.log(error)
@@ -469,11 +540,21 @@ const putMuestrasRequeridas=async(req,res)=>{
 const deleteOrden=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try{
+    console.log("-------------------------------- DELETE ORDEN")
+    console.log(req.body)
     const {OrdenId,PacienteId,motivo}=req.body
     await Orden.destroy({ where: {id: OrdenId},
                           transaction});
     await OrdenEliminada.create({OrdenId,motivo},
                                 { transaction });
+
+    await OrdenAuditoria.create({
+      operacion: 'DELETE',
+      registroId: OrdenId,
+      usuarioId: req.session.usuario.id,
+      fecha: new Date()
+    }, { transaction });
+
     await transaction.commit();  
 
     req.flash('rta',{ 
@@ -481,7 +562,8 @@ const deleteOrden=async(req,res)=>{
       alertType: 'success',
       alertMessage: `Registro ${OrdenId} eliminado` })
 
-    return res.redirect(`http://localhost:3000/admins/paciente/${PacienteId}`)
+    const paciente=await Paciente.findByPk(PacienteId);
+    return res.redirect(`http://localhost:3000/admins/paciente/${paciente.UsuarioId}`)
 
   }catch(error) {
     console.log(error)

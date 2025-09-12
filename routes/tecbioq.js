@@ -47,7 +47,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/',[
     isAuth,
-    tieneRole("bioquímico","técnico")
+    tieneRole("Bioquímico","Técnico")
 ], getInicio);
 router.get('/muestras', getInicioMuestras);
 router.get('/categ/:examenId/:id',deleteCategoria)
@@ -63,12 +63,12 @@ router.get('/addDet', getAddDeterminacion);
 router.get('/addMuestra', getAddMuestra);
 router.get('/muestra/:id', getMuestra);
 router.get('/ordenes/',[
-    isAuth,
-    tieneRole("técnico")
+    //isAuth,
+    //tieneRole("Técnico")
 ] ,getInicioOrdenes);
 router.get('/ordenesV/',[
     isAuth,
-    tieneRole("bioquímico")
+    tieneRole("Bioquímico")
 ], getInicioValidar);
 
 router.get('/ordenExamen/:OrdenId/:ExamenId', getOrdenExamen);

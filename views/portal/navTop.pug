@@ -1,0 +1,38 @@
+header.container-fluid.sticky-top.px-0 
+ nav(class="navbar navbar-expand-md bg-body-tertiary")
+   div.container-fluid
+    a.navbar-brand(href="/tecBioq") 
+       img(src="/images/logo.jpg", alt="logo laboratorio ULP" class="logo ")
+
+
+    div.d-flex.justify-content-end.order-md-1
+     div
+      include ../menu.pug    
+     button(class="navbar-toggler" 
+             type="button" 
+             data-bs-toggle="collapse" 
+             data-bs-target="#navbarSupportedContent" 
+             aria-controls="navbarSupportedContent" 
+             aria-expanded="false" 
+             aria-label="Toggle navigation")
+       span(class="navbar-toggler-icon")
+
+
+    div.collapse.navbar-collapse#navbarSupportedContent
+     .d-flex.justify-content-center.container
+        ul.navbar-nav.mb-2.mb-lg-0.w-100.d-flex.justify-content-center
+          li.nav-item
+           a.nav-link.active(aria-current="page" 
+                             href=`http://localhost:3000/tecBioq`
+                             ) Examenes
+     
+          li.nav-item
+           a.nav-link(href="http://localhost:3000/tecBioq/determinaciones") Determinaciones
+          li.nav-item
+           a.nav-link(href="http://localhost:3000/tecBioq/muestras") Muestras  
+          if isTecnico                            
+           li.nav-item
+            a.nav-link(href="http://localhost:3000/tecBioq/ordenes") Cargar resultados  
+          if isBioquimico                                                                                 
+           li.nav-item
+            a.nav-link(href="http://localhost:3000/tecBioq/ordenesV") Validar resultados

@@ -2,9 +2,10 @@ const { Op, Sequelize} = require('sequelize');
 
 const ESTADO=require('../constantes/estados')
 const {
+  Categoria,
   Determinacion,DeterminacionPadre,DeterminacionUnidad,DeterminacionValorReferencia,DeterminacionResultado,
   Examen,ExCategDeterminacion,ExamenCategoria,ExCategParametro,ExamenDeterminacion,Orden,OrdenExamen,
-  Parametro,ParametroResultado,Paciente,
+  Parametro,ParametroResultado,ParametroResultadoAuditoria,Paciente,
   Muestra,MuestraRequerida,Usuario,
   Unidad,sequelize,
    } = require('../models');
@@ -132,6 +133,7 @@ const getInicio=async(req,res)=>{
      let whereCondition = {};
     if (inputSearch !== "") {
       const numericValue = Number(inputSearch);
+      console.log("paso")
       if (!isNaN(numericValue)) {
         whereCondition = {
          // EstadoId:ESTADO.analitica.id,
@@ -145,7 +147,17 @@ const getInicio=async(req,res)=>{
          // EstadoId:ESTADO.analitica.id,
           [Op.or]: [
             { '$Paciente.Usuario.nombre$': {  [Op.like]: `%${inputSearch}%`} },
-            { '$Paciente.Usuario.apellido$': {  [Op.like]: `%${inputSearch}%` } }
+            { '$Paciente.Usuario.apellido$': {  [Op.like]: `%${inputSearch}%` } },
+            { '$Paciente.Usuario.email$': {  [Op.like]: `%${inputSearch}%` } },
+            { '$Paciente.Usuario.documento$': {  [Op.like]: `%${inputSearch}%` } },
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('Paciente.Usuario.nombre'), inputSearch),
+              { [Op.lte]: 6 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('Paciente.Usuario.apellido'), inputSearch),
+              { [Op.lte]: 6 }
+            ),
           ]
         };
       }
@@ -155,10 +167,45 @@ const getInicio=async(req,res)=>{
         EstadoId:ESTADO.analitica.id}
     } */
 
-    console.log("whereCondition")
-    console.log(whereCondition)
+
+       
+        const exactMatchFirst = Sequelize.literal(`
+          CASE
+            WHEN LOWER(\`Paciente->Usuario\`.\`nombre\`) = LOWER('${inputSearch}') THEN 0
+            WHEN LOWER(\`Paciente->Usuario\`.\`apellido\`) = LOWER('${inputSearch}') THEN 0
+            WHEN LOWER(\`Paciente->Usuario\`.\`email\`) = LOWER('${inputSearch}') THEN 0
+            WHEN LOWER(\`Paciente->Usuario\`.\`documento\`) = LOWER('${inputSearch}') THEN 0
+            ELSE 1
+          END
+        `);
+        const orderByLikeMatch = Sequelize.literal(`
+          CASE
+            WHEN \`Paciente->Usuario\`.\`nombre\` LIKE '%${inputSearch}%' THEN 0
+            WHEN \`Paciente->Usuario\`.\`apellido\` LIKE '%${inputSearch}%' THEN 0
+            WHEN \`Paciente->Usuario\`.\`email\` LIKE '%${inputSearch}%' THEN 0
+            WHEN \`Paciente->Usuario\`.\`documento\` LIKE '%${inputSearch}%' THEN 0
+            ELSE 1
+          END
+        `);            
+        const orderByDistance = Sequelize.literal(`
+          LEAST(
+            levenshtein(LOWER(\`Paciente->Usuario\`.\`nombre\`), LOWER('${inputSearch}')),
+            levenshtein(LOWER(\`Paciente->Usuario\`.\`apellido\`), LOWER('${inputSearch}')),
+            levenshtein(LOWER(\`Paciente->Usuario\`.\`email\`), LOWER('${inputSearch}')),
+            levenshtein(LOWER(\`Paciente->Usuario\`.\`documento\`), LOWER('${inputSearch}'))
+          )
+        `);
+
+
     const { count, rows } = await Orden.findAndCountAll({
-      where: whereCondition,
+      
+      where: {
+        ...whereCondition,
+        [Op.or]: [
+          { EstadoId: ESTADO.analitica.id },
+          { EstadoId: ESTADO.paraValidar.id }
+        ]
+      },
       include: [
         {
           model: Paciente,
@@ -173,7 +220,7 @@ const getInicio=async(req,res)=>{
         {
           model: Examen,
           as: 'Examens',
-          required: true, // Solo se incluirán exámenes si cumplen la condición
+          required: true,
           include: [
             {
               model: Muestra,
@@ -181,8 +228,6 @@ const getInicio=async(req,res)=>{
               required: true
             }
           ],
-          // Aquí se filtran los exámenes: se verifica que su muestraId esté
-          // entre las muestras requeridas (presentadas) para la orden.
           where: sequelize.Sequelize.literal(`
             \`Examens\`.\`muestraId\` IN (
               SELECT mr.muestraId 
@@ -190,17 +235,21 @@ const getInicio=async(req,res)=>{
               WHERE mr.ordenId = \`Orden\`.id AND mr.isPresentada = 1
             )
           `),
-          through: { attributes: [] }
+          through: { attributes: ['UsuarioId'] } // <-- Trae el campo UsuarioId de la tabla intermedia
         }
       ],
       limit,
       offset,
-      order: [['id', 'ASC']],
+      order: [
+        [exactMatchFirst, 'ASC'],
+        [orderByLikeMatch, 'ASC'],
+        [orderByDistance, 'ASC'],
+        ['id', 'ASC']
+      ],
       subQuery: false // Evita que se generen subconsultas que rompan los alias
     });
-    
-    console.log('------------------------------------------------');
-       console.log(rows[0])
+    console.log("------------------------------------------------");
+    console.log(rows)
      return res.render('tecBioq/indexOrden',{inputSearch,
                                       ordenes:rows,
                                       limit,
@@ -226,12 +275,14 @@ const  getInicioValidar=async(req,res)=>{
      group=parseInt(group)
      let offset=page*limit-limit;
      
-     let whereCondition = {};
+     let whereCondition = {
+       EstadoId: ESTADO.paraValidar.id
+     };
     if (inputSearch !== "") {
       const numericValue = Number(inputSearch);
       if (!isNaN(numericValue)) {
         whereCondition = {
-        EstadoId:ESTADO.paraValidar.id,
+          EstadoId: ESTADO.paraValidar.id,
           [Op.or]: [
             { id: numericValue },
             { '$Paciente.Usuario.id$': numericValue }
@@ -239,21 +290,55 @@ const  getInicioValidar=async(req,res)=>{
         };
       } else {
         whereCondition = {
-         EstadoId:ESTADO.paraValidar.id,
+          EstadoId: ESTADO.paraValidar.id,
           [Op.or]: [
             { '$Paciente.Usuario.nombre$': {  [Op.like]: `%${inputSearch}%`} },
-            { '$Paciente.Usuario.apellido$': {  [Op.like]: `%${inputSearch}%` } }
+            { '$Paciente.Usuario.apellido$': {  [Op.like]: `%${inputSearch}%` } },
+            { '$Paciente.Usuario.email$': {  [Op.like]: `%${inputSearch}%` } },
+            { '$Paciente.Usuario.documento$': {  [Op.like]: `%${inputSearch}%` } },
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('Paciente.Usuario.nombre'), inputSearch),
+              { [Op.lte]: 6 }
+            ),
+            Sequelize.where(
+              Sequelize.fn('levenshtein', Sequelize.col('Paciente.Usuario.apellido'), inputSearch),
+              { [Op.lte]: 6 }
+            ),
           ]
         };
       }
-    }
-     else{
-      whereCondition = {
-        EstadoId:ESTADO.paraValidar.id}
     } 
 
-    console.log("whereCondition")
-    console.log(whereCondition)
+
+
+    const exactMatchFirst = Sequelize.literal(`
+      CASE
+        WHEN LOWER(\`Paciente->Usuario\`.\`nombre\`) = LOWER('${inputSearch}') THEN 0
+        WHEN LOWER(\`Paciente->Usuario\`.\`apellido\`) = LOWER('${inputSearch}') THEN 0
+        WHEN LOWER(\`Paciente->Usuario\`.\`email\`) = LOWER('${inputSearch}') THEN 0
+        WHEN LOWER(\`Paciente->Usuario\`.\`documento\`) = LOWER('${inputSearch}') THEN 0
+        ELSE 1
+      END
+    `);
+    const orderByLikeMatch = Sequelize.literal(`
+      CASE
+        WHEN \`Paciente->Usuario\`.\`nombre\` LIKE '%${inputSearch}%' THEN 0
+        WHEN \`Paciente->Usuario\`.\`apellido\` LIKE '%${inputSearch}%' THEN 0
+        WHEN \`Paciente->Usuario\`.\`email\` LIKE '%${inputSearch}%' THEN 0
+        WHEN \`Paciente->Usuario\`.\`documento\` LIKE '%${inputSearch}%' THEN 0
+        ELSE 1
+      END
+    `);            
+    const orderByDistance = Sequelize.literal(`
+      LEAST(
+        levenshtein(LOWER(\`Paciente->Usuario\`.\`nombre\`), LOWER('${inputSearch}')),
+        levenshtein(LOWER(\`Paciente->Usuario\`.\`apellido\`), LOWER('${inputSearch}')),
+        levenshtein(LOWER(\`Paciente->Usuario\`.\`email\`), LOWER('${inputSearch}')),
+        levenshtein(LOWER(\`Paciente->Usuario\`.\`documento\`), LOWER('${inputSearch}'))
+      )
+    `);
+
+
     const { count, rows } = await Orden.findAndCountAll({
       where: whereCondition,
       include: [
@@ -282,12 +367,15 @@ const  getInicioValidar=async(req,res)=>{
       ],
       limit,
       offset,
-      order: [['id', 'ASC']],
+      order: [
+        [exactMatchFirst, 'ASC'],
+        [orderByLikeMatch, 'ASC'],
+        [orderByDistance, 'ASC'],
+        ['id', 'ASC']
+      ],
       subQuery: false // Evita que se generen subconsultas que rompan los alias
     });
     
-    console.log('------------------------------------------------');
-       console.log(rows)
 
       
      return res.render('tecBioq/indexOrden',{inputSearch,
@@ -360,8 +448,6 @@ const  getInicioValidar=async(req,res)=>{
                    ['nombre', 'ASC']
                 ],
       });
-        console.log('------------------------------------------------');
-        console.log(rows)
      return res.render('tecBioq/indexDeterminacion',{inputSearch,
                                       determinaciones:rows,
                                       limit,
@@ -631,7 +717,7 @@ const getOrdenExamenes=async(req,res)=>{
           model: Examen,
           include: [
             {
-              model: ExamenCategoria, include: [
+              model: ExamenCategoria, as: 'ExamenCategoria', include: [
                 {
                   model: ExCategDeterminacion, include: [
                     {
@@ -667,62 +753,57 @@ const getOrdenExamen=async(req,res)=>{
   try {
     const {OrdenId,ExamenId}=req.params;
     const {validar}=req.query;
-   // const ordenExamen=await OrdenExamenId.findOne({where:{OrdenId,ExamenId}})
-   // const OrdenExamenId=ordenEc
     const rta = req.flash('rta')[0];
-    console.log(OrdenId)
-    console.log(ExamenId)
-  //  console.log(OrdenExamenId)
+
   const ordenExamen = await OrdenExamen.findOne({
     where: { OrdenId, ExamenId }
   });
 
 
+ 
    const examen = await Examen.findOne({
-  where: { id: ExamenId },
-  include: [
-    {
-      model: ExamenCategoria,
-      include: [
-        {
-          model: ExCategDeterminacion,
-          include: [
-            {
-              model: Determinacion,
-              include: [
-                { model: Unidad },
-                { 
-                  model: DeterminacionResultado, 
-                  where: { OrdenExamenId: ordenExamen.id },
-                  required: false 
-                }     
-              ]
-            },
-           
-          ]
-        },
-        {
-          model: ExCategParametro,
-          include: [
-            {
-              model: Parametro,
-              include: [
-                { model: Unidad },
-                { 
-                  model: ParametroResultado, 
-                  where: { OrdenExamenId: ordenExamen.id } ,
-                  required: false
-                }
-              ]
-            },
-           
-          ]
-        }
-      ]
-    }
-  ]
-});
-        console.log(examen.ExamenCategoria[0].ExCategDeterminacions)
+    where: { id: ExamenId },
+    include: [
+      {
+        model: ExamenCategoria,
+        as: 'ExamenCategoria', // Especificamos el alias correcto
+        include: [
+          {
+            model: ExCategDeterminacion,
+            include: [
+              {
+                model: Determinacion,
+                include: [
+                  { model: Unidad },
+                  { 
+                    model: DeterminacionResultado, 
+                    where: { OrdenExamenId: ordenExamen.id },
+                    required: false 
+                  }     
+                ]
+              },
+            ]
+          },
+          {
+            model: ExCategParametro,
+            include: [
+              {
+                model: Parametro,
+                include: [
+                  { model: Unidad },
+                  { 
+                    model: ParametroResultado, 
+                    where: { OrdenExamenId: ordenExamen.id },
+                    required: false
+                  }
+                ]
+              },
+            ]
+          }
+        ]
+      }
+    ]
+  });
       return res.render(`tecBioq/clickOrden`,{examen,
                                               rta,
                                               validar,
@@ -747,21 +828,23 @@ const getOrdenExamen=async(req,res)=>{
 
 const getAddCategDet=async(req,res)=>{
    try {
+    console.log("-------------------------------------------------- entroooooo")
       const {id}=req.params;
       const examen = await Examen.findByPk(  id,
                                            );
-      const categorias=await examen.getExamenCategoria({include: [{model: ExCategDeterminacion,
-                                                                  include: [{ model: Determinacion }]},
-                                                                  {model: ExCategParametro,
-                                                                  include: [{ model: Parametro }]
-                                                                  }
-                                                                ]
-                                                                },);
-       console.log("CATEGORIAS")
-       console.log(categorias[0])
+      // Ahora incluimos también el modelo Categoria en la búsqueda
+      const exCategs = await examen.getExamenCategoria({
+        include: [
+          { model: Categoria, as: 'Categoria' },
+          { model: ExCategDeterminacion, include: [{ model: Determinacion }] },
+          { model: ExCategParametro,     include: [{ model: Parametro }] }
+        ]
+      });
+       console.log("--------------------------------------------------")
+       console.log(exCategs)
        return res.render('tecBioq/addCategDet',{ 
          examen,
-         categorias,
+         exCategs,
          isTecnico:req.session.isTecnico,
          isBioquimico:req.session.isBioquimico
                })
@@ -805,6 +888,8 @@ const putExamen=async(req,res)=>{
 const putEstadoOrden=async(req,res)=>{
   const{OrdenId}=req.params;
    try {
+    console.log("Cambio el estado de la orden")
+    console.log(OrdenId)
      await Orden.update( {EstadoId:ESTADO.informada.id},
                           { where: { id:OrdenId} }
                         )
@@ -821,9 +906,9 @@ const putEstadoOrden=async(req,res)=>{
  
 const putOrdenExamenIsValidado=async(req,res)=>{
   const{OrdenExamenId}=req.params;
-  console.log("seeeeeeeeeeee")
+  console.log("seeeeeeeeeeee  --> ",OrdenExamenId)
    try {
-     await OrdenExamen.update( {isValidado:1},
+     await OrdenExamen.update( {UsuarioId:req.session.usuario.id},
                           { where: { id:OrdenExamenId }}
                         )
      return res.redirect(`http://localhost:3000/tecBioq/ordenesV`)
@@ -840,22 +925,28 @@ const putOrdenExamenIsValidado=async(req,res)=>{
 
  const postCategDet=async(req,res)=>{
   const transaction = await sequelize.transaction();
+  console.log("-----------------------------POST")
   console.log(req.body)
   const {ExamenId}=req.params;
    try {
 
-     const categorias=Array.isArray(req.body.categorias)?  req.body.categorias
-                                                        :  [req.body.categorias];
+     const categorias=req.body.categorias  ? Array.isArray(req.body.categorias)?  req.body.categorias
+                                                        :  [req.body.categorias]
+                                                        : [];
     let i=0;
     for(let nombre of categorias){
 
       
       
-      const [exCateg, created] = await ExamenCategoria.findOrCreate({
-        where: { ExamenId, nombre },
-        defaults: { ExamenId, nombre },
+      const [categoria, created] = await Categoria.findOrCreate({
+        where: { nombre },
+        defaults: { nombre },
         transaction
       });
+
+      // No está del todo bien, porque falta asociar el ExamenId. 
+      // Debería ser algo así:
+      const exCateg = await ExamenCategoria.create({CategoriaId: categoria.id,ExamenId}, { transaction });
       
       const detId=req.body[`det-${i}Id`]?Array.isArray(req.body[`det-${i}Id`]) ? req.body[`det-${i}Id`]
                                                  : [req.body[`det-${i}Id`]]
@@ -885,7 +976,7 @@ const putOrdenExamenIsValidado=async(req,res)=>{
    } catch (error) {
      console.error(error);
      await transaction.rollback();
-     return res.redirect(`http://localhost:3000/tecBioq/examen/${id}/addCategDet`)
+     return res.redirect(`http://localhost:3000/tecBioq/examen/${ExamenId}/addCategDet`)
    };
  
  
@@ -1288,9 +1379,6 @@ const postResultados=async(req,res)=>{
              :[req.body[`${propiedad}`]];
     }
     ordenExamen=await OrdenExamen.findByPk(OrdenExamenId)
-    if(ordenExamen.tieneResultado)
-      return res.redirect(`http://localhost:3000/tecBioq/ordenExamenes/${ordenExamen.OrdenId}/${ordenExamen.ExamenId}`,
-                          {msg:"el examen ya tiene resultados"})
 
 
     //si estan todos los resultados
@@ -1300,20 +1388,33 @@ const postResultados=async(req,res)=>{
     const{determinacionResultado,parametroResultado,parametroId,determinacionId,detUnidadId,parametroUnidadId}=req.body;
     if(determinacionId){
        for(let i=0;i<determinacionId.length;i++ ){
-         await DeterminacionResultado.create({OrdenExamenId,
+         const dr=await DeterminacionResultado.create({OrdenExamenId,
                                               DeterminacionId:determinacionId[i],
                                               resultado:parseFloat(determinacionResultado[i]),
                                               UnidadId:detUnidadId[i]},
                                              {transaction})
+
+         await DeterminacionResultadoAuditoria.create({
+          operacion: 'CREATE',
+          registroId: dr.id,
+          usuarioId: req.session.usuario.id || null,
+          fecha: new Date()
+        }, { transaction });
        }
     }
     if(parametroId){
        for(let i=0;i<parametroId.length;i++ ){
-         await ParametroResultado.create({OrdenExamenId,
+         const pr=await ParametroResultado.create({OrdenExamenId,
                                               ParametroId:parametroId[i],
                                               resultado:parametroResultado[i],
                                               UnidadId:parametroUnidadId[i]},
                                              {transaction})
+        await ParametroResultadoAuditoria.create({
+          operacion: 'CREATE',
+          registroId: pr.id,
+          usuarioId: req.session.usuario.id || null,
+          fecha: new Date()
+        }, { transaction });
        }
     }
 
@@ -1355,9 +1456,11 @@ const putResultados=async(req,res)=>{
              ?req.body[`${propiedad}`]
              :[req.body[`${propiedad}`]];
     }
-    const{OrdenExamenId}=req.params
+
     ordenExamen=await OrdenExamen.findByPk(OrdenExamenId)
-    const{determinacionResultado,parametroResultado,parametroId,determinacionId,detUnidadId,parametroUnidadId}=req.body;
+    const{determinacionResultado,determinacionId,detUnidadId,
+          parametroResultado,    parametroId,    parametroUnidadId}=req.body;
+
     if(determinacionId){
        for(let i=0;i<determinacionId.length;i++ ){
             await DeterminacionResultado.upsert(
@@ -1371,18 +1474,59 @@ const putResultados=async(req,res)=>{
             );
        }
     }
-    if(parametroId){
-       for(let i=0;i<parametroId.length;i++ ){
-         await ParametroResultado.upsert({   OrdenExamenId, 
-                                             ParametroId:parametroId[i],
-                                             resultado:parametroResultado[i],
-                                             UnidadId:parametroUnidadId[i]
-                                            },
-                                         { transaction }
-                                          )
-       }
-    } 
+    // parametroId es el arreglo con los id de los parámetros del formulario, hayan sido editados o no
+    if (parametroId) {
+      for (let i = 0; i < parametroId.length; i++) {
+        const parametroI = parametroId[i];
+    
+        // Traigo el registro actual
+        const registro = await ParametroResultado.findOne({
+          where: {
+            OrdenExamenId,
+            ParametroId: parametroI,
+          }
+        });
+        const datosAntiguos=registro.toJSON()
+    
+        // Valores nuevos que recibió la API
+        const nuevoResultado = parametroResultado[i];
+        const nuevaUnidadId  = parametroUnidadId[i];
+    
+        // Verifico si realmente hay algún cambio
+        console.log("A VERRRRRRRRRRR")
+        console.log(registro.resultado)
+        console.log(nuevoResultado)
+        console.log(registro.UnidadId)
+        console.log(nuevaUnidadId)
+        const hayCambio =
+          registro.resultado != nuevoResultado ||
+          registro.UnidadId  != nuevaUnidadId;
+    
+        if (hayCambio) {
+          // Hacemos el update
+          registro.resultado= nuevoResultado,
+          registro.UnidadId=nuevaUnidadId,
+          await registro.save({ transaction })
+          
+          // Registramos en auditoría
+          await ParametroResultadoAuditoria.create({
+            operacion: 'UPDATE',
+            registroId: registro.id,
+            usuarioId: req.session.usuario.id,
+            datosAntiguos,
+            datosNuevos:registro,
+            fecha: new Date(),
+          }, { transaction });
+        }
+      }
+    }
 
+    ordenExamen.UsuarioId=null;
+    await ordenExamen.save({ transaction });
+   
+    const orden = await Orden.findByPk(ordenExamen.OrdenId, { transaction });
+    orden.EstadoId=ESTADO.paraValidar.id
+    await orden.save({ transaction });
 
     await transaction.commit();
     req.flash('rta', {msg:"Resultados actualizados", tipo:"success"});

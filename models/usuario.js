@@ -7,12 +7,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Usuario.belongsToMany(models.Rol, {through:"UsuarioRol"})
       Usuario.hasMany(models.UsuarioRol);
-     
+      Usuario.hasMany(models.OrdenExamen)  
+      
       Usuario.hasOne(models.Paciente, { foreignKey: 'UsuarioId', as: 'Paciente' });
       Usuario.hasOne(models.Bioquimico, { foreignKey: 'UsuarioId', as: 'Bioquimico' });
       Usuario.hasOne(models.Tecnico, { foreignKey: 'UsuarioId', as: 'Tecnico' });
       Usuario.hasMany(models.Telefono, { foreignKey: 'UsuarioId' });
       Usuario.hasMany(models.UsuarioAuditoria, { foreignKey: 'UsuarioId' });
+      Usuario.hasMany(models.OrdenAuditoria, { foreignKey: 'UsuarioId' });
     }
     
 
@@ -20,9 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       try {
         let where = {};
     
-        
-        console.log("TERMINO")
-        console.log(termino)
         if (termino !== "") {
           where = {
             [Op.or]: [  
@@ -108,8 +107,6 @@ module.exports = (sequelize, DataTypes) => {
         }
     
         // Realizar la consulta con las condiciones de búsqueda
-        console.log("WHERE")
-        console.log(where)
         const usuarios = await Usuario.findAndCountAll({
           include: includes,
           where,
@@ -128,7 +125,6 @@ module.exports = (sequelize, DataTypes) => {
         });
     
       
-        console.log(usuarios)
         return usuarios; // Retorna los usuarios con los roles filtrados
       } catch (error) {
         console.log('models==>usuario');

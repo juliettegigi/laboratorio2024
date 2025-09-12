@@ -1,8 +1,5 @@
-const path = require('path');
-const axios = require('axios');
-const PdfMake=require('pdfmake')
 
-const { Op } = require('sequelize');
+const axios = require('axios');
 
 const {
     Bioquimico,
@@ -10,6 +7,7 @@ const {
     Estado,
     Examen,
     Medico,
+    MuestraRequerida,
     Orden,
     OrdenExamen,
     Paciente,
@@ -22,7 +20,7 @@ const {
     sequelize,
    } = require('../models');
 
-const ESTADO=require('../constantes/estados')
+const guardarRoles = require('../helpers/guardar-roles');
 
 
 
@@ -294,9 +292,15 @@ const getUsuario=async(req,res)=>{
         },
         {
           model: Paciente,
-          as:'Paciente',
+          as: 'Paciente',
           required: false,
-          paranoid: false  
+          paranoid: false,
+          include: [
+            {
+              model: Orden, // Incluimos las órdenes del paciente
+              paranoid: false
+            }
+          ]
         },
         {
           model: Bioquimico,
@@ -331,7 +335,42 @@ const getUsuario=async(req,res)=>{
                                      include: [ { model: Usuario, as: 'Usuario' },
                                                 { model: Usuario, as: 'Registro' }
                                               ]
-                                  });          
+                                  });  
+                            
+                          const arr=[];    
+      if(usuario.Paciente){
+                            
+        
+                 for(let orden of usuario.Paciente.Ordens){ //todas las ordenes del paciente, incluso las eliminadas
+                   const arr2=[]  
+                                     const [diagnostico,medico,estado,examenes]=await Promise.all([orden.getDiagnostico(),
+                                       orden.getMedico(),
+                                       orden.getEstado(),
+                                       orden.getExamens()]); 
+                                     const  muestrasRequeridasXorden=await MuestraRequerida.findAll({where:{OrdenId:orden.id}})
+                                     for(let muestraReq of muestrasRequeridasXorden ){
+                                        const m=await muestraReq.getMuestra();
+                                        arr2.push({id: muestraReq.id,
+                                                   MuestraId:m.id,
+                                                   muestra:m.nombre,
+                                                   isPresentada:muestraReq.isPresentada})         
+                                     } 
+                               
+                                    
+                                     arr.push({
+                                         id:orden.id,
+                                         diagnostico: diagnostico?.get(),
+                                         medico: medico?.get(), 
+                                         estado: estado?.get(),
+                                         isPresuntivo:orden.isPresuntivo,
+                                         isUrgente:orden.isUrgente,
+                                         fecha:orden.fecha,
+                                         muestrasRequeridas:arr2,
+                                         examenes
+                                       })
+                                       console.log(arr2)
+                                    }
+    }
       return res.render('administrador2/clickUsuario',{usuario,
                     telefonos:telefonos.length===0?null:telefonos,
                     rta,
@@ -341,7 +380,9 @@ const getUsuario=async(req,res)=>{
                     rolesString,
                     provincias,
                     formDataUsuario,
-                    auditorias
+                    auditorias,
+                    ordenes:arr,
+                    paciente:usuario.Paciente
                     })
     
   } catch (error) {
@@ -396,7 +437,7 @@ const putPaciente=async(req,res)=>{
   const transaction = await sequelize.transaction();
   try {
 
-    const {sexo,nacimiento, embarazada, provincia, localidad, direccion,edad}=req.body
+    const {sexo,nacimiento, embarazada, provincia, localidad, direccion,edad,recepcionista,administrativo}=req.body
         console.log(parseInt(edad))
     const [updatedRows2]=await Paciente.update({sexo,nacimiento: nacimiento || null, embarazada:embarazada=='on'?1:0, provincia, localidad, direccion,edad:parseInt(edad) || 0}, 
                                                {where:{id:PacienteId},
@@ -407,7 +448,9 @@ const putPaciente=async(req,res)=>{
                                               );
         console.log("llego a este punto ------------------------")
         await transaction.commit();
-    return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
+        if(administrativo)return res.redirect(`http://localhost:3000/admins2/${UsuarioId}`)
+        if(recepcionista)return res.redirect(`http://localhost:3000/admins/paciente/${UsuarioId}`)
+        else return res.redirect('http://localhost:3000/admins')  
   } catch (error) {
     console.error(error);
     await transaction.rollback();
@@ -525,11 +568,16 @@ const putUsuario=async(req,res)=>{
     const roles=req.body.roles?
                      Array.isArray(req.body.roles)?req.body.roles:[req.body.roles]
                 :[];
-    const usuario = await Usuario.findByPk(UsuarioId);
+    const usuario = await Usuario.findByPk(UsuarioId, {
+                                                          include: [{ model: Rol }]
+                                                        });
     await usuario.setRols([]);
     if (roles.length > 0) {
       const rolesSeleccionados = await Rol.findAll({ where: {id: roles }});
       await usuario.setRols(rolesSeleccionados);
+      if(usuario.id===req.session.usuario.id){
+        guardarRoles(req,res,usuario)
+      }
     }
              
     const [updatedRows1]= await Usuario.update( req.datosActualizar, 
@@ -576,8 +624,9 @@ const patchPaciente=async(req,res)=>{
 
 const patch=async(tabla,id,req,res)=>{
   try {
+    const transaction = await sequelize.transaction();
     let registro;
-    const obj={ where: { UsuarioId: id }, paranoid: false};
+    const obj={ where: { UsuarioId: id }, paranoid: false,transaction};
 
     switch(tabla){
       case 'bioquimico':
@@ -587,7 +636,7 @@ const patch=async(tabla,id,req,res)=>{
         registro= await Tecnico.findOne(obj);
         break;  
       case 'usuario':
-        registro= await Usuario.findOne({ where: {  id }, paranoid: false});
+        registro= await Usuario.findOne({ where: {  id }, paranoid: false,transaction,});
         break;  
       case 'paciente':
         registro= await Paciente.findOne(obj);
@@ -595,10 +644,13 @@ const patch=async(tabla,id,req,res)=>{
     }
 
     if (registro.deletedAt) {
-      await registro.restore({ userId: req.session.usuario.id });
+      await registro.restore({  userId: req.session.usuario.id });
     } else {
       if(tabla==='usuario')
-         await registro.destroy({userId: req.session.usuario.id});
+         await registro.destroy({ individualHooks: true,
+                                  transaction,
+                                  userId: req.session.usuario.id
+                                });
       else 
         await registro.destroy();
     }
@@ -724,8 +776,7 @@ const postUsuario=async(req,res)=>{
     try {
         const {email,nombre,apellido,documento,
                telefono}=req.body
-      const nuevoUsuario = await Usuario.create({email,nombre,apellido,documento},
-                                                { transaction, userId: req.session.usuario.id });
+    
       const usuarioId=nuevoUsuario.id;
       await Telefono.create({UsuarioId:usuarioId,numero:telefono,descripcion:"propio"},
                             { transaction })

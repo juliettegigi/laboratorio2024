@@ -1,26 +1,70 @@
 extends layout
 append styles
   link(rel='stylesheet', href='/stylesheets/tecbioq/resultados.css')
-block aside 
- div(class="d-flex align-items-start")
-  div(class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical")
-   - let i=1;
-   each oe in ordenExamenes
-    button(class=`nav-link ${i===1?"active":""}` id=`id${i}-tab` data-bs-toggle="pill" data-bs-target=`#id${i}` type="button" role="tab" aria-controls=`id${i}` aria-selected=`${i===1?"true":"false"}`)= `${oe.Examen.nombre} ${oe.isValidado?"✅":"⬜"}`
-    - i++
-   button(class=`nav-link` id=`btnMarcarComoValidado-tab` data-bs-toggle="pill" data-bs-target=`#btnMarcarComoValidado` type="button" role="tab" aria-controls=`btnMarcarComoValidado` aria-selected=`false`) Marcar como validado
-     
+  link(rel='stylesheet', href='/stylesheets/tecBioq/inputSearch.css')
+  link(rel='stylesheet', href='/stylesheets/tecBioq/lista.css')
 block content
- div(class="tab-content" id="v-pills-tabContent")
-  - i=1
-  each oe in ordenExamenes
-   div(class=`tab-pane fade ${i===1?"show active":""}` id=`id${i}` role="tabpanel" aria-labelledby=`id${i}-tab` tabindex="0") 
-     include ./formResultados.pug
-     +formResultados(`${oe.Examen.nombre}`,oe.Examen,oe)
-   - i++ 
-  div(class=`tab-pane fade` id=`btnMarcarComoValidado` role="tabpanel" aria-labelledby=`btnMarcarComoValidado-tab` tabindex="0") 
-   div
-    p ¿Está seguro de que desea validar los resultados?
-    form(action= `http://localhost:3000/tecBioq/estadoOrden/${ordenExamenes[0].OrdenId}?_method=put` method="POST" name=`estadoOrden`)
-     button(type="submit") Sí
-     button() No
+  .container-fluid
+    .row
+      .col-md-3
+        aside(class="col-auto me-3")
+          nav(class="nav flex-column bg-light navLateral")
+            ul(class="bd-links-nav list-unstyled")
+              - var i = 1;
+              each oe in ordenExamenes
+                li(class="nav-item")
+                  a(
+                    class=`nav-link ${i===1?"active":""}`
+                    id=`id${i}-tab`
+                    data-bs-toggle="pill"
+                    data-bs-target=`#id${i}`
+                    role="tab"
+                    aria-controls=`id${i}`
+                    aria-selected=`${i===1?"true":"false"}`
+                    style="cursor:pointer"
+                  )
+                    p= `oe.Examen.nombre ${oe.UsuarioId ? "✅" : "⬜"}`
+                  - i++
+              li(class="nav-item")
+                a(
+                  class="nav-link"
+                  id="btnMarcarComoValidado-tab"
+                  data-bs-toggle="pill"
+                  data-bs-target="#btnMarcarComoValidado"
+                  role="tab"
+                  aria-controls="btnMarcarComoValidado"
+                  aria-selected="false"
+                  style="cursor:pointer"
+                )
+                  p Validar a todos los exámenes
+      // Contenido principal
+      .col-md-9.divLista
+        div(class="tab-content" id="v-pills-tabContent")
+          - i = 1
+          each oe in ordenExamenes
+            div(
+              class=`tab-pane fade ${i===1?"show active":""}`
+              id=`id${i}`
+              role="tabpanel"
+              aria-labelledby=`id${i}-tab`
+              tabindex="0"
+            )
+              include ./formResultados.pug
+              +formResultados(`${oe.Examen.nombre}`, oe.Examen, oe)
+            - i++
+          div(
+            class="tab-pane fade"
+            id="btnMarcarComoValidado"
+            role="tabpanel"
+            aria-labelledby="btnMarcarComoValidado-tab"
+            tabindex="0"
+          )
+            div
+              p ¿Está seguro de que desea validar los resultados?
+              form(
+                action=`http://localhost:3000/tecBioq/estadoOrden/${ordenExamenes[0].OrdenId}?_method=put`
+                method="POST"
+                name="estadoOrden"
+              )
+                button(type="submit") Sí
+                button(type="button" onclick="window.history.back()") No

@@ -17,37 +17,38 @@ mixin tablaCategDet(form,tablaId)
 
      
      
-     each categoria in categorias
+     each exCateg in exCategs
       .row.gy-4
        .col
-        form.row(action=`http://localhost:3000/tecBioq/categ/${categoria.id}/${examen.id}?_method=put` method="POST"  )
+        form.row(action=`http://localhost:3000/tecBioq/categ/${exCateg.id}/${examen.id}?_method=put` method="POST"  )
          //2da row
         
          .row.gy-4
-          .col.col-3(title=categoria.nombre)
-           input.formCategDet-input-1ro(disabled type="text" name="nombre" value=categoria.nombre autocomplete="off")
+          .col.col-3(title=exCateg.Categoria.nombre)
+           input.formCategDet-input-1ro(disabled type="text" name="nombre" value=exCateg.Categoria.nombre autocomplete="off")
+           input.formCategDet-input-1ro(disabled type="text" name="nombre" value=exCateg.nombre autocomplete="off")
             
             
           //2da columna
           .col.col-4
            ul
-            each param in categoria.ExCategParametros
+            each param in exCateg.ExCategParametros
               li= param.Parametro.nombre
-                a(title="eliminar parámetro" role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?param.Parametro.id:param.Determinacion.id}/${categoria.id}/${examen.id}` 
+                a(title="eliminar parámetro" role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?param.Parametro.id:param.Determinacion.id}/${exCateg.id}/${examen.id}` 
                  class="btn btn-close  btn-sm formCategDet-cruz")     
           //3ra columna
           .col.col-4
            ul
-            each det in categoria.ExCategDeterminacions
+            each det in exCateg.ExCategDeterminacions
               li= det.Determinacion.nombre
-                a(title="eliminar determinación" role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${det.Determinacion.id}/${categoria.id}/${examen.id}` 
+                a(title="eliminar determinación" role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${det.Determinacion.id}/${exCateg.id}/${examen.id}` 
                  class="btn btn-close formCategDet-cruz btn-sm")  
                       
           //cuarta columna   
           .col.col-1
            .row-flex-column
             .col
-             a(title="eliminar categoría" href=`http://localhost:3000/tecBioq/categ/${examen.id}/${categoria.id}`)
+             a(title="eliminar categoría" href=`http://localhost:3000/tecBioq/categ/${examen.id}/${exCateg.id}`)
                svg(tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-x-circle" viewBox="0 0 16 16")
                 path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
                 path(d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708")
@@ -65,7 +66,7 @@ mixin tablaCategDet(form,tablaId)
   form.col(action=`http://localhost:3000/tecBioq/examen/${examen.id}/addCategDet` method="POST" name="formExamen" )
    .row.tablaCategDet2.text-center
     .col
-     if categorias.length === 0
+     if exCategs.length === 0
       .row.cabecera 
        .col 
         h2= examen.nombre 

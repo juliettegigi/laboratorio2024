@@ -1,8 +1,9 @@
 const Sequelize = require('sequelize');
 const bcryptjs=require('bcryptjs');
 
-const {Usuario,Rol}=require("../models");
+const {Usuario,Rol,Paciente}=require("../models");
 const { googleVerify } = require('./validaciones');
+const guardarRoles = require('../helpers/guardar-roles');
 
 
 
@@ -12,7 +13,6 @@ const { googleVerify } = require('./validaciones');
 
 const login=async(req,res)=>{  
 try{   
-  console.log(req.body)
   let usuario={}; 
   const authHeader = req.headers['authorization'];
   
@@ -29,7 +29,7 @@ try{
     // obtengo el email 
     const {email}=await googleVerify(token);
     // busco al usuario en mi base de datos
-    usuario=await Usuario.findOne({where:{email}, include:[{ model: Rol}]});
+    usuario=await Usuario.findOne({where:{email}, include:[{ model: Rol},{ model: Paciente, as: 'Paciente'  }]});
     if(!usuario){
       return res.status(404).json({
         error: true,
@@ -49,17 +49,9 @@ try{
     if(!passValida) return res.render("login/index",{error:true,msg:"Los datos ingresados son incorrectos"});
     req.session.google=false;
   }
-        const roles=usuario.Rols.map(elem=>elem.nombre)
-        req.session.usuario = usuario;
-        req.session.roles=roles;
-        req.session.isTecnico = roles.includes('Técnico');
-        req.session.isBioquimico = roles.includes('Bioquímico');   
-        req.session.isPaciente = roles.includes('Paciente');   
-        console.log("eeeeeeeeeeeeeeeee2")
-        console.log(req.session.roles)
+        guardarRoles(req,res,usuario)
         //si el usuario tiene un único rol
         if(usuario.Rols.length>0){
-          console.log(usuario.Rols[0])
         switch(usuario.Rols[0].nombre){
           case "Paciente": return res.redirect(`/pacientes`);
           case "Recepcionista":return res.redirect(`/admins`);
@@ -76,7 +68,6 @@ try{
   
   
   const registro=async(req,res)=>{
-    console.log(req.body);
    const{documento,pass,nickName}=req.body;
        try{
            const usuario = await Usuario.findOne({

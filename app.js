@@ -12,6 +12,8 @@ var usersRouter = require('./routes/users');
 var adminsRouter = require('./routes/admins');
 var admins2Router = require('./routes/admins2');
 var tecBioqRouter = require('./routes/tecbioq');
+var pacientesRouter = require('./routes/pacientes');
+
 
 var app = express();
 
@@ -37,7 +39,7 @@ app.use(
 app.use(flash());
 //para pasar los roles al front siempre
 app.use((req, res, next) => {
-  res.locals.roles = req.session.roles || [];
+  res.locals.currentUserRoles = req.session.roles || [];
   next();
 });
 
@@ -48,6 +50,7 @@ app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
 app.use(`/admins2`, admins2Router);
 app.use('/tecBioq', tecBioqRouter);
+app.use('/pacientes', pacientesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

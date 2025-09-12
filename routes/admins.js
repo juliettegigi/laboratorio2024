@@ -1,8 +1,9 @@
 var express = require('express');
 const { check,param } = require('express-validator');
 const {deleteOrden,getInicio, getForm,crearPaciente, getBusqueda,getPaciente,putPaciente,putMuestrasRequeridas,getFormOrden,postOrden,putOrden, getPDF} = require('../controllers/admin');
-const {tieneRole, isCampoUnicoUsuario, existeUsuario} = require('../controllers/validaciones');
+const {tieneRole, isCampoUnicoUsuario, existeId} = require('../controllers/validaciones');
 const { validarCampos, userExisteCheckTablasHijas } = require('../middlewares');
+const {Usuario} = require('../models');
 
 var router = express.Router();
 
@@ -25,7 +26,7 @@ router.get('/formOrden',[
             getFormOrden);
 router.get('/paciente/:UsuarioId',[ 
         //tieneRole("recepcionista","administrativo")
-        param('UsuarioId').custom(existeUsuario),
+        param('UsuarioId').custom(existeId(Usuario)),
         (req, res, next) => {
                 req.renderizar = async (errors) => {
                 console.log(" ERRORES------------------------------------------------------------------------")
@@ -72,7 +73,7 @@ router.post('/paciente',[
            const {email,nombre,apellido,documento,edad,nacimiento,
                   telefono,sexo,
                 localidad,direccion,provincia,}=req.body   
-           const obj={editarPaciente:false,UsuarioId,errors,email,nombre,apellido,documento,telefono,edad,nacimiento,localidad,direccion,provincia,sexo};
+           const obj={editarPaciente:false,UsuarioId:req.UsuarioId,errors,email,nombre,apellido,documento,telefono,edad,nacimiento,localidad,direccion,provincia,sexo};
            if(req.href){obj.href=req.href}
            return res.render(`administrador/form`,obj) }
           next();
@@ -91,7 +92,7 @@ router.put('/orden',[
             putOrden);
 router.put('/paciente/:UsuarioId',[ 
         tieneRole("recepcionista","administrativo"),
-        param('UsuarioId').custom(existeUsuario),
+        param('UsuarioId').custom(existeId(Usuario)),
         check('email').notEmpty().withMessage('El email es obligatorio')
                       .isEmail().withMessage('El email no es válido')
                       .custom((valor,{req,path})=>isCampoUnicoUsuario(path,valor,req,'true')).withMessage(`email ya está registrado`),

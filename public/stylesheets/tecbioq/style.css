@@ -2,6 +2,7 @@ body{
   background-color:#d3cdcd;
   justify-content: space-between;
   color: #021425;
+  width:100vw;
 }
 .logo{
     width: 63px;
@@ -44,17 +45,25 @@ body{
 
    button.btn:hover,
    a.btn:hover{
-    background-color: #261290;
+   /*  background-color:#261290; */
     color: #FFFFFF;
   }
 
+  button.btn-close {
+     background-color:white;
+}
 
-  button.btn:focus, 
-button.btn:active, 
-button.btn:focus-visible {
-  background-color: #261290 !important;
-  color: #FFFFFF !important;
-  box-shadow: none !important; /* Esto elimina el borde azul de focus */
+button.btn-close:hover {
+    transform: scale(1.1);
+     background-color:white;
+}
+
+.btn:hover,
+.btn:focus {
+  background-color: #fff !important;     
+  color: #261290 !important;             
+  border: 2px solid #261290 !important;  
+  box-shadow: none !important;           
 }
 
 .ingresarComo ul{

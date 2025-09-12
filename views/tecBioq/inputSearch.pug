@@ -1,6 +1,5 @@
-mixin inputSearch(action,placeholder,btn,href="#")
- .container.mx-auto
-  .row
+mixin inputSearch(action,placeholder,btn,href="#",w)
+  .row(class=`${w}`)
    .col
     form(role="search" action=action)
         div.container-fluid.divSpanSearch

@@ -1,0 +1,1 @@
+const LABORATORIOnombre="lab1"

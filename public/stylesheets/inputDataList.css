@@ -20,3 +20,16 @@
   font-weight: bold;
   color: #261290; 
 }
+
+.contenedorLista{
+  background-color: #FFFFFF;
+}
+
+.liSeleccionados{
+ display: flex;
+}
+
+.liSeleccionados div{
+  margin-right: 0.5rem;
+}
+

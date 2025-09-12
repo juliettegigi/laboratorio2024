@@ -1,4 +1,27 @@
-nav(class="navbar navbar-expand-lg bg-body-tertiary ")
+include ../tecBioq/inputSearch.pug
+header.container-fluid.sticky-top.px-0 
+ nav(class="navbar navbar-expand-md bg-body-tertiary")
+   div.container-fluid
+    a.navbar-brand(href="/admins2") 
+     img(src="/images/logo.jpg", alt="logo laboratorio ULP" class="logo ")
+
+
+    div.d-flex.justify-content-end.order-md-1
+     div
+      include ../menu.pug
+     button.navbar-toggler(type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#navbarSupportedContent" 
+                            aria-controls="navbarSupportedContent" 
+                            aria-expanded="false" 
+                            aria-label="Toggle navigation")
+       span.navbar-toggler-icon 
+    
+    div.collapse.navbar-collapse#navbarSupportedContent
+     .d-flex.justify-content-center.container  
+          +inputSearch(`/admins/busqueda`,"nombre/email/DNI a buscar","Nuevo paciente","http://localhost:3000/admins/form","w-50")
+
+//nav(class="navbar navbar-expand-lg bg-body-tertiary ")
             a(class="navbar-brand position-relative top-0 start-0" href="/admins") Inicio
             button(class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
               span(class="navbar-toggler-icon")

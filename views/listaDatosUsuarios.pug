@@ -34,7 +34,7 @@ mixin listaDatosBioquimico(bioquimico)
 
 
 
-mixin formPaciente(divId,paciente,usuarioId,oculto)
+mixin formPaciente(divId,paciente,usuarioId,oculto,recepcionista,administrativo)
   .container.form-valorRef(id=divId class=(rta || oculto)?"oculto":"")
     div.titulo-lista
       h3 Datos del paciente
@@ -42,6 +42,11 @@ mixin formPaciente(divId,paciente,usuarioId,oculto)
      form(action=paciente?`/admins2/paciente/${paciente.id}?_method=put`:`/admins2/paciente/` , method="post" class="needs-validation  mt-5  " name="formu" novalidate )                       
          if usuarioId
           input(type="hidden" name="UsuarioId" value=usuario.id)
+         if recepcionista
+          input(type="hidden" name="recepcionista" value='true')
+          
+         if administrativo
+          input(type="hidden" name="administrativo" value='true')
          div.form-div 
            div
             label(for="edad") Edad 

@@ -6,8 +6,8 @@ mixin formPaciente(divFormPaciente,editar, oculto)
    - let encontrado = errors.find(e => e.path === elem)
    - if (encontrado)
     - errores[elem] = encontrado.value
- .container.d-flex.justify-content-center(id=`${divFormPaciente}` class=`${oculto?"oculto":""} container d-flex flex-column align-items-center justify-content-center`)
-     form(action=editar?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-50 " name="formu" novalidate )                       
+ .container(id=`${divFormPaciente}` class=`${oculto?"oculto":""} container `)
+     form(action=editar?`/admins/paciente/${usuario.id}?_method=put`:`/admins/paciente/` , method="post" class="needs-validation  mt-5  w-70 " name="formu" novalidate )                       
          if usuario
           input(type="hidden" name="UsuarioId" value=usuario.id)
          .row.text-center
@@ -72,7 +72,7 @@ mixin formPaciente(divFormPaciente,editar, oculto)
                  .form-check.form-switch
                    label(class="form-check-label") Embarazada
                      input(class="form-check-input"  type="checkbox" role="switch"  name="embarazada" 
-                           disabled=(paciente && paciente.sexo==='Hombre')?true:false
+                           disabled=(paciente && paciente.sexo==='Masculino')?true:false
                            checked=(paciente  && paciente.embarazada)?true:false
                            )
          .row
