@@ -4,10 +4,18 @@ const LIMIT=5;
 const OFFSET=0;
 
 const eventoBuscarDeterminacion='buscarDeterminacion'
-const liTextCbDeterminaciones=elem=>`${elem.id}-${elem.nombre}`
+const liTextCbDeterminaciones=elem=>`${elem.Parametro.id}-${elem.Parametro.nombre}`
 const listaDeterminaciones=document.getElementById('listaDeterminaciones');
 const listaDeterminacionesSeleccionadas=document.getElementById('listaDeterminacionesSeleccionadas');
-const input1=new InputDataList(formDet['detInput'],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",'DeterminacionId',listaDeterminacionesSeleccionadas);
+const input1=new InputDataList(
+    formDet['detInput'],
+    listaDeterminaciones,
+    eventoBuscarDeterminacion,
+    liTextCbDeterminaciones,
+    LIMIT,
+    OFFSET,
+    "",
+    'Determinaciones',listaDeterminacionesSeleccionadas);
 input1.inicializarInput()
 
 

@@ -4,7 +4,7 @@
              each d in determinaciones
                li.list-group-item.list-group-item-action
                  a(class="link-offset-2 link-underline link-underline-opacity-0" href=`http://localhost:3000/tecBioq/determinacion/${d.id}`)
-                     | #{d.codigo || ''} #{d.nombre || ''}
+                     | #{d.codigo || ''} #{d.Parametro.nombre || ''}
              - for(let i=determinaciones.length; i<limit;i++)
                li.list-group-item.list-group-item-action &nbsp;
              if totalRegistros

@@ -3,9 +3,9 @@ const { Op, Sequelize} = require('sequelize');
 const ESTADO=require('../constantes/estados')
 const {
   Categoria,
-  Determinacion,DeterminacionPadre,DeterminacionUnidad,DeterminacionValorReferencia,DeterminacionResultado,
-  Examen,ExCategDeterminacion,ExamenCategoria,ExCategParametro,ExamenDeterminacion,Orden,OrdenExamen,
-  Parametro,ParametroResultado,ParametroResultadoAuditoria,Paciente,
+  Determinacion,ParametroPadre,ParametroUnidad,ParametroValorReferencia,ParametroResultado,
+  Examen,ExCategParametro,ExamenCategoria,ExamenParametro,Orden,OrdenExamen,
+  Parametro,Paciente,
   Muestra,MuestraRequerida,Usuario,
   Unidad,sequelize,
    } = require('../models');
@@ -82,6 +82,78 @@ const getInicio=async(req,res)=>{
 
 
 
+
+
+
+ const  getEditarDet=async(req,res)=>{
+
+  try{  
+    const {DeterminacionId}=req.params
+    console.log("EN GET EDITAR DETERMINCACION  ")
+    console.log(DeterminacionId)
+
+     const determinacion = await Determinacion.findByPk(DeterminacionId, {
+      include: [
+        {
+          model: Parametro,
+          include: [
+            Unidad,
+            ParametroValorReferencia,
+            {
+              association: "hijos", // relación muchos-a-muchos (parametroPadres)
+              include: [
+                {
+                  model: Determinacion, // 👈 para obtener la determinación de cada hijo
+                  attributes: ["id", "codigo", "tags"], 
+                },
+                {
+                  model: Unidad,
+                  attributes: ["id", "unidad"], // opcional
+                },
+                {
+                  model: ParametroValorReferencia,
+                  attributes: ["id", "sexo", "edadMin", "edadMax", "valorMin", "valorMax"], // opcional
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [
+        [
+          sequelize.literal(
+            "FIELD(`Parametro->ParametroValorReferencia`.`sexo`, 'F','M','A')"
+          ),
+          "ASC",
+        ],
+        [Parametro, ParametroValorReferencia, "edadMin", "ASC"],
+        [Parametro, ParametroValorReferencia, "valorMin", "ASC"],
+      ],
+      paranoid: false,
+    });
+
+ // 👇 ahora podés acceder a los hijos
+    const hijos = determinacion.Parametro.hijos.map((hijo) => {
+      return {
+        parametroId: hijo.id,
+        nombre: hijo.nombre,
+        determinacionId: hijo.Determinacions?.[0]?.id || null,
+        codigo: hijo.Determinacions?.[0]?.codigo || null,
+      };
+    });
+
+    console.log("HIJOS >>>", hijos);
+
+     const unidades= await Unidad.findAll({ order: [['unidad', 'ASC']]}); 
+     const vrUnidades= await determinacion.Parametro.Unidads; 
+      console.log("Unidades de la determinacion")
+      console.log(vrUnidades)
+     return res.render('tecBioq/clickEditarDet',{determinacion,unidades,vrUnidades,hijos})
+}catch(error){  console.log(error)
+               return res.render('tecBioq/index')
+ } 
+  
+}
  const  getInicioMuestras=async(req,res)=>{
 
   try{  
@@ -224,7 +296,7 @@ const getInicio=async(req,res)=>{
           include: [
             {
               model: Muestra,
-              as: 'Muestra',
+              as: 'Muestra1',
               required: true
             }
           ],
@@ -359,7 +431,7 @@ const  getInicioValidar=async(req,res)=>{
           include: [
             {
               model: Muestra,
-              as: 'Muestra',
+              as: 'Muestra1',
               required: true
             }
           ],
@@ -408,46 +480,58 @@ const  getInicioValidar=async(req,res)=>{
      console.log(inputSearch)
      if(inputSearch!==""){
         where = {
-          [Op.or]: [
-            Sequelize.where(
-              Sequelize.fn('levenshtein', Sequelize.col('nombre'), inputSearch),
-              { [Op.lte]: 3 }
-            ),
-            Sequelize.where(
-              Sequelize.fn('levenshtein', Sequelize.col('codigo'), inputSearch),
-              { [Op.lte]: 3 }
-            ),
-            Sequelize.where(
-              Sequelize.fn('levenshtein', Sequelize.col('tags'), inputSearch),
-              { [Op.lte]: 3 }
-            ),
-            { nombre: { [Op.like]: `%${inputSearch}%` }},
-            { codigo: { [Op.like]: `%${inputSearch}%` }},
-            { tags: { [Op.like]: `%${inputSearch}%` }}
-          ],
-        };
-     }
-     const exactMatchFirst = Sequelize.literal(`
-            CASE
-              WHEN LOWER(nombre) = LOWER('${inputSearch}') THEN 0
-              ELSE 1
-            END
-          `);
-      const orderByDistance = Sequelize.literal(`levenshtein(nombre, '${inputSearch}')`);
-     
-       
-        
-      
+        [Op.or]: [
+          // búsqueda aproximada en código y tags
+          Sequelize.where(
+            Sequelize.fn("levenshtein", Sequelize.col("Determinacion.codigo"), inputSearch),
+            { [Op.lte]: 6 }
+          ),
+          Sequelize.where(
+            Sequelize.fn("levenshtein", Sequelize.col("Determinacion.tags"), inputSearch),
+            { [Op.lte]: 6 }
+          ),
+          { codigo: { [Op.like]: `%${inputSearch}%` } },
+          { tags: { [Op.like]: `%${inputSearch}%` } },
+           Sequelize.where(
+            Sequelize.fn("levenshtein", Sequelize.col("Parametro.nombre"), inputSearch),
+            { [Op.lte]: 6 }
+          ),
+          { "$Parametro.nombre$": { [Op.like]: `%${inputSearch}%` } },
+        ],
+      };
+    }
 
-      const { count, rows } = await Determinacion.findAndCountAll({
-        where,
-        limit,
-        offset,
-        order: [   [exactMatchFirst, 'ASC'],
-                   [orderByDistance, 'ASC'],
-                   ['nombre', 'ASC']
-                ],
-      });
+    // Exact match y ordenamiento por nombre del parámetro
+    const exactMatchFirst = Sequelize.literal(`
+      CASE
+        WHEN LOWER(\`Parametro\`.\`nombre\`) = LOWER('${inputSearch}') THEN 0
+        ELSE 1
+      END
+    `);
+
+    const orderByDistance = Sequelize.literal(
+      `levenshtein(\`Parametro\`.\`nombre\`, '${inputSearch}')`
+    );
+
+    const { count, rows } = await Determinacion.findAndCountAll({
+      where,
+      attributes: ["id", "codigo", "tags", "createdAt", "updatedAt", "deletedAt"], // columnas reales de determinaciones
+      include: [
+        {
+          model: Parametro,
+          attributes: ["id", "nombre"], // traemos nombre desde Parametro
+          required: false, // importante, así no descarta nada si no matchea
+        },
+      ],
+      limit,
+      offset,
+      order: [
+        [exactMatchFirst, "ASC"],
+        [orderByDistance, "ASC"],
+        ["codigo", "ASC"],
+      ],
+    });
+
      return res.render('tecBioq/indexDeterminacion',{inputSearch,
                                       determinaciones:rows,
                                       limit,
@@ -506,36 +590,59 @@ const putDet=async(req,res)=>{
   
   const transaction = await sequelize.transaction();
   try {
+
+    console.log("En put det -------------------------")
+    console.log(req.body)
       const {nombre,codigo,tags,id,unidad}=req.body
-      const unidades=req.body.unidades?(Array.isArray(req.body.unidades)? req.body.unidades
-                                                                        : [req.body.unidades])
+      const unidadesId=req.body.unidadesId?(Array.isArray(req.body.unidadesId)? req.body.unidadesId
+                                                                        : [req.body.unidadesId])
                                         :[];
-      const detId= req.body.detId?( Array.isArray(req.body.detId)?  req.body.detId
-                                                                 : [req.body.detId])
+      const detsId= req.body.DeterminacionesId?( Array.isArray(req.body.DeterminacionesId)?  req.body.DeterminacionesId
+                                                                 : [req.body.DeterminacionesId])
                                  :[];              
              
-                                 
-      for( let unidad of unidades){
-         const u=await Unidad.findOrCreate({where:{unidad},transaction})
-         await DeterminacionUnidad.create({ DeterminacionId: id, UnidadId: u[0].id },
+      
+
+      // ACTUALIZO LA DETERMINACIÓN , el nombre, código, tags
+      await Determinacion.update( 
+        {codigo,tags},
+        { where: { id }, transaction }
+      )
+      const determinacion = await Determinacion.findByPk(id, { transaction });
+
+
+      for( let unidad of unidadesId){
+         const u=await Unidad.findOrCreate({where:{id:unidad},transaction})
+         await ParametroUnidad.create({ ParametroId: determinacion.ParametroId, UnidadId: u[0].id },
                                                   {transaction}
                                                 );                          
       }
-      await Determinacion.update( {nombre,codigo,tags},
-        { where: { id }, transaction }
-      )
 
-      await DeterminacionPadre.destroy({
-        where: { determinacionId: id },
+      await Parametro.update(
+        { nombre },
+        { where: { id: determinacion.ParametroId }, transaction }
+      );
+
+      // SI TIENE HIJOS, TENGO QUE ACTUALIZARLOS
+
+      // borro todos los hijos actuales
+      await ParametroPadre.destroy({
+        where: { padreId: determinacion.ParametroId  },
         transaction
       });
 
-      const nuevasRelaciones = detId.map(padreId => ({
-        determinacionId: id,
-        padreId
-      }));
+      // inserto los nuevos hijos
+      const determinaciones = await Determinacion.findAll({
+          where: { id: detsId },
+          attributes: ['id', 'ParametroId']  
+        });
 
-      await DeterminacionPadre.bulkCreate(nuevasRelaciones, { transaction });
+      const nuevasRelaciones = determinaciones.map(det => ({
+          padreId: determinacion.ParametroId, 
+          hijoId: det.ParametroId                  
+        }));
+
+      await ParametroPadre.bulkCreate(nuevasRelaciones, { transaction });
 
      await transaction.commit();
      return res.redirect(`http://localhost:3000/tecBioq/determinacion/${id}`);
@@ -555,7 +662,7 @@ const getExamen=async(req,res)=>{
   try {
     const {id}=req.params;
     const examen = await Examen.findByPk(  id,
-                                          {include: [{model: Muestra},]},
+                                          {include: [{model: Muestra,as:'Muestra1'},]},
                                          );
     const muestras= await Muestra.findAll();                                     
     if(examen){
@@ -578,25 +685,30 @@ const getDeterminacion=async(req,res)=>{
   try {
     const {id}=req.params;
 
-    const determinacion = await Determinacion.findByPk(id, { paranoid: false });
-    const determinacionPadre= await determinacion.getParents();   
-    const vrUnidades= await determinacion.getUnidads();   
-    const unidades= await Unidad.findAll({ order: [['unidad', 'ASC']]});   
-    const valoresRef = await determinacion.getValoresReferencia({
-      order: [
-        [sequelize.Sequelize.literal("FIELD(sexo, 'F', 'M', 'A')"), 'ASC'],
-        ['edadMin', 'ASC'],
-        ['valorMin', 'ASC']
-      ],
-      paranoid: false  
+   const determinacion = await Determinacion.findByPk(id, {
+               include: [{
+                 model: Parametro,
+                 include: [ParametroValorReferencia, Unidad]
+               }],
+               order: [
+                 [sequelize.literal("FIELD(`Parametro->ParametroValorReferencia`.`sexo`, 'F','M','A')"), 'ASC'],
+                 [Parametro, ParametroValorReferencia, 'edadMin', 'ASC'],
+                 [Parametro, ParametroValorReferencia, 'valorMin', 'ASC']
+               ],
+               paranoid: false
+             });
+    const parametroHijos= await determinacion.Parametro.getHijos();    
+    const vrUnidades= await determinacion.Parametro.Unidads;   
+     console.log("Unidades de la determinacion")
+      console.log(vrUnidades)
+    //const unidades= await Unidad.findAll({ order: [['unidad', 'ASC']]});   
+    const valoresRef = determinacion.Parametro.ParametroValorReferencias;
 
-    });
-     
-    
     const vrF=[];
     const vrM=[];
     const vrA=[];
-    for(let vr of valoresRef){
+   if(valoresRef)
+    { for(let vr of valoresRef){
       switch(vr.unidadMin){
         case '-':
           vr.edadMin=0
@@ -637,19 +749,19 @@ const getDeterminacion=async(req,res)=>{
               break;      
       }
     }
-
+}
 
 
     if(determinacion){
       
       return res.render('tecBioq/clickDeterminacion',{ 
                                                 determinacion,
-                                                determinacionPadre,
+                                                parametroHijos,
                                                 valoresRef:{Femenino:vrF,
                                                             Masculino:vrM,
                                                             Ambos:vrA},
                                                 vrUnidades,
-                                                unidades,
+                                                //unidades,
                                                 isTecnico:req.session.isTecnico,
                                                 isBioquimico:req.session.isBioquimico
                                                       })
@@ -828,26 +940,54 @@ const getOrdenExamen=async(req,res)=>{
 
 const getAddCategDet=async(req,res)=>{
    try {
-    console.log("-------------------------------------------------- entroooooo")
-      const {id}=req.params;
-      const examen = await Examen.findByPk(  id,
-                                           );
-      // Ahora incluimos también el modelo Categoria en la búsqueda
-      const exCategs = await examen.getExamenCategoria({
-        include: [
-          { model: Categoria, as: 'Categoria' },
-          { model: ExCategDeterminacion, include: [{ model: Determinacion }] },
-          { model: ExCategParametro,     include: [{ model: Parametro }] }
-        ]
-      });
-       console.log("--------------------------------------------------")
-       console.log(exCategs)
-       return res.render('tecBioq/addCategDet',{ 
-         examen,
-         exCategs,
-         isTecnico:req.session.isTecnico,
+     const { id } = req.params;
+
+const examen = await Examen.findByPk(id);
+const exCategs = await ExamenCategoria.findAll({
+  where: { ExamenId: examen.id },
+   attributes: ['id', 'CategoriaId', 'ExamenId'], 
+  include: [
+    {
+      model: Categoria,
+      as: 'Categoria'
+    },
+    {
+      model: Parametro,
+      as: 'Parametro4',
+      include: [{ model: Determinacion,as: 'Determinacion1' },
+  ]
+    }
+  ]
+});
+
+
+/* 
+for (const ex of exCategs) {
+  const params = ex.Parametro4 || [];
+
+  // separar y además mapear a objetos "plain" para no mandar instancias Sequelize a la vista
+  const sinDet = params
+    .filter(p => !p.Determinacion1 || p.Determinacion1.length === 0)
+    .map(p => (typeof p.get === 'function' ? p.get({ plain: true }) : p));
+
+  const conDet = params
+    .filter(p => p.Determinacion1 && p.Determinacion1.length > 0)
+    .map(p => (typeof p.get === 'function' ? p.get({ plain: true }) : p));
+
+  ex.setDataValue('Parametros', Array.isArray(sinDet) ? sinDet : []);
+  ex.setDataValue('Determinaciones', Array.isArray(conDet) ? conDet : []);
+}
+
+
+const exCategsPlain = exCategs.map(e => e.get({ plain: true })); */
+
+return res.render("tecBioq/addCategDet", {
+  examen,
+  exCategs,
+  isTecnico:req.session.isTecnico,
          isBioquimico:req.session.isBioquimico
-               })
+});
+     
      
    } catch (error) {
      console.error(error);
@@ -1162,7 +1302,7 @@ const putvr=async(req,res)=>{
     for(let i=0;i<idsVrForm.length;i++){
       console.log("i: ",i)
       if(isNew[i]=='1'){
-         await DeterminacionValorReferencia.create({ DeterminacionId: id,
+         await ParametroValorReferencia.create({ ParametroId: id,
                                                   unidadMin:unidadMin[i],
                                                   unidadMax:unidadMax[i],                                                         
                                                   edadMin: edadMin[i],
@@ -1174,7 +1314,7 @@ const putvr=async(req,res)=>{
                                                  },
                                                  {transaction})    
       }else if(isNew[i]=='0'){
-                    await DeterminacionValorReferencia.update({   DeterminacionId: id,
+                    await ParametroValorReferencia.update({   ParametroId: id,
                                                                   unidadMin: unidadMin[i],
                                                                   unidadMax: unidadMax[i],                                                         
                                                                   edadMin: edadMin[i],
@@ -1188,7 +1328,7 @@ const putvr=async(req,res)=>{
                                                                   transaction
                                                               });
         } else if(isNew[i]=='3'){
-                  await DeterminacionValorReferencia.destroy({
+                  await ParametroValorReferencia.destroy({
                     where: { id:idsVrForm[i] },
                     transaction
                   })
@@ -1257,21 +1397,22 @@ const postDet=async(req,res)=>{
     const unidadesId=req.body.unidadesId?  
                        Array.isArray(req.body.unidadesId) ? req.body.unidadesId : [req.body.unidadesId]
                    : [];    
-    const detId=req.body.determinacionIdId?  
-                   Array.isArray(req.body.deteId) ? req.body.detId : [req.body.determinacionIdId]
+    const detId=req.body.determinacionesId?  
+                   Array.isArray(req.body.deteId) ? req.body.detId : [req.body.determinacionesId]
                : [];    
 
     //const unidades= await Unidad.findAll({ order: [['unidad', 'ASC']]});
     
-    const determinacion=await Determinacion.create({nombre,codigo,tags},{transaction})
+    const parametro=await Parametro.create({nombre},{transaction})
+    const determinacion=await Determinacion.create({codigo,tags,ParametroId:parametro.id},{transaction})
     
     for(let unidad of unidadesId){
-        const u=await Unidad.findOne( { where: { unidad},transaction })
-        if(u) await DeterminacionUnidad.create({DeterminacionId:determinacion.id,UnidadId:u.id},{transaction})
+        const u=await Unidad.findOne( { where: { id:unidad},transaction })
+        if(u) await ParametroUnidad.create({ParametroId:parametro.id,UnidadId:u.id},{transaction})
     }
 
     for(let id of detId){
-      await DeterminacionPadre.create({DeterminacionId:determinacion.id,PadreId:id},{transaction})
+      await ParametroPadre.create({padreId:parametro.id,hijoId:id},{transaction})
   }
 
 
@@ -1553,6 +1694,7 @@ const putResultados=async(req,res)=>{
   getAddDeterminacion,
   getAddMuestra,
   getDeterminacion,
+  getEditarDet,
   getExamen,
   getInicio,
   getInicioDeterminaciones,

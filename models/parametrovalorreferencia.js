@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      ParametroValorReferencia.belongsTo(models.Parametro)
+      ParametroValorReferencia.belongsTo(models.Parametro, { foreignKey: 'parametroId', as: 'Parametro2' })
     }
   }
   ParametroValorReferencia.init({

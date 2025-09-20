@@ -12,8 +12,40 @@ block content
        .row
         .col 
          div.d-flex.justify-content-center
-          +formDeterminacion("Guardar cambios","http://localhost:3000/tecBioq/det?_method=put",determinacion)
-       .row 
-        .col.bordeAzul
-         div.d-flex.justify-content-center  
-          +formValorReferencia(false,"Guardar cambios","http://localhost:3000/tecBioq/vr?_method=put",determinacion)    
+          .container.divFormulario
+                  div#ancla1
+                    h2.subtitulo-h2 Determinación
+                  .container
+                      div.form-div 
+                       div
+                        label(for="nombre") Nombre 
+                       div 
+                        span= determinacion.Parametro.nombre
+                      div.form-div 
+                       div
+                        label(for="codigo") Código 
+                       div.form-div-input 
+                        span= determinacion.codigo
+                      div.form-div 
+                       div
+                        label(for="tags") Tags 
+                       div 
+                        span= determinacion.tags
+                      div.form-div     
+                       div
+                        label(for="selectId") unidades
+                       div
+                        each u in determinacion.Parametro.Unidads
+                         div 
+                          p= u.unidad
+                      div.form-div
+                       div
+                        label(for="detInput") Determinaciones incluidas  
+                       div
+                        .row.mt-4.justify-content-center
+                         .row.mt-4.justify-content-center
+                          .col-md-auto.position-relative 
+                           each hijo in parametroHijos
+                            div 
+                             p= hijo.id+'-'+hijo.nombre
+                      

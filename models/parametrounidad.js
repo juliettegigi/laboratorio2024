@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class ParametroUnidad extends Model {
     
     static associate(models) {
-      ParametroUnidad.belongsTo(models.Parametro)
+      ParametroUnidad.belongsTo(models.Parametro, { foreignKey: 'parametroId', as: 'Parametro1' })
       ParametroUnidad.belongsTo(models.Unidad)
     }
   }

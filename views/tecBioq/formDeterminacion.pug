@@ -15,8 +15,8 @@ mixin formDeterminacion(btnContent,action,determinacion)
               id="nombre" 
               name="nombre"
               autocomplete="off"
-              value=determinacion?determinacion.nombre:""
-              disabled=determinacion?true:false) 
+              value=determinacion?determinacion.Parametro.nombre:""
+              ) 
       div.form-div 
        div
         label(for="codigo") Código 
@@ -27,7 +27,7 @@ mixin formDeterminacion(btnContent,action,determinacion)
               name="codigo"
               autocomplete="off"
               value=determinacion?determinacion.codigo:""
-              disabled=determinacion?true:false) 
+              ) 
       div.form-div 
        div
         label(for="tags") Tags 
@@ -38,7 +38,7 @@ mixin formDeterminacion(btnContent,action,determinacion)
               name="tags"
               autocomplete="off"
               value=determinacion?determinacion.tags:""
-              disabled=determinacion?true:false) 
+              ) 
       div.form-div     
        div
         label(for="selectId") unidades
@@ -46,18 +46,18 @@ mixin formDeterminacion(btnContent,action,determinacion)
         select.form-select( 
               id="selectId" 
               name=`unidad` 
-              disabled=determinacion?true:false)  
+              )  
          option(value=1) no unidad           
          option(value=0) Agregar una unidad            
          each unidad in unidades        
           option(value=`${unidad.id}`)= unidad.unidad 
        if(vrUnidades)
         each unidad in vrUnidades
-         div.option-unidad
+         div.option-unidad.contenedorBtnCruz
           span= unidad.unidad        
           input(type="hidden"  name="unidades" value= `${unidad.unidad}`)
           input(type="hidden"  name="unidadesId" value= `${unidad.id}`)
-          div(role="button" class="btnsEditarDet hidden")
+          div(role="button" class="btnsEditarDet hidden btnCruz")
               svg(tabindex="0" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#261290" class="bi bi-x-circle" viewBox="0 0 16 16")
                 path(d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16")
                 path(d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708")
@@ -69,7 +69,7 @@ mixin formDeterminacion(btnContent,action,determinacion)
         button(type='button' id="btnQuitarInput") X
       div.form-div
        div
-        label(for="detInput") Determinación en la que está incluida  
+        label(for="detInput") Determinaciones incluidas  
        div
         .row.mt-4.justify-content-center
          .row.mt-4.justify-content-center
@@ -77,21 +77,21 @@ mixin formDeterminacion(btnContent,action,determinacion)
            input(type="text" 
                  id="detInput" 
                  name="detInput"
-                 value=determinacionPadre?determinacionPadre.nombre:""
                  autocomplete="off"
                  placeholder="seleccione una determinación"
-                 disabled=determinacion?true:false)   
+                 )   
            div.position-absolute.z-3(style="top:2rem;" class="contenedorLista")  
             ul(id="listaDeterminaciones")
-         .row.mt-4.justify-content-center
-          .col-md-auto.d-flex.align-items-center 
-           div 
-              ul(id="listaDeterminacionesSeleccionadas")          
-               if determinacionPadre 
-                each det in determinacionPadre
-                 li(class="liDeterminaciones")= `${det.codigo}-${det.nombre}`
-                  input(type="hidden"  name="det" value= `${det.codigo}-${det.nombre}`)
-                  input(type="hidden"  name="detId" value= `${det.id}`)        
+
+      .row.mt-4
+       .col-md-auto.d-flex.align-items-center 
+        div 
+           ul(id="listaDeterminacionesSeleccionadas")          
+            if hijos
+             each det in hijos
+              li(class="liDeterminaciones")= `${det.codigo}-${det.nombre}`
+               input(type="hidden"  name="det" value= `${det.codigo}-${det.nombre}`)
+               input(type="hidden"  name="detId" value= `${det.determinacionId}`)        
      
      
      

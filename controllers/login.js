@@ -52,6 +52,8 @@ try{
         guardarRoles(req,res,usuario)
         //si el usuario tiene un único rol
         if(usuario.Rols.length>0){
+          console.log("ROL---------------------")
+          console.log(usuario.Rols[0].nombre)
         switch(usuario.Rols[0].nombre){
           case "Paciente": return res.redirect(`/pacientes`);
           case "Recepcionista":return res.redirect(`/admins`);

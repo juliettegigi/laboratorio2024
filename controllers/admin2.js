@@ -371,6 +371,8 @@ const getUsuario=async(req,res)=>{
                                        console.log(arr2)
                                     }
     }
+
+    console.log("que carahiiii   ",usuario.Paciente)
       return res.render('administrador2/clickUsuario',{usuario,
                     telefonos:telefonos.length===0?null:telefonos,
                     rta,

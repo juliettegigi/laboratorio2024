@@ -5,27 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Determinacion extends Model {
     static associate(models) {
-      Determinacion.hasMany(models.DeterminacionValorReferencia, { as: 'valoresReferencia' });
-      Determinacion.hasMany(models.DeterminacionUnidad)
-      Determinacion.hasMany(models.ExCategDeterminacion)
-      Determinacion.hasMany(models.DeterminacionResultado)
-
-      Determinacion.belongsToMany(models.Determinacion, {
-        through: models.DeterminacionPadre,
-        as: 'parents',            // Alias para obtener los padres
-        foreignKey: 'determinacionId', // En la tabla intermedia, el id de la determinación hija
-        otherKey: 'padreId'       // En la tabla intermedia, el id del padre
-      });
-
-      Determinacion.belongsToMany(models.Determinacion, {
-        through: models.DeterminacionPadre,
-        as: 'children',           // Alias para obtener los hijos
-        foreignKey: 'padreId',    // En la tabla intermedia, el id del padre
-        otherKey: 'determinacionId' // En la tabla intermedia, el id de la determinación hija
-      });
-
-      Determinacion.belongsToMany(models.Unidad,{through:'DeterminacionUnidad'})
-      
+      Determinacion.belongsTo(models.Parametro, { foreignKey: 'parametroId', as: 'Parametro4' })
 
     }
 
@@ -33,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
 
   }
   Determinacion.init({
-    codigo: DataTypes.STRING,
-    nombre: DataTypes.STRING,    
-    tags: DataTypes.STRING,    
+        id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+        codigo:DataTypes.STRING,
+        tags:DataTypes.STRING,
 
   }, {
     sequelize,

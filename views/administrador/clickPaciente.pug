@@ -32,7 +32,7 @@ block content
                      span= usuario.email
                  li(class="list-group-item") Telefono:
                      span 
-                      if telefonos[0]
+                      if telefonos.length>0
                        | #{telefonos[0].numero}
                       else 
                        | noo 

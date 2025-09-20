@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       ParametroResultado.belongsTo(models.OrdenExamen);
       ParametroResultado.belongsTo(models.Unidad)
-      ParametroResultado.belongsTo(models.Parametro)
+      ParametroResultado.belongsTo(models.Parametro, { foreignKey: 'parametroId', as: 'Parametro3' })
     }
   }
   ParametroResultado.init({

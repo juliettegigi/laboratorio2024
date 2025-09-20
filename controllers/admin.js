@@ -130,9 +130,12 @@ const getPaciente=async(req,res)=>{
         })
      }
 
+     const telefonos=await usuario.getTelefonos();
+     console.log("TELEFONOS DEL USUARIO ")
+     console.log(telefonos)
       return res.render('administrador/clickPaciente',{usuario,
                                                        paciente,
-                                                       telefonos:await usuario.getTelefonos(),
+                                                       telefonos,
                                                        ordenes:arr,
                                                        medicos:await Medico.findAll(),
                                                        rta,

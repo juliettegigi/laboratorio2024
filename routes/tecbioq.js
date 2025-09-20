@@ -9,6 +9,7 @@ const {
     getAddCategDet,
     getDeterminacion,
     getExamen,
+    getEditarDet,
     getInicio,
     getInicioDeterminaciones,
     getInicioMuestras,
@@ -50,6 +51,7 @@ router.get('/',[
     tieneRole("Bioquímico","Técnico")
 ], getInicio);
 router.get('/muestras', getInicioMuestras);
+router.get('/editarDet/:DeterminacionId', getEditarDet);
 router.get('/categ/:examenId/:id',deleteCategoria)
 router.get('/categDetDelete/:DeterminacionId/:ExamenCategoriaId/:examenId/',deleteCategDet)
 router.get('/categParamDelete/:ParametroId/:ExamenCategoriaId/:examenId/',deleteCategParam)

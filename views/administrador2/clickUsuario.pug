@@ -39,12 +39,13 @@ block content
           +formTecnico("id2",usuario.Tecnico,usuario.id,true)
           +formPaciente("id3",formDataPaciente || usuario.Paciente || null,usuario.id,true,false,true)
           +formUsuario("id4",formDataUsuario || usuario || null,!formDataUsuario)
-       .row#rowOrdenes(class=formDataUsuario?"":"oculto") 
-        .col.my-5    
-          include ../administrador/formOrden.pug
-          - const estadosEditables=[1,2,3,4,5]
-          - const origen='putOrden'
-          include ../administrador/ordenesNoInformadas.pug
+       if paciente
+        .row#rowOrdenes(class=formDataUsuario?"":"oculto") 
+         .col.my-5    
+           include ../administrador/formOrden.pug
+           - const estadosEditables=[1,2,3,4,5]
+           - const origen='putOrden'
+           include ../administrador/ordenesNoInformadas.pug
        
        .row.flex-column#rowListas(class=formDataUsuario?"oculto":"") 
         .col

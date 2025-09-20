@@ -1,17 +1,15 @@
 mixin tablaCategDet(form,tablaId)
  if !form 
-    .container.tablaCategDet2.text-center
+    .container.tablaCategDet2.text-start
      .row.cabecera 
       .col 
        h2= examen.nombre 
      //1ra row
      .row.cabecera.gy-4
-      .col.col-3 
+      .col.col-4 
        h2 Categoría
-      .col.col-4 
+      .col.col-7
        h2 Parámetros
-      .col.col-4 
-       h2 Determinaciones
       .col.col-1.flex-grow-0
        h2 #
 
@@ -20,29 +18,21 @@ mixin tablaCategDet(form,tablaId)
      each exCateg in exCategs
       .row.gy-4
        .col
-        form.row(action=`http://localhost:3000/tecBioq/categ/${exCateg.id}/${examen.id}?_method=put` method="POST"  )
-         //2da row
+        form.row(action=`http://localhost:3000/tecBioq/categ/${exCateg.Categoria.id}/${examen.id}?_method=put` method="POST"  )
+         //2da ro
         
          .row.gy-4
-          .col.col-3(title=exCateg.Categoria.nombre)
+          .col.col-4(title=exCateg.Categoria.nombre)
            input.formCategDet-input-1ro(disabled type="text" name="nombre" value=exCateg.Categoria.nombre autocomplete="off")
-           input.formCategDet-input-1ro(disabled type="text" name="nombre" value=exCateg.nombre autocomplete="off")
             
             
           //2da columna
-          .col.col-4
+          .col.col-7
            ul
-            each param in exCateg.ExCategParametros
-              li= param.Parametro.nombre
-                a(title="eliminar parámetro" role="button" href=`http://localhost:3000/tecBioq/${param?"categParamDelete":"categDetDelete"}/${param?param.Parametro.id:param.Determinacion.id}/${exCateg.id}/${examen.id}` 
-                 class="btn btn-close  btn-sm formCategDet-cruz")     
-          //3ra columna
-          .col.col-4
-           ul
-            each det in exCateg.ExCategDeterminacions
-              li= det.Determinacion.nombre
-                a(title="eliminar determinación" role="button" href=`http://localhost:3000/tecBioq/categDetDelete/${det.Determinacion.id}/${exCateg.id}/${examen.id}` 
-                 class="btn btn-close formCategDet-cruz btn-sm")  
+             each param in exCateg.Parametro4
+               li= param.nombre
+                 a(title="eliminar parámetro" role="button"  
+                  class="btn btn-close  btn-sm formCategDet-cruz") 
                       
           //cuarta columna   
           .col.col-1
@@ -72,12 +62,10 @@ mixin tablaCategDet(form,tablaId)
         h2= examen.nombre 
       //1ra row
       .row.cabecera
-       .col.col-3 
+       .col.col-4 
         h2 Categoría
-       .col.col-4 
+       .col.col-7 
         h2 Parámetros
-       .col.col-4 
-        h2 Determinaciones
        .col.col-1.flex-grow-0
         h2 #
        

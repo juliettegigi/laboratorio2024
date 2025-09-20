@@ -2,7 +2,7 @@ aside(class="col-auto  me-3" )
  nav(class="nav flex-column bg-light navLateral")
   ul(class="bd-links-nav list-unstyled")
    li(class="nav-item")
-    a.nav-link.btnEditar(href="#ancla1")
+    a.nav-link.btnEditar(href=`http://localhost:3000/tecBioq/editarDet/${determinacion.id}`)
      p Editar
      p determinación
    li(class="nav-item")
@@ -13,4 +13,3 @@ aside(class="col-auto  me-3" )
       p Editar
       p Valores de 
       p referencia
-script( type="module" src='/javascripts/tecBioq/menuLateral.js')

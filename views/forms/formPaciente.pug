@@ -40,7 +40,7 @@ mixin formPaciente(divFormPaciente,editar, oculto)
          .row                      
              .col        
                  .form-floating
-                     input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos && telefonos[0].numero) || ''}`)
+                     input(type="tel" class=`form-control ${errors && Object.hasOwn(errores, 'telefono')?'text-danger':''}` id="telefono"  name="telefono"  value=`${telefono || (telefonos.length>0 && telefonos[0].numero) || ''}`)
                      label(for="telefono") Teléfono                
          .row                      
              .col        

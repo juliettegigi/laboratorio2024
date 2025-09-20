@@ -8,7 +8,7 @@ const {
     Unidad,
     sequelize
 }=require('../models');
-const { Op } = require('sequelize');
+const { Op,Sequelize } = require('sequelize');
 const socketController = (socket) => {
 
 
@@ -73,16 +73,71 @@ const socketController = (socket) => {
 
 
     socket.on('buscarDeterminacion',async(termino,limit=5,offset=0,cb)=>{
-        try {  const { rows: determinaciones, count: total } 
-               = await Determinacion.findAndCountAll(
-                { where: { [Op.or]: [{ codigo: { [Op.like]: `%${termino}%` } },
-                                     { nombre: { [Op.like]: `%${termino}%` } },
-                                     { tags: { [Op.like]: `%${termino}%` } }
+        try {  
+            
+            
+             const exactMatchFirst = Sequelize.literal(`
+                                  CASE
+                                    WHEN LOWER(\`Parametro4\`.\`nombre\`) = LOWER('${termino}') THEN 0
+                                    WHEN LOWER(\`determinacion\`.\`codigo\`) = LOWER('${termino}') THEN 0
+                                    WHEN LOWER(\`determinacion\`.\`tags\`) = LOWER('${termino}') THEN 0
+                                    ELSE 1
+                                  END
+                                `);
+                    const orderByLikeMatch = Sequelize.literal(`
+                                  CASE
+                                    WHEN  \`Parametro4\`.\`nombre\` LIKE '%${termino}%' THEN 0
+                                    WHEN \`determinacion\`.\`codigo\` LIKE '%${termino}%' THEN 0
+                                    WHEN \`determinacion\`.\`tags\` LIKE '%${termino}%' THEN 0
+                                    ELSE 1
+                                  END
+                                `);            
+                  const orderByDistance = Sequelize.literal(`
+                            LEAST(
+                              levenshtein(LOWER(\`Parametro4\`.\`nombre\`), LOWER('${termino}')),
+                              levenshtein(LOWER(\`determinacion\`.\`codigo\`), LOWER('${termino}')),
+                              levenshtein(LOWER(\`determinacion\`.\`tags\`), LOWER('${termino}'))
+                            )
+                          `);
+            
+            const { rows: determinaciones, count: total } 
+               = await Determinacion.findAndCountAll({
+                include: [
+                      {
+                        model: Parametro, // nombre del modelo asociado
+                        as: 'Parametro4',
+                        where: { [Op.or]: [ 
+                         { nombre: { [Op.like]: `%${termino}%` }},
+                          Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('nombre'), termino),
+                                                                    { [Op.lte]: 6 }
+                                                                  )
+                        ]
+                        },
+                      }
+                    ],
+                 where: { [Op.or]: [{ codigo: { [Op.like]: `%${termino}%` } },
+                                    { tags: { [Op.like]: `%${termino}%` } },
+                                     Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('codigo'), termino),
+                                                                              { [Op.lte]: 6 }
+                                                                           ),
+                                     Sequelize.where(  Sequelize.fn('levenshtein', Sequelize.col('tags'), termino),
+                                                                              { [Op.lte]: 6 }
+                                                                           )
                                    ]
                          },
+                order: [
+                   [exactMatchFirst, 'ASC'],
+                   [orderByLikeMatch, 'ASC'],
+                   [orderByDistance, 'ASC'],
+                   [Sequelize.col('Parametro4.nombre'), 'ASC'],
+                   ['codigo', 'ASC'],
+                   ['tags', 'ASC'],
+                 ],
                 limit: limit,
                 offset: offset
                 });
+                console.log("---------------------*********************************")
+                console.log(determinaciones)
               cb(determinaciones,total);
            }
         catch(err){

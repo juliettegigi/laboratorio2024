@@ -18,26 +18,13 @@ const divAddDeterminacion=document.querySelector(".addDeterminacion");
 
 
 
-/*  no va estooo, esto es un comentario
-div.form-div 
-     div
-      label(for="laboratorioQueLoRealiza") Laboratorio que lo realiza 
-     div 
-      input(type="text" 
-            id="laboratorioQueLoRealiza" 
-            name="laboratorioQueLoRealiza"
-            autocomplete="off") */
+
  const crearDiv=(clase,...params)=>{
     const div= document.createElement('div');
     div.classList.add(clase);
     params.forEach(elem=>div.appendChild(elem))
 }
-/* const mostrarTabla=(evento,i)=>{
-     cruz.classList.remove('hidden');
-     tablaDiv.classList.remove('hidden');
-     divMostrarTabla[0].style="visibility: hidden;";
-
-}  */           
+       
 
 const crearInput=(name,placeholder,isHidden)=>{
     const categoriaInput=document.createElement('input');
@@ -164,19 +151,7 @@ const crearRow=()=>{
 
 
 
-//divMostrarTabla[0].addEventListener('click',e=>mostrarTabla(e,0))
 
-/* cruz.addEventListener('click',(evento)=>{
-    tablaDiv.classList.add('hidden')
-    divMostrarTabla[0].style="visibility: visible;";
-    const trs=tBody[0].querySelectorAll('tr');
-
-    trs.forEach((tr,index)=>{
-           if(index!=0)
-            tr.remove()
-    })
-}
-) */
 
 
 const eventoAddRow=(event)=>{
@@ -310,7 +285,6 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
 
   btnEditCategDet.forEach((btn,index)=>{
     btn.addEventListener('click',function(){
-                              console.log("pero cheee")
                                const rowDelBtn=btn.closest(".row")
                                const input= rowDelBtn.querySelector('.formCategDet-input-1ro');
                                if(input.disabled)
@@ -334,12 +308,11 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
   
 
   const agregarRows=(rowDelBtn)=>{
-    console.log("aloja")
     const div1=document.createElement('div');
                                 div1.classList.add('row');
                                 div1.innerHTML=`
-                                      <div class="col"></div>
-                                      <div class="col"> 
+                                      <div class="col col-4"></div>
+                                      <div class="col col-7"> 
                                         <div class="row">
                                            
                                            <div class="col-xxl-12">
@@ -354,21 +327,7 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
                                                <ul class="listaParametrosSeleccionados"></ul>
                                            </div>
                                         </div>
-                                      </div>
-                                        
-                                      <div class="col">
-                                         <div class="row">
-                                             <div class="col-xxl-12">
-                                                   <input type="text" name="determinaciones" placeholder="agregar determinación" autocomplete="off">
-                                                   <div class="divInputLista">
-                                                      <ul class="listaDeterminaciones "></ul>
-                                                    </div>
-                                             </div>
-                                             <div class="col-xxl-12">
-                                                   <ul class="listaDeterminacionesSeleccionadas divListaSeleccionados"></ul>
-                                             </div> 
-                                         </div>               
-                                      </div>      
+                                      </div>     
                                       
                                       <div class="col col-1"></div>
                                 `
@@ -383,20 +342,14 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
                                       </div>
                                 `
 const inputs=div1.getElementsByTagName('input');
-const listaDeterminaciones=div1.querySelector(`.listaDeterminaciones`);
 const listaParametros=div1.querySelector(`.listaParametros`);
 const listaParametrosSeleccionados=div1.querySelector(`.listaParametrosSeleccionados`);
-const listaDeterminacionesSeleccionadas=div1.querySelector(`.listaDeterminacionesSeleccionadas`);
 const liTextCbParametros=elem=>`${elem.nombre}`
-const liTextCbDeterminaciones=elem=>`${elem.codigo}-${elem.nombre}`
- const eventoBuscarDeterminacion='buscarDeterminacion'
         const eventoBuscarParametro='buscarParametro'
-console.log("LISTAA ",inputs[1])
 rowDelBtn.parentNode.insertBefore(div2, rowDelBtn.nextElementSibling);
 rowDelBtn.parentNode.insertBefore(div1, rowDelBtn.nextElementSibling);  
-const input1=new InputDataList(inputs[1],listaDeterminaciones,eventoBuscarDeterminacion,liTextCbDeterminaciones,LIMIT,OFFSET,"",`det`,listaDeterminacionesSeleccionadas);
 const  input2=new InputDataList(inputs[0],listaParametros,eventoBuscarParametro,liTextCbParametros,LIMIT,OFFSET,"",`param`,listaParametrosSeleccionados);      
-input1.inicializarInput()
+
 input2.inicializarInput()
                               
 
