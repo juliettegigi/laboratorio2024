@@ -65,3 +65,26 @@ a.btn.formCategDet-cruz{
   display:flex;
   flex-wrap: nowrap;
 }
+
+
+.inputParametro{
+  padding: 0;
+}
+
+.category-row {
+  border-bottom: 1px solid #e6e6e6;
+  background: transparent;     /* si usás fondo .tablaCategDet2 lo mantiene */
+}
+
+
+/* botón guardar (si lo muestras dentro de la columna parámetros) */
+.btnGuardarCambios, .btn-guardar {
+  display:inline-block;
+  padding: 8px 14px;
+  margin-top: 12px;
+  border: 2px solid #222;
+  background: #fff;
+  cursor: pointer;
+}
+
+

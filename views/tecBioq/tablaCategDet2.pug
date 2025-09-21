@@ -18,7 +18,7 @@ mixin tablaCategDet(form,tablaId)
      each exCateg in exCategs
       .row.gy-4
        .col
-        form.row(action=`http://localhost:3000/tecBioq/categ/${exCateg.Categoria.id}/${examen.id}?_method=put` method="POST"  )
+        form.row.category-row(action=`http://localhost:3000/tecBioq/categ/${exCateg.Categoria.id}/${examen.id}?_method=put` method="POST"  )
          //2da ro
         
          .row.gy-4
@@ -27,15 +27,18 @@ mixin tablaCategDet(form,tablaId)
             
             
           //2da columna
-          .col.col-7
-           ul
-             each param in exCateg.Parametro4
-               li= param.nombre
-                 a(title="eliminar parámetro" role="button"  
-                  class="btn btn-close  btn-sm formCategDet-cruz") 
+          .col.col-7.columnaParametros.params-col
+           if exCateg.Parametro4.length>0
+            .row
+             .col
+              ul
+                each param in exCateg.Parametro4
+                  li= param.nombre
+                    a(title="eliminar parámetro" role="button"  
+                     class="btn btn-close  btn-sm formCategDet-cruz") 
                       
           //cuarta columna   
-          .col.col-1
+          .col.col-1.icons-col
            .row-flex-column
             .col
              a(title="eliminar categoría" href=`http://localhost:3000/tecBioq/categ/${examen.id}/${exCateg.id}`)

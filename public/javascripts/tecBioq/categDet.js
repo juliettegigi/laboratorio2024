@@ -311,25 +311,24 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
     const div1=document.createElement('div');
                                 div1.classList.add('row');
                                 div1.innerHTML=`
-                                      <div class="col col-4"></div>
-                                      <div class="col col-7"> 
+                                  <div class="col">  
                                         <div class="row">
                                            
-                                           <div class="col-xxl-12">
-                                               <input type="text" name="parametros" placeholder="Agregar parámetro" autocomplete="off">
+                                           <div class="col p-0">
+                                               <input type="text" class="inputParametro" name="parametros" placeholder="Agregar parámetro" autocomplete="off">
                                            </div>    
-                                           
-                                           <div class="col-xxl-12 divInputLista">
+                                        </div>
+                                        <div class="row">   
+                                           <div class="col divInputLista">
                                                <ul class="listaParametros"></ul>
                                            </div>
-                                
-                                           <div class="col-xxl-12 divListaSeleccionados">
+                                        </div>
+                                        <div class="row">
+                                           <div class="col divListaSeleccionados">
                                                <ul class="listaParametrosSeleccionados"></ul>
                                            </div>
                                         </div>
-                                      </div>     
-                                      
-                                      <div class="col col-1"></div>
+                                   </div>   
                                 `
                                
                                 const div2=document.createElement('div');
@@ -342,12 +341,13 @@ btnAddRow[0].addEventListener('click',eventoAddRow)
                                       </div>
                                 `
 const inputs=div1.getElementsByTagName('input');
+const columnaParametro=rowDelBtn.querySelector('.columnaParametros')
+columnaParametro.appendChild(div1)
 const listaParametros=div1.querySelector(`.listaParametros`);
 const listaParametrosSeleccionados=div1.querySelector(`.listaParametrosSeleccionados`);
 const liTextCbParametros=elem=>`${elem.nombre}`
         const eventoBuscarParametro='buscarParametro'
 rowDelBtn.parentNode.insertBefore(div2, rowDelBtn.nextElementSibling);
-rowDelBtn.parentNode.insertBefore(div1, rowDelBtn.nextElementSibling);  
 const  input2=new InputDataList(inputs[0],listaParametros,eventoBuscarParametro,liTextCbParametros,LIMIT,OFFSET,"",`param`,listaParametrosSeleccionados);      
 
 input2.inicializarInput()
